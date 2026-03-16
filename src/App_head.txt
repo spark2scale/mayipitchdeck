@@ -1,0 +1,64 @@
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  PhoneCall, Clock, Layers, FileText, MessageSquare, Database,
+  DollarSign, TrendingUp, Users, Shield, Brain,
+  Stethoscope, Activity, ChevronRight, ChevronLeft,
+  Eye, Heart, Smile, Weight, Baby, Footprints,
+  Zap, Target, BarChart3, Lock, Cpu, ArrowRight,
+  CheckCircle, XCircle, Play,
+} from "lucide-react";
+
+const SLIDES = [
+  "Cover", "Problem", "Invisible Loss", "The Engine",
+  "Capture · Connect · Convert", "Business Impact",
+  "Market", "Why May I Wins", "Defensibility", "Vision",
+];
+
+const slideVariants = {
+  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 80 : -80 }),
+  center: { opacity: 1, x: 0 },
+  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -80 : 80 }),
+};
+
+const stagger = { show: { transition: { staggerChildren: 0.08 } } };
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
+};
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs uppercase tracking-[0.28em] text-[var(--mi-muted)] mb-3">
+      {children}
+    </p>
+  );
+}
+
+function SlideTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.0] tracking-tight text-white">
+      {children}
+    </h2>
+  );
+}
+
+function GlassCard({ children, className = "", gold = false }: {
+  children: React.ReactNode; className?: string; gold?: boolean;
+}) {
+  return (
+    <div className={`border bg-[var(--mi-surface)]/50 backdrop-blur rounded-sm shadow-xl ${
+      gold ? "border-[var(--mi-primary)] shadow-[0_0_40px_rgba(144,99,35,0.18)]" : "border-[var(--mi-border)]"
+    } ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function IconBox({ icon: Icon, size = 28 }: { icon: React.ElementType; size?: number }) {
+  return (
+    <div className="flex items-center justify-center w-12 h-12 rounded-sm bg-[var(--mi-primary)]/15 border border-[var(--mi-primary)]/30 shrink-0">
+      <Icon size={size} className="text-[var(--mi-copper)]" />
+    </div>
+  );
+}
