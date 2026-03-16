@@ -7,11 +7,13 @@ import {
   Brain, Activity, GitMerge,
   ChevronRight, ChevronLeft,
   Stethoscope, Eye, Smile, Sparkles as SparklesIcon, Baby,
-  BarChart3, Target, Rocket,
+  Target, Rocket,
   Phone, MessageSquare, Globe, Share2,
-  Calendar, CreditCard, FileCheck,
+  Calendar, FileCheck,
   CheckCircle2, XCircle,
-  ArrowRight,
+  ArrowRight, ScanText, BotMessageSquare, UserRound,
+  FileSearch, MailCheck, Workflow,
+  PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -21,7 +23,9 @@ const SLIDES = [
   "problem",
   "loss",
   "engine",
-  "capture-connect-convert",
+  "capture-detail",
+  "connect-detail",
+  "convert-detail",
   "roi",
   "market",
   "why-wins",
@@ -133,7 +137,9 @@ export default function App() {
             {slideId === "problem" && <SlideProblem />}
             {slideId === "loss" && <SlideLoss />}
             {slideId === "engine" && <SlideEngine />}
-            {slideId === "capture-connect-convert" && <SlideCCC />}
+            {slideId === "capture-detail" && <SlideCaptureDetail />}
+            {slideId === "connect-detail" && <SlideConnectDetail />}
+            {slideId === "convert-detail" && <SlideConvertDetail />}
             {slideId === "roi" && <SlideROI />}
             {slideId === "market" && <SlideMarket />}
             {slideId === "why-wins" && <SlideWhyWins />}
@@ -409,199 +415,260 @@ function SlideLoss() {
 // ─── Slide 4: Engine overview ─────────────────────────────────────────────────
 
 function SlideEngine() {
-  return (
-    <div className="slide slide-content">
-      <SlideHeader
-        eyebrow="What May I Is Building"
-        title="More than an AI receptionist."
-      />
-      <div className="engine-grid">
-        <motion.div
-          className="engine-diagram"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Inputs column */}
-          <div className="engine-col">
-            <div className="engine-col-label">Inputs</div>
-            {[
-              { icon: <Phone size={14} />, text: "Inbound calls" },
-              { icon: <MessageSquare size={14} />, text: "SMS / text" },
-              { icon: <Globe size={14} />, text: "Web chat" },
-              { icon: <Share2 size={14} />, text: "Social leads" },
-              { icon: <FileCheck size={14} />, text: "Referrals / OCR" },
-            ].map(({ icon, text }) => (
-              <div key={text} className="engine-chip">
-                {icon}
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Core engine */}
-          <div className="engine-core">
-            <div className="engine-core-label">May I Engine</div>
-            <div className="engine-core-tagline">
-              AI comms · CRM memory · workflow automation
-            </div>
-            <div className="engine-core-items">
-              {[
-                { icon: <Mic size={16} />, text: "Agentic voice + text" },
-                { icon: <Database size={16} />, text: "CRM as memory layer" },
-                { icon: <Calendar size={16} />, text: "Workflow execution" },
-                { icon: <CreditCard size={16} />, text: "Revenue realization" },
-              ].map(({ icon, text }) => (
-                <div key={text} className="engine-core-item">
-                  {icon}
-                  <span>{text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Outputs column */}
-          <div className="engine-col">
-            <div className="engine-col-label">Outcomes</div>
-            {[
-              { icon: <Calendar size={14} />, text: "Booked consults" },
-              { icon: <FileCheck size={14} />, text: "Pre-auth progress" },
-              { icon: <RefreshCw size={14} />, text: "Recalls" },
-              { icon: <CreditCard size={14} />, text: "Collections" },
-              { icon: <BarChart3 size={14} />, text: "Revenue attribution" },
-            ].map(({ icon, text }) => (
-              <div key={text} className="engine-chip engine-chip-out">
-                {icon}
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="engine-description"
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-        >
-          <motion.p variants={fadeUp} className="engine-desc-text">
-            May I is the <strong>system of engagement</strong> — sitting
-            between patients and practices, owning the conversion layer while
-            EMR/PMS remains the system of record.
-          </motion.p>
-          <motion.div variants={fadeUp} className="engine-pillars">
-            {[
-              {
-                icon: <Mic size={20} />,
-                title: "AI Communications",
-                text: "Voice, text, web — always on, always responsive",
-              },
-              {
-                icon: <Database size={20} />,
-                title: "CRM Memory",
-                text: "Patient intent, history, and context — unified",
-              },
-              {
-                icon: <GitMerge size={20} />,
-                title: "Workflow Automation",
-                text: "Intake, scheduling, pre-auth, billing — orchestrated",
-              },
-            ].map(({ icon, title, text }) => (
-              <div key={title} className="engine-pillar">
-                <div className="engine-pillar-icon">{icon}</div>
-                <div>
-                  <div className="engine-pillar-title">{title}</div>
-                  <div className="engine-pillar-text">{text}</div>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        </motion.div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Slide 5: Capture → Connect → Convert ────────────────────────────────────
-
-function SlideCCC() {
-  const pillars = [
-    {
-      step: "01",
-      label: "Capture",
-      icon: <Mic size={40} />,
-      color: "var(--mi-copper)",
-      headline: "Always-on front door",
-      items: [
-        "Voice & SMS intake 24/7",
-        "Web chat + social leads",
-        "Referrals & OCR documents",
-        "After-hours coverage",
-      ],
-    },
-    {
-      step: "02",
-      label: "Connect",
-      icon: <Database size={40} />,
-      color: "var(--mi-muted)",
-      headline: "CRM-powered intelligence",
-      items: [
-        "Unified patient memory",
-        "Intent & sentiment modeling",
-        "Staff handoff orchestration",
-        "EMR/PMS integration",
-      ],
-    },
-    {
-      step: "03",
-      label: "Convert",
-      icon: <TrendingUp size={40} />,
-      color: "#5fcf8a",
-      headline: "Revenue loop closed",
-      items: [
-        "Appointment scheduling",
-        "Pre-auth & eligibility",
-        "Payment prompts & collections",
-        "Lifecycle recalls",
-      ],
-    },
+  const captureOutcomes = [
+    { icon: <Calendar size={13} />, text: "Booked consults" },
+    { icon: <ScanText size={13} />, text: "OCR intake" },
+    { icon: <UserRound size={13} />, text: "Personalization" },
+  ];
+  const connectOutcomes = [
+    { icon: <Globe size={13} />, text: "Payer portal submission" },
+    { icon: <MailCheck size={13} />, text: "Pre-auth reconciliation" },
+    { icon: <Workflow size={13} />, text: "CRM pipelines" },
+  ];
+  const convertOutcomes = [
+    { icon: <PhoneOutgoing size={13} />, text: "Patient recalls" },
+    { icon: <FileCheck size={13} />, text: "Surgery coordination" },
+    { icon: <Banknote size={13} />, text: "Collections" },
   ];
 
   return (
     <div className="slide slide-content">
       <SlideHeader
         eyebrow="The May I System"
-        title="Capture → Connect → Convert."
+        title="Capture → Connect → Convert"
       />
+      <motion.p
+        className="engine-subtitle"
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+      >
+        May I is the <strong>system of engagement</strong> — sitting between
+        patients and practices, owning the conversion layer while EMR/PMS
+        remains the system of record.
+      </motion.p>
       <motion.div
-        className="ccc-grid"
+        className="engine-diagram"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
+        {/* Inputs column */}
+        <div className="engine-col">
+          {[
+            { icon: <Phone size={14} />, text: "Inbound calls" },
+            { icon: <MessageSquare size={14} />, text: "SMS / text" },
+            { icon: <Globe size={14} />, text: "Web chat" },
+            { icon: <Share2 size={14} />, text: "Social leads" },
+            { icon: <FileCheck size={14} />, text: "Referrals / OCR" },
+          ].map(({ icon, text }) => (
+            <div key={text} className="engine-chip">
+              {icon}
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Core engine with flanking labels */}
+        <div className="engine-core-wrap">
+          <div className="engine-side-label">Inputs</div>
+          <div className="engine-core">
+          <div className="engine-core-label">May I Engine</div>
+          <div className="engine-core-tagline">
+            AI comms · CRM memory · workflow automation
+          </div>
+          <div className="engine-core-items">
+            {[
+              { icon: <Mic size={16} />, text: "Agentic voice + text" },
+              { icon: <Database size={16} />, text: "CRM as memory layer" },
+              { icon: <Calendar size={16} />, text: "AI Web Agents" },
+            ].map(({ icon, text }) => (
+              <div key={text} className="engine-core-item">
+                {icon}
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
+          </div>
+          <div className="engine-side-label">Outcomes</div>
+        </div>
+
+        {/* Outcomes column — grouped by Capture / Connect / Convert */}
+        <div className="engine-col">
+          <div className="engine-group">
+            <div className="engine-group-label engine-group-capture">Capture</div>
+            {captureOutcomes.map(({ icon, text }) => (
+              <div key={text} className="engine-chip engine-chip-out engine-chip-capture">{icon}<span>{text}</span></div>
+            ))}
+          </div>
+          <div className="engine-group">
+            <div className="engine-group-label engine-group-connect">Connect</div>
+            {connectOutcomes.map(({ icon, text }) => (
+              <div key={text} className="engine-chip engine-chip-out engine-chip-connect">{icon}<span>{text}</span></div>
+            ))}
+          </div>
+          <div className="engine-group">
+            <div className="engine-group-label engine-group-convert">Convert</div>
+            {convertOutcomes.map(({ icon, text }) => (
+              <div key={text} className="engine-chip engine-chip-out engine-chip-convert">{icon}<span>{text}</span></div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Slide 5: CCC Overview (circular diagram) ────────────────────────────────
+
+// ─── Slide 6a: Capture detail ─────────────────────────────────────────────────
+
+function SlideCaptureDetail() {
+  const cards = [
+    {
+      icon: <BotMessageSquare size={20} />,
+      title: "AI Comms",
+      text: "AI answers patient calls and texts, captures demographic and insurance information, negotiates availability, and schedules consultations in the EMR/PMS.",
+      shade: "card-mint",
+    },
+    {
+      icon: <ScanText size={20} />,
+      title: "AI Object Character Recognition",
+      text: "AI extracts patient demographic and insurance information from faxes and documents and schedules consultations in the EMR/PMS.",
+      shade: "card-forest",
+    },
+    {
+      icon: <UserRound size={20} />,
+      title: "Personalization",
+      text: "All customer conversations and future intent are captured in the CRM. This data is used to personalize patient engagement at every touchpoint.",
+      shade: "card-olive",
+    },
+  ];
+
+  return (
+    <div className="slide slide-detail">
+      <div className="detail-left">
+        <div className="detail-eyebrow">Capture</div>
+        <div className="detail-friction">
+          Front office personnel spend{" "}
+          <span className="detail-pct">30%</span> of their time manually
+          capturing patient information and scheduling appointments.
+        </div>
+      </div>
+      <motion.div
+        className="detail-right"
         variants={stagger}
         initial="hidden"
         animate="show"
       >
-        {pillars.map(({ step, label, icon, color, headline, items }) => (
-          <motion.div key={label} variants={fadeUp} className="ccc-pillar">
-            <div className="ccc-pillar-step" style={{ color }}>
-              {step}
-            </div>
-            <div className="ccc-pillar-icon" style={{ color }}>
-              {icon}
-            </div>
-            <div className="ccc-pillar-label" style={{ color }}>
-              {label}
-            </div>
-            <div className="ccc-pillar-headline">{headline}</div>
-            <ul className="ccc-pillar-items">
-              {items.map((item) => (
-                <li key={item} className="ccc-pillar-item">
-                  <CheckCircle2
-                    size={14}
-                    style={{ color, flexShrink: 0 }}
-                  />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+        {cards.map(({ icon, title, text, shade }) => (
+          <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
+            <div className="detail-card-title">{icon}{title}</div>
+            <div className="detail-card-text">{text}</div>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Slide 6b: Connect detail ─────────────────────────────────────────────────
+
+function SlideConnectDetail() {
+  const cards = [
+    {
+      icon: <FileSearch size={20} />,
+      title: "AI submits patient data in payer portals",
+      text: "AI navigates payer portals, enters patient data, and triggers insurance pre-authorization automatically.",
+      shade: "card-mint",
+    },
+    {
+      icon: <MailCheck size={20} />,
+      title: "AI analyzes emails to reconcile pre-auth",
+      text: "Responses that arrive via email are reconciled, resubmitted, or flagged — without staff involvement.",
+      shade: "card-forest",
+    },
+    {
+      icon: <Workflow size={20} />,
+      title: "Agentic CRM automates pipelines",
+      text: "Inputs, agentic operations, and outputs are defined for each stage in the CRM and automatically moved to the next stage until complete.",
+      shade: "card-olive",
+    },
+  ];
+
+  return (
+    <div className="slide slide-detail">
+      <div className="detail-left">
+        <div className="detail-eyebrow">Connect</div>
+        <div className="detail-friction">
+          Front office personnel spend{" "}
+          <span className="detail-pct">20%</span> of their time manually
+          entering data into payer portals, and emailing or calling payers
+          to verify insurance.
+        </div>
+      </div>
+      <motion.div
+        className="detail-right"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        {cards.map(({ icon, title, text, shade }) => (
+          <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
+            <div className="detail-card-title">{icon}{title}</div>
+            <div className="detail-card-text">{text}</div>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Slide 6c: Convert detail ─────────────────────────────────────────────────
+
+function SlideConvertDetail() {
+  const cards = [
+    {
+      icon: <PhoneOutgoing size={20} />,
+      title: "Patient Recall Automation",
+      text: "AI identifies patients due for follow-ups and automatically initiates call or text outreach based on last visit date and procedure history.",
+      shade: "card-mint",
+    },
+    {
+      icon: <SurgeryIcon size={20} />,
+      title: "Procedure & Surgery Coordination",
+      text: "AI coordinates procedure scheduling across clinics and surgery centers. Automatically confirms availability and manages paperwork.",
+      shade: "card-forest",
+    },
+    {
+      icon: <Banknote size={20} />,
+      title: "Intelligent Collections",
+      text: "AI agents follow up on outstanding balances through personalized calls and texts. Improves collection rates and reduces days in A/R.",
+      shade: "card-olive",
+    },
+  ];
+
+  return (
+    <div className="slide slide-detail">
+      <div className="detail-left">
+        <div className="detail-eyebrow">Convert</div>
+        <div className="detail-friction">
+          Front desk personnel spend{" "}
+          <span className="detail-pct">10%</span> of their time making
+          outbound calls for patient recalls, scheduling surgeries, or
+          billing.
+        </div>
+      </div>
+      <motion.div
+        className="detail-right"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        {cards.map(({ icon, title, text, shade }) => (
+          <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
+            <div className="detail-card-title">{icon}{title}</div>
+            <div className="detail-card-text">{text}</div>
           </motion.div>
         ))}
       </motion.div>
