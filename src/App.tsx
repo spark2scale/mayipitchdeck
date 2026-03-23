@@ -92,9 +92,34 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [next, prev]);
 
+  // Touch swipe navigation
+  useEffect(() => {
+    let startX = 0;
+    let startY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      const dx = startX - e.changedTouches[0].clientX;
+      const dy = startY - e.changedTouches[0].clientY;
+      // Only trigger on primarily horizontal swipes
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+        dx > 0 ? next() : prev();
+      }
+    };
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [next, prev]);
+
   const slideId = SLIDES[current];
 
   return (
+    <>
     <div className="deck-root">
       {/* Ambient background blobs */}
       <div className="deck-bg">
@@ -192,6 +217,29 @@ export default function App() {
         </button>
       </footer>
     </div>
+
+    {/* Print-only deck: all slides rendered simultaneously, one per page */}
+    <div className="print-deck" aria-hidden="true">
+      {SLIDES.map((id) => (
+        <div key={id} className="print-slide">
+          {id === "hero" && <SlideHero goTo={() => {}} />}
+          {id === "founder" && <SlideFounder />}
+          {id === "problem" && <SlideProblem />}
+          {id === "loss" && <SlideLoss />}
+          {id === "engine" && <SlideEngine />}
+          {id === "capture-detail" && <SlideCaptureDetail />}
+          {id === "connect-detail" && <SlideConnectDetail />}
+          {id === "convert-detail" && <SlideConvertDetail />}
+          {id === "roi" && <SlideROI />}
+          {id === "why-wins" && <SlideWhyWins />}
+          {id === "path" && <SlidePath />}
+          {id === "moats" && <SlideMoats />}
+          {id === "vision" && <SlideVision />}
+          {id === "appendix" && <SlideAppendix />}
+        </div>
+      ))}
+    </div>
+    </>
   );
 }
 
@@ -302,14 +350,14 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
           <div className="hero-card">
             <div className="hero-card-label">Revenue Integrity Engine</div>
             <div className="flow-rows">
-              {[
-                ["Demand in",  "Calls · Texts · Web · Social · Referrals"],
-              ].map(([k, v]) => (
-                <div key={k} className="flow-row">
-                  <span className="flow-key">{k}</span>
-                  <span className="flow-val">{v}</span>
-                </div>
-              ))}
+              <div className="flow-row">
+                <span className="flow-key">Demand in</span>
+                <span className="flow-val">
+                  {"Calls · Texts · "}
+                  <span className="hide-mobile">{"Web · "}</span>
+                  {"Social · Referrals"}
+                </span>
+              </div>
             </div>
             <div className="hero-engine-box">
               <div className="hero-engine-box-header">
@@ -355,7 +403,7 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
                 return [
                   <motion.button key={`ll-${left.num}`} variants={fadeUp} className="agenda-chip-label" onClick={() => goTo(left.slide)}>{left.label}</motion.button>,
                   <motion.span   key={`ln-${left.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(left.slide)}>{left.num}</motion.span>,
-                  <motion.button key={`rl-${right.num}`} variants={fadeUp} className="agenda-chip-label agenda-chip-label--right" onClick={() => goTo(right.slide)}>{right.label}</motion.button>,
+                  <motion.button key={`rl-${right.num}`} variants={fadeUp} className={`agenda-chip-label agenda-chip-label--right${right.num === "14" ? " agenda-item-appendix" : ""}`} onClick={() => goTo(right.slide)}>{right.label}</motion.button>,
                   <motion.span   key={`rn-${right.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(right.slide)}>{right.num}</motion.span>,
                 ];
               })}
@@ -554,7 +602,7 @@ function SlideEngine() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         {/* Inputs column */}
-        <div className="engine-col">
+        <div className="engine-col engine-col-inputs">
           {[
             { icon: <Phone size={16} />, text: "Inbound calls" },
             { icon: <MessageSquare size={16} />, text: "SMS / text" },
@@ -571,8 +619,8 @@ function SlideEngine() {
         </div>
 
         {/* Core engine with flanking labels */}
-        <div className="engine-core-wrap">
-          <div className="engine-side-label">Inputs</div>
+        <div className="engine-core-wrap engine-col-core">
+          <div className="engine-side-label engine-side-label-inputs">Inputs</div>
           <div className="engine-core">
           <div className="engine-core-header">
             <img src="/MayILogoTransparentBack.gif" alt="May I" className="engine-core-logo" />
@@ -594,11 +642,11 @@ function SlideEngine() {
             ))}
           </div>
           </div>
-          <div className="engine-side-label">Outcomes</div>
+          <div className="engine-side-label engine-side-label-outcomes">Outcomes</div>
         </div>
 
         {/* Outcomes column — grouped by Capture / Connect / Convert */}
-        <div className="engine-col">
+        <div className="engine-col engine-col-outcomes">
           <div className="engine-group">
             <div className="engine-group-label engine-group-capture">Capture</div>
             {captureOutcomes.map(({ icon, text }) => (
