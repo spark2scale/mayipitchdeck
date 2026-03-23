@@ -312,30 +312,30 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
               ))}
             </div>
             <div className="hero-engine-box">
-              <div className="hero-engine-box-label">May I Engine</div>
-              <div className="hero-engine-box-tagline">System of Engagement</div>
-              <div className="hero-engine-core">
-                {[
-                  { icon: <BotMessageSquare size={22} />, text: "Agentic Voice + Text + Vision" },
-                  { icon: <Brain size={22} />, text: "Agentic CRM Orchestrator & Memory" },
-                  { icon: <MousePointerClick size={22} />, text: "Agentic Computer Use" },
-                ].map(({ icon, text }) => (
-                  <div key={text} className="hero-engine-item">
-                    {icon}
-                    <span>{text}</span>
-                  </div>
-                ))}
+              <div className="hero-engine-box-header">
+                <img src="/MayILogoTransparentBack.gif" alt="May I" className="hero-engine-logo" />
+                <div>
+                  <div className="hero-engine-box-label">May I Engine</div>
+                  <div className="hero-engine-box-tagline">System of Engagement</div>
+                </div>
               </div>
             </div>
             <div className="flow-rows">
-              {[
-                ["Revenue out","Booked consults · Insurance Pre-Auth · Collections"],
-              ].map(([k, v]) => (
-                <div key={k} className="flow-row">
-                  <span className="flow-key">{k}</span>
-                  <span className="flow-val">{v}</span>
-                </div>
-              ))}
+              <div className="flow-row">
+                <span className="flow-key">Revenue out</span>
+                <span className="flow-val hero-ccc-row">
+                  {[
+                    { label: "Capture", color: CCC_COLORS.capture },
+                    { label: "Connect", color: CCC_COLORS.connect },
+                    { label: "Convert", color: CCC_COLORS.convert },
+                  ].map(({ label, color }, i) => (
+                    <>
+                      <span key={label} className="hero-ccc-label" style={{ color }}>{label}</span>
+                      {i < 2 && <ArrowRight key={`arr-${i}`} size={14} className="hero-ccc-arrow" />}
+                    </>
+                  ))}
+                </span>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -506,13 +506,6 @@ function SlideLoss() {
               of first-time inquiries never receive a timely callback
             </div>
           </div>
-          <div className="loss-message">
-            <Shield size={20} style={{ color: "var(--mi-copper)", flexShrink: 0 }} />
-            <span>
-              May I frames this as <strong>revenue integrity</strong> — stop
-              the leak before chasing growth.
-            </span>
-          </div>
         </motion.div>
       </div>
     </div>
@@ -581,9 +574,12 @@ function SlideEngine() {
         <div className="engine-core-wrap">
           <div className="engine-side-label">Inputs</div>
           <div className="engine-core">
-          <div className="engine-core-label">May I Engine</div>
-          <div className="engine-core-tagline">
-            System of Engagement
+          <div className="engine-core-header">
+            <img src="/MayILogoTransparentBack.gif" alt="May I" className="engine-core-logo" />
+            <div>
+              <div className="engine-core-label">May I Engine</div>
+              <div className="engine-core-tagline">System of Engagement</div>
+            </div>
           </div>
           <div className="engine-core-items">
             {[
@@ -837,22 +833,6 @@ function SlideROI() {
             <div className="roi-label">{label}</div>
           </motion.div>
         ))}
-      </motion.div>
-      <motion.div
-        className="roi-footer"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <Target
-          size={18}
-          style={{ color: "var(--mi-copper)", flexShrink: 0 }}
-        />
-        <span>
-          The wedge is operational relief. The investor story is direct revenue
-          recovery and better monetization of demand practices already paid to
-          generate.
-        </span>
       </motion.div>
     </div>
   );
@@ -1144,7 +1124,7 @@ function SlideVision() {
       num: "02",
       phase: "Tomorrow",
       icon: <GitMerge size={32} />,
-      headline: "Own the workflow",
+      headline: "Own the workflow, capture the data",
       text: "Insurance Pre-auth, Billing, Patient recalls — orchestrated by May I across the full patient journey.",
       color: "#a78bfa",
     },
@@ -1152,7 +1132,7 @@ function SlideVision() {
       num: "03",
       phase: "Future",
       icon: <Rocket size={32} />,
-      headline: "Intelligent operating layer",
+      headline: "Predict and action on the data",
       text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes indispensable infrastructure.",
       color: "#5fcf8a",
     },
