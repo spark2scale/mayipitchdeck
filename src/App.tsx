@@ -6,7 +6,7 @@ import {
   DollarSign, Users, Zap, Shield,
   Brain, GitMerge,
   ChevronRight, ChevronLeft,
-  Target, Rocket,
+  Rocket,
   Phone, MessageSquare, Globe, Share2,
   Calendar, FileCheck,
   CheckCircle2, XCircle,
@@ -1505,69 +1505,6 @@ const APX_ROWS = [
   { cat: "Primary Care",    prac: "~133,000", pract: "~502,000",  atv: "$200",    trans: "~5,500",         tam: "~$280B",  sam: "$1.43B",  pri: 4, note: 'Bureaucratic. High churn and low margin. Requires \u201cEnterprise\u201d sales motion.' },
   { cat: "Hospitals",       prac: "~6,100",   pract: "~900,000",  atv: "$2,800+", trans: "~5,800 (Adm)",   tam: "~$1.3T",  sam: "$65.5M",  pri: 4, note: 'Massive sales cycles (18mo+). Requires deep Epic/Cerner native integrations.' },
 ] as const;
-
-function SlideColorOptions() {
-  const words = ["Capture", "Connect", "Convert"];
-  const activeColors = [CCC_COLORS.capture, CCC_COLORS.connect, CCC_COLORS.convert];
-
-  const newOptions = [
-    { label: "S — Deep Gold",              colors: ["#fde68a", "#d97706", "#92400e"] },
-    { label: "T — Copper to Dark",         colors: ["#fcd9a0", "#c4922a", "#7c3a0a"] },
-    { label: "U — Bronze Burn",            colors: ["#fde68a", "#d4a057", "#92400e"] },
-    { label: "V — Amber Dusk",             colors: ["#fcd34d", "#f59e0b", "#b45309"] },
-    { label: "W — Rust to Mahogany",       colors: ["#fca97a", "#c4722a", "#7c2d12"] },
-    { label: "X — Honey to Brown",         colors: ["#fef08a", "#ca8a04", "#713f12"] },
-  ];
-
-  return (
-    <div style={{ padding: "2.5rem 3rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
-      {/* Active selection */}
-      <div>
-        <div style={{ fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.5, marginBottom: "0.85rem" }}>
-          Active Color Selection
-        </div>
-        <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
-          {words.map((word, i) => (
-            <div key={word} style={{ display: "flex", flexDirection: "column", gap: "0.4rem", alignItems: "flex-start" }}>
-              <span style={{ color: activeColors[i], fontSize: "2.5rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
-                {word}
-              </span>
-              <span style={{ fontSize: "0.65rem", opacity: 0.4, letterSpacing: "0.08em", fontFamily: "monospace" }}>
-                {activeColors[i]}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div style={{ height: 1, background: "rgba(255,255,255,0.08)" }} />
-
-      {/* New options I–N */}
-      <div>
-        <div style={{ fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.5, marginBottom: "0.85rem" }}>
-          New Options
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
-          {newOptions.map((opt) => (
-            <div key={opt.label} style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-              <span style={{ fontSize: "0.72rem", opacity: 0.45, width: "12rem", flexShrink: 0, letterSpacing: "0.06em" }}>
-                {opt.label}
-              </span>
-              <div style={{ display: "flex", gap: "1.75rem" }}>
-                {words.map((word, i) => (
-                  <span key={word} style={{ color: opt.colors[i], fontSize: "1.9rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
-                    {word}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function SlideAppendix() {
   return (
