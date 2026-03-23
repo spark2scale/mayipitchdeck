@@ -1,12 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   PhoneOff, Clock, Layers, RefreshCw,
-  Mic, Database, TrendingUp,
+  Database,
   DollarSign, Users, Zap, Shield,
-  Brain, Activity, GitMerge,
+  Brain, GitMerge,
   ChevronRight, ChevronLeft,
-  Stethoscope,
   Target, Rocket,
   Phone, MessageSquare, Globe, Share2,
   Calendar, FileCheck,
@@ -33,6 +32,7 @@ const SLIDES = [
   "moats",
   "vision",
   "appendix",
+  // "color-options",
 ] as const;
 
 // ─── Animation variants ───────────────────────────────────────────────────────
@@ -50,10 +50,25 @@ const slideInRight = {
   show: { opacity: 1, x: 0, transition: { duration: 0.55 } },
 };
 
+// ─── CCC Brand Colors (Option A — Light to Dark) ──────────────────────────────
+export const CCC_COLORS = {
+  capture: "#fcd34d",
+  connect: "#f59e0b",
+  convert: "#b45309",
+} as const;
+
 // ─── Root App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [current, setCurrent] = useState(0);
+
+  // Sync CCC brand colors to CSS custom properties so all CSS can reference them
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--ccc-capture", CCC_COLORS.capture);
+    root.style.setProperty("--ccc-connect", CCC_COLORS.connect);
+    root.style.setProperty("--ccc-convert", CCC_COLORS.convert);
+  }, []);
 
   const next = useCallback(
     () => setCurrent((c) => Math.min(c + 1, SLIDES.length - 1)),
@@ -90,7 +105,7 @@ export default function App() {
 
       {/* Top navigation bar */}
       <header className="deck-header">
-        <div className="header-logo">
+        <button className="header-logo" onClick={() => setCurrent(0)} aria-label="Go to slide 1">
           <img
             src="/MayILogoTransparentBack.gif"
             alt="May I"
@@ -100,7 +115,7 @@ export default function App() {
             <div className="logo-name">May I</div>
             <div className="logo-sub">Investor Deck</div>
           </div>
-        </div>
+        </button>
 
         <nav className="slide-dots" aria-label="Slide navigation">
           {SLIDES.map((id, i) => (
@@ -136,7 +151,7 @@ export default function App() {
             className="slide-wrap"
           >
             {slideId === "founder" && <SlideFounder />}
-            {slideId === "hero" && <SlideHero />}
+            {slideId === "hero" && <SlideHero goTo={setCurrent} />}
             {slideId === "problem" && <SlideProblem />}
             {slideId === "loss" && <SlideLoss />}
             {slideId === "engine" && <SlideEngine />}
@@ -149,6 +164,7 @@ export default function App() {
             {slideId === "vision" && <SlideVision />}
             {slideId === "path" && <SlidePath />}
             {slideId === "appendix" && <SlideAppendix />}
+            {/* slideId === "color-options" && <SlideColorOptions /> */}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -207,8 +223,7 @@ function SlideFounder() {
         </motion.div>
 
         <motion.p variants={fadeUp} className="founder-tagline">
-          A product leader who turns complexity into clarity and
-          ships products at scale.
+          A seasoned <span className="accent-highlight">product leader</span> who guides teams to ideate, incubate, and launch enterprise grade software. In his past five years at <span className="accent-highlight">Microsoft</span> he has been focused on <span className="accent-highlight">Health and Life Sciences</span>, including two years in its prestigious <span className="accent-highlight">Microsoft Research</span> organization. Technical acumen is complemented by an <span className="accent-highlight">MBA from Duke University</span> and experience in marketing and sales.
         </motion.p>
 
         <motion.div variants={fadeUp} className="founder-stats">
@@ -239,11 +254,27 @@ function SlideFounder() {
 
 // ─── Slide 1: Hero ────────────────────────────────────────────────────────────
 
-function SlideHero() {
+function SlideHero({ goTo }: { goTo: (i: number) => void }) {
+  const agenda = [
+    { num: "2",  label: "Founder & CEO",              slide: 1  },
+    { num: "3",  label: "The Problem",                slide: 2  },
+    { num: "4",  label: "Invisible Loss",              slide: 3  },
+    { num: "5",  label: "The May I System",            slide: 4  },
+    { num: "9",  label: "Business Impact",            slide: 8  },
+    { num: "10", label: "Competitive Landscape",      slide: 9  },
+    { num: "11", label: "Investor Case",              slide: 10 },
+    { num: "12", label: "Revenue Projections",         slide: 11 },
+    { num: "13", label: "Vision",                     slide: 12 },
+    { num: "14", label: "Appendix",    slide: 13 },
+  ];
+  const agendaRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="slide slide-hero">
+
+      {/* ── Top: header ── */}
       <motion.div
-        className="hero-left"
+        className="hero-header"
         variants={stagger}
         initial="hidden"
         animate="show"
@@ -253,72 +284,86 @@ function SlideHero() {
         </motion.div>
         <motion.h1 variants={fadeUp} className="hero-headline">
           The AI Revenue Integrity Engine
-          <span className="headline-accent"> for Retail Healthcare.</span>
+          <span className="headline-accent"> for Healthcare.</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="hero-sub">
-          May I captures, qualifies, and converts every high-intent patient
-          inquiry — before the competition picks up the phone.
+          May I captures, qualifies, and converts every high-intent patient inquiry — before the competition picks up the phone.
         </motion.p>
-        <motion.div variants={fadeUp} className="hero-questions">
-          {[
-            "What is May I building?",
-            "Why does it matter?",
-            "Why can this become a $1B business?",
-          ].map((q) => (
-            <div key={q} className="question-chip">
-              {q}
-            </div>
-          ))}
-        </motion.div>
       </motion.div>
 
-      <motion.div
-        className="hero-right"
-        variants={slideInRight}
-        initial="hidden"
-        animate="show"
-      >
-        <div className="hero-card">
-          <div className="hero-card-label">Revenue Integrity Engine</div>
-          <div className="ccc-flow">
-            {[
-              { label: "Capture", icon: <Mic size={22} />, color: "var(--mi-copper)" },
-              { label: "Connect", icon: <Database size={22} />, color: "var(--mi-muted)" },
-              { label: "Convert", icon: <TrendingUp size={22} />, color: "#5fcf8a" },
-            ].map((item, i) => (
-              <div key={item.label} className="ccc-step-row">
-                <div
-                  className="ccc-icon-wrap"
-                  style={{ color: item.color }}
-                >
-                  {item.icon}
+      {/* ── Bottom: card + agenda ── */}
+      <div className="hero-body">
+        <motion.div
+          className="hero-card-col"
+          variants={slideInRight}
+          initial="hidden"
+          animate="show"
+        >
+          <div className="hero-card">
+            <div className="hero-card-label">Revenue Integrity Engine</div>
+            <div className="flow-rows">
+              {[
+                ["Demand in",  "Calls · Texts · Web · Social · Referrals"],
+              ].map(([k, v]) => (
+                <div key={k} className="flow-row">
+                  <span className="flow-key">{k}</span>
+                  <span className="flow-val">{v}</span>
                 </div>
-                <div className="ccc-step-label" style={{ color: item.color }}>
-                  {item.label}
+              ))}
+            </div>
+            <div className="hero-engine-box">
+              <div className="hero-engine-box-label">May I Engine</div>
+              <div className="hero-engine-box-tagline">System of Engagement</div>
+              <div className="hero-engine-core">
+                {[
+                  { icon: <BotMessageSquare size={22} />, text: "Agentic Voice + Text + Vision" },
+                  { icon: <Brain size={22} />, text: "Agentic CRM Orchestrator & Memory" },
+                  { icon: <MousePointerClick size={22} />, text: "Agentic Computer Use" },
+                ].map(({ icon, text }) => (
+                  <div key={text} className="hero-engine-item">
+                    {icon}
+                    <span>{text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flow-rows">
+              {[
+                ["Revenue out","Booked consults · Insurance Pre-Auth · Collections"],
+              ].map(([k, v]) => (
+                <div key={k} className="flow-row">
+                  <span className="flow-key">{k}</span>
+                  <span className="flow-val">{v}</span>
                 </div>
-                {i < 2 && <ArrowRight size={14} className="ccc-arrow" />}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-          <div className="flow-rows">
-            {[
-              ["Demand in", "Calls · Texts · Web · Social · Referrals"],
-              ["AI Layer", "Instant response · Intake · Qualification"],
-              ["CRM Memory", "Intent · History · Sentiment · Handoff"],
-              ["Workflow", "Schedule · Pre-auth · Recalls · Payment"],
-              ["Revenue out", "Booked consults · Procedures · Collections"],
-            ].map(([k, v], i) => (
-              <div
-                key={k}
-                className={`flow-row ${i === 4 ? "flow-row-strong" : ""}`}
-              >
-                <span className="flow-key">{k}</span>
-                <span className="flow-val">{v}</span>
-              </div>
-            ))}
+        </motion.div>
+
+        <motion.div
+          className="hero-agenda-col"
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+          ref={agendaRef}
+        >
+          <div className="hero-agenda">
+            <div className="agenda-title">Agenda</div>
+            <div className="agenda-columns">
+              {agenda.slice(0, 5).flatMap((left, i) => {
+                const right = agenda[5 + i];
+                return [
+                  <motion.button key={`ll-${left.num}`} variants={fadeUp} className="agenda-chip-label" onClick={() => goTo(left.slide)}>{left.label}</motion.button>,
+                  <motion.span   key={`ln-${left.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(left.slide)}>{left.num}</motion.span>,
+                  <motion.button key={`rl-${right.num}`} variants={fadeUp} className="agenda-chip-label agenda-chip-label--right" onClick={() => goTo(right.slide)}>{right.label}</motion.button>,
+                  <motion.span   key={`rn-${right.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(right.slide)}>{right.num}</motion.span>,
+                ];
+              })}
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
+
     </div>
   );
 }
@@ -592,19 +637,19 @@ function SlideCaptureDetail() {
       icon: <BotMessageSquare size={20} />,
       title: "AI Comms",
       text: "AI answers patient calls and texts, captures demographic and insurance information, negotiates availability, and schedules consultations in the EMR/PMS.",
-      shade: "card-mint",
+      shade: "card-capture",
     },
     {
       icon: <ScanText size={20} />,
       title: "AI Object Character Recognition",
       text: "AI extracts patient demographic and insurance information from faxes and documents and schedules consultations in the EMR/PMS.",
-      shade: "card-forest",
+      shade: "card-capture",
     },
     {
       icon: <UserRound size={20} />,
       title: "Personalization",
       text: "All customer conversations and future intent are captured in the CRM. This data is used to personalize patient engagement at every touchpoint.",
-      shade: "card-olive",
+      shade: "card-capture",
     },
   ];
 
@@ -643,19 +688,19 @@ function SlideConnectDetail() {
       icon: <FileSearch size={20} />,
       title: "AI submits patient data in payer portals",
       text: "AI navigates payer portals, enters patient data, and triggers insurance pre-authorization automatically.",
-      shade: "card-mint",
+      shade: "card-connect",
     },
     {
       icon: <MailCheck size={20} />,
       title: "AI analyzes emails to reconcile pre-auth",
       text: "Responses that arrive via email are reconciled, resubmitted, or flagged — without staff involvement.",
-      shade: "card-forest",
+      shade: "card-connect",
     },
     {
       icon: <Workflow size={20} />,
       title: "Agentic CRM automates pipelines",
       text: "Inputs, agentic operations, and outputs are defined for each stage in the CRM and automatically moved to the next stage until complete.",
-      shade: "card-olive",
+      shade: "card-connect",
     },
   ];
 
@@ -695,19 +740,19 @@ function SlideConvertDetail() {
       icon: <PhoneOutgoing size={20} />,
       title: "Patient Recall Automation",
       text: "AI identifies patients due for follow-ups and automatically initiates call or text outreach based on last visit date and procedure history.",
-      shade: "card-mint",
+      shade: "card-convert",
     },
     {
       icon: <SurgeryIcon size={20} />,
       title: "Procedure & Surgery Coordination",
       text: "AI coordinates procedure scheduling across clinics and surgery centers. Automatically confirms availability and manages paperwork.",
-      shade: "card-forest",
+      shade: "card-convert",
     },
     {
       icon: <Banknote size={20} />,
       title: "Intelligent Collections",
       text: "AI agents follow up on outstanding balances through personalized calls and texts. Improves collection rates and reduces days in A/R.",
-      shade: "card-olive",
+      shade: "card-convert",
     },
   ];
 
@@ -893,93 +938,191 @@ function SlideWhyWins() {
 
 // ─── Slide 9: Moats ───────────────────────────────────────────────────────────
 
-function SlideMoats() {
+/* COMMENTED OUT — original Defensibility/Moats content
+function SlideMoats_original() {
   const moats = [
-    {
-      icon: <Activity size={30} />,
-      title: "Closed-loop Revenue Attribution",
-      text: "Connects first contact → response → booking → procedure → payment.",
-      color: "#5fcf8a",
-    },
-    {
-      icon: <Brain size={30} />,
-      title: "Patient Intent Graph",
-      text: "Models sentiment, urgency, timing, and readiness to convert.",
-      color: "var(--mi-copper)",
-    },
-    {
-      icon: <Stethoscope size={30} />,
-      title: "Procedure-Aware Models",
-      text: "Specialty-specific objection handling, prep flows, and follow-up logic.",
-      color: "#a78bfa",
-    },
-    {
-      icon: <Shield size={30} />,
-      title: "Dynamic Trust & Friction",
-      text: "Adapts verification to risk, context, and patient intent.",
-      color: "#38bdf8",
-    },
-    {
-      icon: <Database size={30} />,
-      title: "Practice Operating Memory",
-      text: "Captures the language, handoffs, and behaviors that convert for each practice.",
-      color: "#f59e0b",
-    },
+    { icon: <Activity size={30} />, title: "Closed-loop Revenue Attribution", text: "Connects first contact → response → booking → procedure → payment.", color: "#5fcf8a" },
+    { icon: <Brain size={30} />, title: "Patient Intent Graph", text: "Models sentiment, urgency, timing, and readiness to convert.", color: "var(--mi-copper)" },
+    { icon: <Stethoscope size={30} />, title: "Procedure-Aware Models", text: "Specialty-specific objection handling, prep flows, and follow-up logic.", color: "#a78bfa" },
+    { icon: <Shield size={30} />, title: "Dynamic Trust & Friction", text: "Adapts verification to risk, context, and patient intent.", color: "#38bdf8" },
+    { icon: <Database size={30} />, title: "Practice Operating Memory", text: "Captures the language, handoffs, and behaviors that convert for each practice.", color: "#f59e0b" },
   ];
-
   return (
     <div className="slide slide-moats">
-      <SlideHeader
-        eyebrow="Defensibility"
-        title="The path to $1B is owning the patient conversion layer."
-      />
+      <SlideHeader eyebrow="Defensibility" title="The path to $1B is owning the patient conversion layer." />
       <div className="moats-layout">
-        <motion.div
-          className="moats-grid"
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-        >
+        <motion.div className="moats-grid" variants={stagger} initial="hidden" animate="show">
           {moats.map(({ icon, title, text, color }) => (
             <motion.div key={title} variants={fadeUp} className="moat-card">
-              <div className="moat-icon" style={{ color }}>
-                {icon}
-              </div>
+              <div className="moat-icon" style={{ color }}>{icon}</div>
               <div className="moat-title">{title}</div>
               <div className="moat-text">{text}</div>
             </motion.div>
           ))}
         </motion.div>
-
-        <motion.div
-          className="moats-logic"
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
+        <motion.div className="moats-logic" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.5 }}>
           <div className="moats-logic-title">Billion-dollar logic</div>
           <div className="moats-logic-steps">
-            {[
-              {
-                step: "Land",
-                desc: "Obvious ROI: recover missed demand + reduce staff burden",
-              },
-              {
-                step: "Expand",
-                desc: "Conversion intelligence + revenue attribution across the practice",
-              },
-              {
-                step: "Defend",
-                desc: "Practice-specific memory that becomes impossible to replicate",
-              },
-            ].map(({ step, desc }) => (
-              <div key={step} className="moats-logic-step">
-                <div className="moats-logic-step-label">{step}</div>
-                <div className="moats-logic-step-desc">{desc}</div>
-              </div>
+            {[{step:"Land",desc:"Obvious ROI: recover missed demand + reduce staff burden"},{step:"Expand",desc:"Conversion intelligence + revenue attribution across the practice"},{step:"Defend",desc:"Practice-specific memory that becomes impossible to replicate"}].map(({ step, desc }) => (
+              <div key={step} className="moats-logic-step"><div className="moats-logic-step-label">{step}</div><div className="moats-logic-step-desc">{desc}</div></div>
             ))}
           </div>
         </motion.div>
+      </div>
+    </div>
+  );
+}
+END COMMENTED OUT */
+
+function SlideMoats() {
+  const rows: { year: string; providers: string; share: string; arr: string; val: string; milestone?: boolean }[] = [
+    { year: "Year 1", providers: "150",    share: "0.01%", arr: "$1.08M",   val: "$8.6M"           },
+    { year: "Year 2", providers: "450",    share: "0.04%", arr: "$3.24M",   val: "$25.9M"          },
+    { year: "Year 3", providers: "1,125",  share: "0.10%", arr: "$8.10M",   val: "$64.8M"          },
+    { year: "Year 4", providers: "2,475",  share: "0.23%", arr: "$17.82M",  val: "$142.5M"         },
+    { year: "Year 5", providers: "4,950",  share: "0.45%", arr: "$35.64M",  val: "$285.1M"         },
+    { year: "Year 6", providers: "8,415",  share: "0.77%", arr: "$60.58M",  val: "$484.7M"         },
+    { year: "Year 7", providers: "12,622", share: "1.15%", arr: "$90.88M",  val: "$727.0M"         },
+    { year: "Year 8", providers: "17,600", share: "1.60%", arr: "$126.72M", val: "$1.013 Billion", milestone: true },
+  ];
+
+  const arrValues = [1.08, 3.24, 8.10, 17.82, 35.64, 60.58, 90.88, 126.72];
+  const xLabels   = ["Y1", "Y2", "Y3", "Y4", "Y5", "Y6", "Y7", "Y8"];
+
+  const W = 420, H = 280;
+  const PAD = { l: 52, r: 16, t: 18, b: 34 };
+  const CW  = W - PAD.l - PAD.r;
+  const CH  = H - PAD.t - PAD.b;
+  const MAX = 140;
+  const BAR_SLOT = CW / 8;
+  const BAR_W    = BAR_SLOT * 0.58;
+  const BAR_OFF  = (BAR_SLOT - BAR_W) / 2;
+  const chartBottom = PAD.t + CH;
+  const toY  = (v: number) => PAD.t + CH * (1 - v / MAX);
+  const toBH = (v: number) => CH * (v / MAX);
+  const barX  = (i: number) => PAD.l + i * BAR_SLOT + BAR_OFF;
+  const barCX = (i: number) => PAD.l + i * BAR_SLOT + BAR_SLOT / 2;
+  const yTicks = [0, 25, 50, 75, 100, 125];
+  const linePath = arrValues
+    .map((v, i) => `${i === 0 ? "M" : "L"} ${barCX(i).toFixed(1)},${toY(v).toFixed(1)}`)
+    .join(" ");
+
+  return (
+    <div className="slide slide-moats">
+      <SlideHeader
+        eyebrow="Revenue Projection"
+        title="The path to $1B is owning the patient conversion layer."
+      />
+      <div className="rev-layout">
+
+        {/* ── Bar chart ── */}
+        <motion.div
+          className="rev-chart-col"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          <svg viewBox={`0 0 ${W} ${H}`} className="rev-chart-svg" aria-label="ARR by year">
+            <defs>
+              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor="#fcd34d" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#b45309" stopOpacity="0.55" />
+              </linearGradient>
+              <linearGradient id="barGradHi" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor="#fcd34d" stopOpacity="1"   />
+                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.9" />
+              </linearGradient>
+            </defs>
+
+            {yTicks.map((t) => {
+              const y = toY(t);
+              return (
+                <g key={t}>
+                  <line x1={PAD.l} y1={y} x2={W - PAD.r} y2={y}
+                    stroke="rgba(255,255,255,0.07)" strokeWidth="1"
+                    strokeDasharray={t === 0 ? undefined : "3 5"} />
+                  <text x={PAD.l - 6} y={y + 3.5} textAnchor="end"
+                    fontSize="9" fill="rgba(168,196,184,0.65)">
+                    {t === 0 ? "0" : `$${t}M`}
+                  </text>
+                </g>
+              );
+            })}
+
+            <line x1={PAD.l} y1={chartBottom} x2={W - PAD.r} y2={chartBottom}
+              stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
+
+            <text x={11} y={H / 2} textAnchor="middle" fontSize="9"
+              fill="rgba(168,196,184,0.5)" transform={`rotate(-90,11,${H / 2})`}>
+              ARR ($M)
+            </text>
+
+            {arrValues.map((v, i) => (
+              <motion.rect key={i}
+                x={barX(i)} width={BAR_W} rx="3"
+                fill={i === 7 ? "url(#barGradHi)" : "url(#barGrad)"}
+                initial={{ height: 0, y: chartBottom }}
+                animate={{ height: toBH(v), y: chartBottom - toBH(v) }}
+                transition={{ duration: 0.55, delay: 0.3 + i * 0.07, ease: "easeOut" }}
+              />
+            ))}
+
+            <motion.path d={linePath} fill="none"
+              stroke="#fcd34d" strokeWidth="1.5" strokeOpacity="0.5" strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.9, delay: 0.85, ease: "easeInOut" }}
+            />
+
+            {arrValues.map((v, i) => (
+              <motion.circle key={i} cx={barCX(i)} cy={toY(v)} r="2.8"
+                fill="#fcd34d"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2, delay: 1.0 + i * 0.06 }}
+              />
+            ))}
+
+            {xLabels.map((lbl, i) => (
+              <text key={lbl} x={barCX(i)} y={H - PAD.b + 14}
+                textAnchor="middle" fontSize="9" fill="rgba(168,196,184,0.7)">
+                {lbl}
+              </text>
+            ))}
+          </svg>
+        </motion.div>
+
+        {/* ── Table ── */}
+        <motion.div
+          className="rev-table-wrap"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+        >
+          <table className="rev-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Providers</th>
+                <th>Share</th>
+                <th>ARR</th>
+                <th>Valuation (8×)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(({ year, providers, share, arr, val, milestone }) => (
+                <tr key={year} className={milestone ? "rev-row-milestone" : ""}>
+                  <td className="rev-year">{year}</td>
+                  <td className="rev-num">{providers}</td>
+                  <td className="rev-share">{share}</td>
+                  <td className="rev-arr">{arr}</td>
+                  <td className="rev-val">{val}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </motion.div>
+
       </div>
     </div>
   );
@@ -1002,7 +1145,7 @@ function SlideVision() {
       phase: "Tomorrow",
       icon: <GitMerge size={32} />,
       headline: "Own the workflow",
-      text: "Intake, insurance, scheduling, billing, recalls — orchestrated by May I across the full patient journey.",
+      text: "Insurance Pre-auth, Billing, Patient recalls — orchestrated by May I across the full patient journey.",
       color: "#a78bfa",
     },
     {
@@ -1010,7 +1153,7 @@ function SlideVision() {
       phase: "Future",
       icon: <Rocket size={32} />,
       headline: "Intelligent operating layer",
-      text: "Revenue attribution, intent intelligence, and practice memory — May I becomes indispensable infrastructure.",
+      text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes indispensable infrastructure.",
       color: "#5fcf8a",
     },
   ];
@@ -1029,7 +1172,7 @@ function SlideVision() {
         <motion.h2 variants={fadeUp} className="vision-title">
           From front-desk automation
           <br />
-          to the intelligent operating layer for retail healthcare.
+          to the intelligent operating layer for healthcare.
         </motion.h2>
       </motion.div>
 
@@ -1129,7 +1272,7 @@ function SlidePath() {
   return (
     <div className="slide slide-path">
       <motion.div className="path-top" variants={stagger} initial="hidden" animate="show">
-        <motion.div variants={fadeUp} className="eyebrow-tag">Investor Case · Path to Unicorn</motion.div>
+        <motion.div variants={fadeUp} className="eyebrow-tag">Investor Case</motion.div>
         <motion.h2 variants={fadeUp} className="path-headline">
           The <span className="path-accent">1.6%</span> Path to a{" "}
           <span className="path-accent">$1B</span> Valuation.
@@ -1382,6 +1525,69 @@ const APX_ROWS = [
   { cat: "Primary Care",    prac: "~133,000", pract: "~502,000",  atv: "$200",    trans: "~5,500",         tam: "~$280B",  sam: "$1.43B",  pri: 4, note: 'Bureaucratic. High churn and low margin. Requires \u201cEnterprise\u201d sales motion.' },
   { cat: "Hospitals",       prac: "~6,100",   pract: "~900,000",  atv: "$2,800+", trans: "~5,800 (Adm)",   tam: "~$1.3T",  sam: "$65.5M",  pri: 4, note: 'Massive sales cycles (18mo+). Requires deep Epic/Cerner native integrations.' },
 ] as const;
+
+function SlideColorOptions() {
+  const words = ["Capture", "Connect", "Convert"];
+  const activeColors = [CCC_COLORS.capture, CCC_COLORS.connect, CCC_COLORS.convert];
+
+  const newOptions = [
+    { label: "S — Deep Gold",              colors: ["#fde68a", "#d97706", "#92400e"] },
+    { label: "T — Copper to Dark",         colors: ["#fcd9a0", "#c4922a", "#7c3a0a"] },
+    { label: "U — Bronze Burn",            colors: ["#fde68a", "#d4a057", "#92400e"] },
+    { label: "V — Amber Dusk",             colors: ["#fcd34d", "#f59e0b", "#b45309"] },
+    { label: "W — Rust to Mahogany",       colors: ["#fca97a", "#c4722a", "#7c2d12"] },
+    { label: "X — Honey to Brown",         colors: ["#fef08a", "#ca8a04", "#713f12"] },
+  ];
+
+  return (
+    <div style={{ padding: "2.5rem 3rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
+      {/* Active selection */}
+      <div>
+        <div style={{ fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.5, marginBottom: "0.85rem" }}>
+          Active Color Selection
+        </div>
+        <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
+          {words.map((word, i) => (
+            <div key={word} style={{ display: "flex", flexDirection: "column", gap: "0.4rem", alignItems: "flex-start" }}>
+              <span style={{ color: activeColors[i], fontSize: "2.5rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                {word}
+              </span>
+              <span style={{ fontSize: "0.65rem", opacity: 0.4, letterSpacing: "0.08em", fontFamily: "monospace" }}>
+                {activeColors[i]}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: "rgba(255,255,255,0.08)" }} />
+
+      {/* New options I–N */}
+      <div>
+        <div style={{ fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.5, marginBottom: "0.85rem" }}>
+          New Options
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+          {newOptions.map((opt) => (
+            <div key={opt.label} style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+              <span style={{ fontSize: "0.72rem", opacity: 0.45, width: "12rem", flexShrink: 0, letterSpacing: "0.06em" }}>
+                {opt.label}
+              </span>
+              <div style={{ display: "flex", gap: "1.75rem" }}>
+                {words.map((word, i) => (
+                  <span key={word} style={{ color: opt.colors[i], fontSize: "1.9rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                    {word}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function SlideAppendix() {
   return (
