@@ -57,9 +57,24 @@ export const CCC_COLORS = {
   convert: "#b45309",
 } as const;
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia("(max-width: 768px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
+
 // ─── Root App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const isMobile = useIsMobile();
+  const slides = isMobile ? SLIDES.filter((s) => s !== "appendix") : SLIDES;
   const [current, setCurrent] = useState(0);
 
   // Sync CCC brand colors to CSS custom properties so all CSS can reference them
@@ -71,8 +86,8 @@ export default function App() {
   }, []);
 
   const next = useCallback(
-    () => setCurrent((c) => Math.min(c + 1, SLIDES.length - 1)),
-    []
+    () => setCurrent((c) => Math.min(c + 1, slides.length - 1)),
+    [slides.length]
   );
   const prev = useCallback(() => setCurrent((c) => Math.max(c - 1, 0)), []);
 
@@ -116,7 +131,7 @@ export default function App() {
     };
   }, [next, prev]);
 
-  const slideId = SLIDES[current];
+  const slideId = slides[current];
 
   return (
     <>
@@ -143,7 +158,7 @@ export default function App() {
         </button>
 
         <nav className="slide-dots" aria-label="Slide navigation">
-          {SLIDES.map((id, i) => (
+          {slides.map((id, i) => (
             <button
               key={id}
               onClick={() => setCurrent(i)}
@@ -205,11 +220,11 @@ export default function App() {
           <ChevronLeft size={20} />
         </button>
         <span className="slide-counter">
-          {current + 1} / {SLIDES.length}
+          {current + 1} / {slides.length}
         </span>
         <button
           onClick={next}
-          disabled={current === SLIDES.length - 1}
+          disabled={current === slides.length - 1}
           className="nav-btn"
           aria-label="Next slide"
         >
@@ -1011,7 +1026,7 @@ function SlideMoats() {
     { year: "Year 5", providers: "4,950",  share: "0.45%", arr: "$35.64M",  val: "$285.1M"         },
     { year: "Year 6", providers: "8,415",  share: "0.77%", arr: "$60.58M",  val: "$484.7M"         },
     { year: "Year 7", providers: "12,622", share: "1.15%", arr: "$90.88M",  val: "$727.0M"         },
-    { year: "Year 8", providers: "17,600", share: "1.60%", arr: "$126.72M", val: "$1.013 Billion", milestone: true },
+    { year: "Year 8", providers: "17,600", share: "1.60%", arr: "$126.72M", val: "$1.01B", milestone: true },
   ];
 
   const arrValues = [1.08, 3.24, 8.10, 17.82, 35.64, 60.58, 90.88, 126.72];

@@ -1691,11 +1691,36 @@ strong { color: var(--mi-text); font-weight: 600; }
 @media screen and (max-width: 768px) {
   .hide-mobile { display: none; }
   .agenda-item-appendix { display: none !important; }
-  /* Drop the 16:9 aspect ratio lock — fill the viewport instead */
+
+  /* Allow vertical scrolling — unlock overflow on all containing elements */
+  html, body, #root {
+    height: auto;
+    overflow-y: auto;
+  }
+  .deck-root {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .deck-main {
+    overflow: visible;
+    height: auto;
+    align-items: flex-start;
+    padding: 8px 12px;
+  }
   .slide-wrap {
     aspect-ratio: unset;
     width: 100%;
-    height: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .slide {
+    overflow: visible;
+    min-height: unset;
+  }
+  .deck-footer {
+    position: sticky;
+    bottom: 0;
   }
 
   /* Hide the dot nav (counter in footer is sufficient) */
@@ -1852,8 +1877,11 @@ strong { color: var(--mi-text); font-weight: 600; }
   .path-right-col { display: none; }
   .slide-path { padding: 24px 20px; }
 
-  /* ── Revenue: single column ── */
+  /* ── Revenue: single column, smaller table text ── */
   .rev-layout { grid-template-columns: 1fr; }
+  .rev-table { font-size: 10px; }
+  .rev-table thead th { font-size: 8px; padding: 6px 8px; }
+  .rev-table tbody tr td { padding: 0 8px; }
 
   /* ── Appendix: allow horizontal scroll ── */
   .appendix-table-wrap { overflow-x: auto; }
