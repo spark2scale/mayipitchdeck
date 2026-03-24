@@ -1643,38 +1643,246 @@ strong { color: var(--mi-text); font-weight: 600; }
 
 /* ─── Print / PDF styles ─────────────────────────────────────────────────── */
 
+/* Screen: hide the print deck entirely */
+@media screen {
+  .print-deck { display: none; }
+}
+
 @media print {
+  /* Hide the interactive deck */
+  .deck-root { display: none !important; }
+
+  /* Show the print deck */
   html, body, #root {
     height: auto;
     overflow: visible;
+    background: var(--mi-bg);
   }
 
-  .deck-root {
-    height: auto;
-    overflow: visible;
+  .print-deck {
+    display: block;
   }
 
-  .deck-header,
-  .deck-footer {
-    display: none;
-  }
-
-  .deck-main {
-    overflow: visible;
-  }
-
-  /* Show all slides stacked */
-  .slide-wrap {
-    height: auto;
-    overflow: visible;
-  }
-
-  .slide {
+  .print-slide {
+    /* One slide per printed page at 16:9 */
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    overflow: hidden;
     page-break-after: always;
     break-after: page;
-    min-height: 100vh;
-    padding: 48px;
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(144, 99, 35, 0.22) 0%, transparent 35%),
+      radial-gradient(circle at 85% 15%, rgba(0, 74, 46, 0.45) 0%, transparent 28%),
+      radial-gradient(circle at 50% 90%, rgba(0, 51, 32, 0.35) 0%, transparent 40%),
+      linear-gradient(180deg, #021f15 0%, var(--mi-bg) 40%, #02110b 100%);
   }
 
-  .blob { display: none; }
+  .print-slide:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+}
+
+/* ─── Mobile screen styles ───────────────────────────────────────────────── */
+
+@media screen and (max-width: 768px) {
+  .hide-mobile { display: none; }
+  .agenda-item-appendix { display: none !important; }
+
+  /* Allow vertical scrolling — unlock overflow on all containing elements */
+  html, body, #root {
+    height: auto;
+    overflow-y: auto;
+  }
+  .deck-root {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .deck-main {
+    overflow: visible;
+    height: auto;
+    align-items: flex-start;
+    padding: 8px 12px;
+  }
+  .slide-wrap {
+    aspect-ratio: unset;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .slide {
+    overflow: visible;
+    min-height: unset;
+  }
+  .deck-footer {
+    position: sticky;
+    bottom: 0;
+  }
+
+  /* Hide the dot nav (counter in footer is sufficient) */
+  .slide-dots { display: none; }
+
+  /* Shrink padding so content has room */
+  .slide { padding: 24px 20px; }
+
+  /* ── Founder: circular avatar on top, text below ── */
+  .slide-founder { flex-direction: column; align-items: center; }
+  .founder-left { padding: 16px 20px 28px; flex: unset; width: 100%; }
+  .founder-right {
+    order: -1;
+    flex: 0 0 160px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--mi-copper);
+    margin-top: 24px;
+    flex-shrink: 0;
+  }
+  .founder-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+  .founder-first { font-size: clamp(40px, 12vw, 64px); }
+  .founder-last  { font-size: clamp(32px, 9vw, 52px); }
+  .founder-stats { gap: 24px; }
+  .founder-tagline { font-size: 13px; max-width: 100%; }
+
+  /* ── Hero: stack card + agenda vertically ── */
+  .hero-body { flex-direction: column; gap: 16px; }
+  .hero-card-col, .hero-agenda-col { flex: unset; width: 100%; }
+  .hero-headline { font-size: clamp(22px, 6vw, 36px); }
+  .hero-sub { font-size: 14px; }
+  .agenda-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  /* Left labels (every 4n+1 child): render first */
+  .agenda-columns > *:nth-child(4n+1) { order: -2; }
+  /* Right labels (every 4n+3 child): render after left labels */
+  .agenda-columns > *:nth-child(4n+3) { order: -1; padding-left: 16px; }
+  /* Hide all slide number spans */
+  .agenda-columns > .agenda-chip-num { display: none; }
+  .agenda-chip-label--right { display: block; }
+  .agenda-chip-label { font-size: 14px; }
+
+  /* ── Hero card: both flow-rows stack so values sit below their labels ── */
+  .flow-row:has(.hero-ccc-row),
+  .flow-row:has(.flow-val:not(.hero-ccc-row)) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .flow-row .flow-val { text-align: left; padding: 0; }
+  .hero-ccc-row { justify-content: flex-start; }
+
+  /* ── Problem: 2-col grid instead of 4 ── */
+  .problem-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* ── Loss: funnel wraps ── */
+  .leak-funnel { flex-wrap: wrap; justify-content: center; gap: 12px; padding: 16px; }
+  .leak-stage { flex: 0 0 45%; padding: 0 4px; }
+  .leak-arrow { display: none; }
+  .loss-callout { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
+
+  /* ── Engine: reflow to inputs → engine → outcomes (top→middle→bottom) ── */
+  .engine-grid { grid-template-columns: 1fr; gap: 16px; }
+  .engine-chip { width: auto; font-size: 13px; height: auto; padding: 7px 10px; }
+  .engine-core-item { width: auto; font-size: 14px; height: auto; padding: 9px 12px; white-space: normal; }
+
+  /* Turn the 3-col diagram into a vertical stack */
+  .engine-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Inputs: uniform 2-column grid so all chips are equal size */
+  .engine-col-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .engine-col-inputs .engine-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Core engine: centred, hide the flanking "Inputs / Outcomes" labels */
+  .engine-col-core {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .engine-side-label-inputs,
+  .engine-side-label-outcomes { display: none; }
+  .engine-core { width: 100%; }
+  .engine-core-items { align-items: stretch; }
+
+  /* Outcomes: Capture + Connect side by side, Convert centred below */
+  .engine-col-outcomes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    justify-items: stretch;
+  }
+  .engine-col-outcomes .engine-group {
+    flex: unset;
+    margin-bottom: 0;
+  }
+  .engine-col-outcomes .engine-group:nth-child(3) {
+    grid-column: 1 / -1;
+    width: 50%;
+    margin: 0 auto;
+  }
+  .engine-col-outcomes .engine-chip {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+  .engine-col-outcomes .engine-group-label {
+    text-align: center;
+  }
+
+  /* ── Detail slides: stack left/right ── */
+  .slide-detail { flex-direction: column; }
+  .detail-left { flex: unset; padding: 24px 20px 12px; }
+  .detail-right { padding: 12px 20px 24px; }
+
+  /* ── ROI: 2-col grid ── */
+  .roi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* ── Compare table: hide third column on very small screens ── */
+  .compare-row, .compare-header {
+    grid-template-columns: 1fr 1fr;
+    font-size: 12px;
+  }
+  .compare-col-c { display: none; }
+
+  /* ── Vision: single column phases ── */
+  .vision-phases { grid-template-columns: 1fr; gap: 10px; }
+  .vision-cta { flex-direction: column; gap: 12px; }
+
+  /* ── Path: single column ── */
+  .path-body { grid-template-columns: 1fr; }
+  .path-right-col { display: none; }
+  .slide-path { padding: 24px 20px; }
+
+  /* ── Revenue: single column, smaller table text ── */
+  .rev-layout { grid-template-columns: 1fr; }
+  .rev-table { font-size: 10px; }
+  .rev-table thead th { font-size: 8px; padding: 6px 8px; }
+  .rev-table tbody tr td { padding: 0 8px; }
+
+  /* ── Appendix: allow horizontal scroll ── */
+  .appendix-table-wrap { overflow-x: auto; }
 }
