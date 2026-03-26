@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import SlideDemo from "./components/demo/SlideDemo";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   PhoneOff, Clock, Layers, RefreshCw,
@@ -31,6 +32,7 @@ const SLIDES = [
   "path",
   "moats",
   "vision",
+  "demo",
   "appendix",
   // "color-options",
 ] as const;
@@ -203,6 +205,7 @@ export default function App() {
             {slideId === "moats" && <SlideMoats />}
             {slideId === "vision" && <SlideVision />}
             {slideId === "path" && <SlidePath />}
+            {slideId === "demo" && <SlideDemo />}
             {slideId === "appendix" && <SlideAppendix />}
             {/* slideId === "color-options" && <SlideColorOptions /> */}
           </motion.div>
@@ -250,6 +253,7 @@ export default function App() {
           {id === "path" && <SlidePath />}
           {id === "moats" && <SlideMoats />}
           {id === "vision" && <SlideVision />}
+          {id === "demo" && <SlideDemo />}
           {id === "appendix" && <SlideAppendix />}
         </div>
       ))}
