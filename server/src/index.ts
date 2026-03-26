@@ -1,6 +1,5 @@
 import "dotenv/config";
-import express from "express";
-import cors from "cors";
+import express, { Request, Response, NextFunction } from "express";
 import { computerUseRouter } from "./routes/computerUse.js";
 
 const app = express();
@@ -11,23 +10,26 @@ const allowed = new Set([
   "https://investors.mayiguide.com",
   "http://localhost:5173",
   "http://localhost:4173",
-  // Allow any Railway preview URL during development
   ...(process.env.ADDITIONAL_ORIGINS?.split(",").map((s) => s.trim()) ?? []),
 ]);
 
-const corsOptions: cors.CorsOptions = {
-  origin: (origin, cb) => {
-    // Allow requests with no origin (e.g. curl, Postman) and allowed origins
-    if (!origin || allowed.has(origin)) return cb(null, true);
-    cb(new Error(`Origin ${origin} not allowed by CORS`));
-  },
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"],
-};
-
-// Respond to all CORS preflight (OPTIONS) requests before any route handler
-app.options("*", cors(corsOptions));
-app.use(cors(corsOptions));
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin;
+  if (!origin || allowed.has(origin)) {
+    if (origin) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+    }
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Max-Age", "86400");
+  }
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
 
 app.use(express.json({ limit: "20mb" })); // screenshots can be large
 
