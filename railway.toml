@@ -1,0 +1,13 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd server && npm ci"
+
+[deploy]
+startCommand = "cd server && npx tsx src/index.ts"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[healthcheck]
+path = "/api/health"
+initialDelaySeconds = 5
+timeoutSeconds = 10
