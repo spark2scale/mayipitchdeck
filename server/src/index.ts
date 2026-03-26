@@ -6,25 +6,13 @@ const app = express();
 const PORT = Number(process.env.PORT ?? 3001);
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
-const allowed = new Set([
-  "https://investors.mayiguide.com",
-  "http://localhost:5173",
-  "http://localhost:4173",
-  ...(process.env.ADDITIONAL_ORIGINS?.split(",").map((s) => s.trim()) ?? []),
-]);
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const origin = req.headers.origin;
-  if (!origin || allowed.has(origin)) {
-    if (origin) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-      res.setHeader("Vary", "Origin");
-    }
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    res.setHeader("Access-Control-Max-Age", "86400");
-  }
-  if (req.method === "OPTIONS") {
+// Wildcard CORS — this server only receives screenshots and returns structured
+// action arrays; no user credentials or sensitive data cross this boundary.
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (_req.method === "OPTIONS") {
     res.sendStatus(204);
     return;
   }
