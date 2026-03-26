@@ -15,17 +15,19 @@ const allowed = new Set([
   ...(process.env.ADDITIONAL_ORIGINS?.split(",").map((s) => s.trim()) ?? []),
 ]);
 
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      // Allow requests with no origin (e.g. curl, Postman) and allowed origins
-      if (!origin || allowed.has(origin)) return cb(null, true);
-      cb(new Error(`Origin ${origin} not allowed by CORS`));
-    },
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, cb) => {
+    // Allow requests with no origin (e.g. curl, Postman) and allowed origins
+    if (!origin || allowed.has(origin)) return cb(null, true);
+    cb(new Error(`Origin ${origin} not allowed by CORS`));
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+};
+
+// Respond to all CORS preflight (OPTIONS) requests before any route handler
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "20mb" })); // screenshots can be large
 
