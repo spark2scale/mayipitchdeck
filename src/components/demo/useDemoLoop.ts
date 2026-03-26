@@ -70,6 +70,8 @@ export function useDemoLoop(
   const rippleSeq = useRef(0);
   // Store current demoPage in a ref so async callbacks always read the latest value
   const demoPageRef = useRef<"data" | "form">("data");
+  // Track the last field the AI clicked so the subsequent `type` action knows where to type
+  const lastClickedFieldRef = useRef<keyof PatientData | null>(null);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -221,9 +223,10 @@ export function useDemoLoop(
                 demoPageRef.current = "form";
                 await new Promise((r) => setTimeout(r, 800)); // wait for transition
               } else {
-                // Log which field is being clicked
+                // Log which field is being clicked and remember it for the next type action
                 const fieldKey = resolveFieldKey(domX, domY);
                 if (fieldKey) {
+                  lastClickedFieldRef.current = fieldKey;
                   addLogs([`🖱️ Clicking field: ${fieldKey}`]);
                 } else {
                   addLogs([`🖱️ Clicking at (${Math.round(action.x ?? 0)}, ${Math.round(action.y ?? 0)})`]);
@@ -237,16 +240,8 @@ export function useDemoLoop(
 
           case "type": {
             const text = action.text ?? "";
-            // Find the currently active field by probing the last-clicked coords
-            // Fallback: iterate form values to find the first empty field
-            let target: keyof PatientData | null = activeField;
-            if (!target) {
-              // Try to find by active element
-              const ae = document.activeElement as HTMLElement | null;
-              if (ae?.dataset?.field) {
-                target = ae.dataset.field as keyof PatientData;
-              }
-            }
+            // Use the field the AI last clicked (stored in a ref to avoid closure staleness)
+            const target: keyof PatientData | null = lastClickedFieldRef.current;
             if (target) {
               addLogs([`⌨️ Typing "${text}" into ${target}`]);
               await animateType(target, text);
@@ -295,7 +290,6 @@ export function useDemoLoop(
       resolveFieldKey,
       animateType,
       demoAreaRef,
-      activeField,
     ]
   );
 
