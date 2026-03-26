@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import SlideDemo from "./components/demo/SlideDemo";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   PhoneOff, Clock, Layers, RefreshCw,
@@ -31,6 +32,7 @@ const SLIDES = [
   "path",
   "moats",
   "vision",
+  "demo",
   "appendix",
   // "color-options",
 ] as const;
@@ -74,7 +76,7 @@ function useIsMobile() {
 
 export default function App() {
   const isMobile = useIsMobile();
-  const slides = isMobile ? SLIDES.filter((s) => s !== "appendix") : SLIDES;
+  const slides = isMobile ? SLIDES.filter((s) => s !== "appendix" && s !== "demo") : SLIDES;
   const [current, setCurrent] = useState(0);
 
   // Sync CCC brand colors to CSS custom properties so all CSS can reference them
@@ -203,6 +205,7 @@ export default function App() {
             {slideId === "moats" && <SlideMoats />}
             {slideId === "vision" && <SlideVision />}
             {slideId === "path" && <SlidePath />}
+            {slideId === "demo" && <SlideDemo />}
             {slideId === "appendix" && <SlideAppendix />}
             {/* slideId === "color-options" && <SlideColorOptions /> */}
           </motion.div>
@@ -250,6 +253,7 @@ export default function App() {
           {id === "path" && <SlidePath />}
           {id === "moats" && <SlideMoats />}
           {id === "vision" && <SlideVision />}
+          {id === "demo" && <SlideDemo />}
           {id === "appendix" && <SlideAppendix />}
         </div>
       ))}
@@ -318,18 +322,20 @@ function SlideFounder() {
 // ─── Slide 1: Hero ────────────────────────────────────────────────────────────
 
 function SlideHero({ goTo }: { goTo: (i: number) => void }) {
-  const agenda = [
-    { num: "2",  label: "Founder & CEO",              slide: 1  },
-    { num: "3",  label: "The Problem",                slide: 2  },
-    { num: "4",  label: "Invisible Loss",              slide: 3  },
-    { num: "5",  label: "The May I System",            slide: 4  },
-    { num: "9",  label: "Business Impact",            slide: 8  },
-    { num: "10", label: "Competitive Landscape",      slide: 9  },
-    { num: "11", label: "Investor Case",              slide: 10 },
-    { num: "12", label: "Revenue Projections",         slide: 11 },
-    { num: "13", label: "Vision",                     slide: 12 },
-    { num: "14", label: "Appendix",    slide: 13 },
+  const isMobile = useIsMobile();
+  const agendaAll = [
+    { num: "2",  label: "Founder & CEO",         slide: 1  },
+    { num: "3",  label: "The Problem",            slide: 2  },
+    { num: "5",  label: "The May I System",       slide: 4  },
+    { num: "9",  label: "Business Impact",        slide: 8  },
+    { num: "10", label: "Competitive Landscape",  slide: 9  },
+    { num: "11", label: "Investor Case",          slide: 10 },
+    { num: "12", label: "Revenue Projections",    slide: 11 },
+    { num: "13", label: "Vision",                 slide: 12 },
+    { num: "14", label: "Live Demo",              slide: 13 },
+    { num: "15", label: "Appendix",               slide: 14 },
   ];
+  const agenda = isMobile ? agendaAll.filter((a) => a.label !== "Live Demo") : agendaAll;
   const agendaRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -413,13 +419,13 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
           <div className="hero-agenda">
             <div className="agenda-title">Agenda</div>
             <div className="agenda-columns">
-              {agenda.slice(0, 5).flatMap((left, i) => {
-                const right = agenda[5 + i];
+              {agenda.slice(0, Math.ceil(agenda.length / 2)).flatMap((left, i) => {
+                const right = agenda[Math.ceil(agenda.length / 2) + i];
                 return [
                   <motion.button key={`ll-${left.num}`} variants={fadeUp} className="agenda-chip-label" onClick={() => goTo(left.slide)}>{left.label}</motion.button>,
                   <motion.span   key={`ln-${left.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(left.slide)}>{left.num}</motion.span>,
-                  <motion.button key={`rl-${right.num}`} variants={fadeUp} className={`agenda-chip-label agenda-chip-label--right${right.num === "14" ? " agenda-item-appendix" : ""}`} onClick={() => goTo(right.slide)}>{right.label}</motion.button>,
-                  <motion.span   key={`rn-${right.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(right.slide)}>{right.num}</motion.span>,
+                  right ? <motion.button key={`rl-${right.num}`} variants={fadeUp} className={`agenda-chip-label agenda-chip-label--right${right.num === "15" ? " agenda-item-appendix" : ""}`} onClick={() => goTo(right.slide)}>{right.label}</motion.button> : <span key={`rl-empty-${i}`} />,
+                  right ? <motion.span   key={`rn-${right.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(right.slide)}>{right.num}</motion.span> : <span key={`rn-empty-${i}`} />,
                 ];
               })}
             </div>
