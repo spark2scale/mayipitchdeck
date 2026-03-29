@@ -13,6 +13,7 @@ interface Props {
   logs: LogEntry[];
   onStart: () => void;
   onRefresh: () => void;
+  staticMode?: boolean;
 }
 
 function logIcon(text: string) {
@@ -26,7 +27,7 @@ function logIcon(text: string) {
   return "→";
 }
 
-export default function DemoAIPanel({ status, logs, onStart, onRefresh }: Props) {
+export default function DemoAIPanel({ status, logs, onStart, onRefresh, staticMode = false }: Props) {
   const logListRef = useRef<HTMLDivElement>(null);
 
   // Scroll to top when new logs appear (newest at top)
@@ -52,37 +53,39 @@ export default function DemoAIPanel({ status, logs, onStart, onRefresh }: Props)
       </div>
 
       {/* Action button */}
-      <div className="dap-btn-row">
-        {!isDone && !isError ? (
-          <button
-            className="dap-start-btn"
-            onClick={onStart}
-            disabled={isRunning}
-            aria-label={isRunning ? "AI agent is running" : "Start demo"}
-          >
-            {isRunning ? (
-              <>
-                <span className="dap-spinner" aria-hidden="true" />
-                Running…
-              </>
-            ) : (
-              <>
-                <span className="dap-play-icon" aria-hidden="true">▶</span>
-                Start Demo
-              </>
-            )}
-          </button>
-        ) : (
-          <button
-            className="dap-refresh-btn"
-            onClick={onRefresh}
-            aria-label="Refresh and run again with new patient data"
-          >
-            <span aria-hidden="true">↺</span>
-            &nbsp;Refresh
-          </button>
-        )}
-      </div>
+      {!staticMode && (
+        <div className="dap-btn-row">
+          {!isDone && !isError ? (
+            <button
+              className="dap-start-btn"
+              onClick={onStart}
+              disabled={isRunning}
+              aria-label={isRunning ? "AI agent is running" : "Start demo"}
+            >
+              {isRunning ? (
+                <>
+                  <span className="dap-spinner" aria-hidden="true" />
+                  Running…
+                </>
+              ) : (
+                <>
+                  <span className="dap-play-icon" aria-hidden="true">▶</span>
+                  Start Demo
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              className="dap-refresh-btn"
+              onClick={onRefresh}
+              aria-label="Refresh and run again with new patient data"
+            >
+              <span aria-hidden="true">↺</span>
+              &nbsp;Refresh
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Status indicator */}
       {isRunning && (

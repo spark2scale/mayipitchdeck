@@ -5,13 +5,26 @@ import PatientDataCard from "./PatientDataCard";
 import AuthorizationForm from "./AuthorizationForm";
 import DemoAIPanel from "./DemoAIPanel";
 import { useDemoLoop } from "./useDemoLoop";
+import { EXPORT_FORM_VALUES, EXPORT_LOG_TEXT } from "./exportDemoState";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-export default function SlideDemo() {
+interface SlideDemoProps {
+  isExportMode?: boolean;
+}
+
+export default function SlideDemo({ isExportMode = false }: SlideDemoProps) {
+  if (isExportMode) {
+    return <ExportSlideDemo />;
+  }
+
+  return <InteractiveSlideDemo />;
+}
+
+function InteractiveSlideDemo() {
   const demoAreaRef = useRef<HTMLDivElement>(null);
 
   // Patient data — regenerated on each refresh
@@ -105,6 +118,44 @@ export default function SlideDemo() {
             logs={state.logs}
             onStart={actions.startDemo}
             onRefresh={handleRefresh}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExportSlideDemo() {
+  const exportLogs = EXPORT_LOG_TEXT.map((text, index) => ({
+    id: index,
+    time: "",
+    text,
+  }));
+
+  return (
+    <div className="slide demo-slide demo-slide-export">
+      <div className="demo-slide-header">
+        <div className="eyebrow-tag">Live Demo</div>
+        <h2 className="slide-title demo-slide-title">
+          AI Agentic Computer Use
+          <span className="demo-slide-subtitle"> — Insurance Prior-Authorization Workflow</span>
+        </h2>
+      </div>
+
+      <div className="demo-main">
+        <div className="demo-area-wrap">
+          <div className="demo-page demo-page-export">
+            <AuthorizationForm values={EXPORT_FORM_VALUES} activeField={null} />
+          </div>
+        </div>
+
+        <div className="demo-panel-wrap">
+          <DemoAIPanel
+            status="done"
+            logs={exportLogs}
+            onStart={() => {}}
+            onRefresh={() => {}}
+            staticMode
           />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import SlideDemo from "./components/demo/SlideDemo";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -59,6 +59,22 @@ export const CCC_COLORS = {
   convert: "#b45309",
 } as const;
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
+const PDF_EXPORT_SETTLE_MS = 2600;
+type SlideId = (typeof SLIDES)[number];
+
+function getApiOrigin() {
+  if (import.meta.env.DEV) {
+    return `${window.location.protocol}//${window.location.hostname}:3001`;
+  }
+
+  if (API_BASE) {
+    return new URL(API_BASE, window.location.origin).toString();
+  }
+
+  return window.location.origin;
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function useIsMobile() {
@@ -76,8 +92,44 @@ function useIsMobile() {
 
 export default function App() {
   const isMobile = useIsMobile();
-  const slides = isMobile ? SLIDES.filter((s) => s !== "appendix" && s !== "demo") : SLIDES;
+  const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
+  const isPdfExport = useMemo(() => {
+    return searchParams.get("export") === "pdf";
+  }, [searchParams]);
+  const exportSlideId = useMemo<SlideId | null>(() => {
+    const slide = searchParams.get("slide");
+    if (!slide) {
+      return null;
+    }
+
+    return SLIDES.find((candidate) => candidate === slide) ?? null;
+  }, [searchParams]);
+  const slides = isMobile && !isPdfExport ? SLIDES.filter((s) => s !== "appendix" && s !== "demo") : SLIDES;
+  const exportSlides = isPdfExport && exportSlideId ? [exportSlideId] : SLIDES;
   const [current, setCurrent] = useState(0);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
+  const handleDownloadPdf = useCallback(() => {
+    if (isDownloadingPdf) {
+      return;
+    }
+
+    setIsDownloadingPdf(true);
+    const exportUrl = new URL("/api/export/pdf", getApiOrigin());
+    exportUrl.searchParams.set("baseUrl", window.location.origin);
+
+    const anchor = document.createElement("a");
+    anchor.href = exportUrl.toString();
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    window.setTimeout(() => {
+      setIsDownloadingPdf(false);
+    }, 1500);
+  }, [isDownloadingPdf]);
 
   // Sync CCC brand colors to CSS custom properties so all CSS can reference them
   useEffect(() => {
@@ -87,6 +139,69 @@ export default function App() {
     root.style.setProperty("--ccc-convert", CCC_COLORS.convert);
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const pdfWindow = window as Window & { __PDF_READY__?: boolean };
+
+    if (!isPdfExport) {
+      delete root.dataset.exportMode;
+      delete root.dataset.pdfReady;
+      pdfWindow.__PDF_READY__ = false;
+      return;
+    }
+
+    root.dataset.exportMode = "pdf";
+    root.dataset.pdfReady = "false";
+    if (exportSlideId) {
+      root.dataset.exportSlide = exportSlideId;
+    }
+    pdfWindow.__PDF_READY__ = false;
+
+    let cancelled = false;
+    const waitForFonts = document.fonts.ready.catch(() => undefined);
+    const waitForImages = Promise.all(
+      Array.from(document.images).map(
+        (image) => new Promise<void>((resolve) => {
+          if (image.complete) {
+            resolve();
+            return;
+          }
+
+          image.addEventListener("load", () => resolve(), { once: true });
+          image.addEventListener("error", () => resolve(), { once: true });
+        })
+      )
+    );
+
+    const markReady = async () => {
+      await waitForFonts;
+      await waitForImages;
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve());
+        });
+      });
+      await new Promise((resolve) => setTimeout(resolve, PDF_EXPORT_SETTLE_MS));
+
+      if (cancelled) {
+        return;
+      }
+
+      root.dataset.pdfReady = "true";
+      pdfWindow.__PDF_READY__ = true;
+    };
+
+    void markReady();
+
+    return () => {
+      cancelled = true;
+      delete root.dataset.exportMode;
+      delete root.dataset.pdfReady;
+      delete root.dataset.exportSlide;
+      pdfWindow.__PDF_READY__ = false;
+    };
+  }, [exportSlideId, isPdfExport]);
+
   const next = useCallback(
     () => setCurrent((c) => Math.min(c + 1, slides.length - 1)),
     [slides.length]
@@ -95,6 +210,10 @@ export default function App() {
 
   // Keyboard navigation
   useEffect(() => {
+    if (isPdfExport) {
+      return;
+    }
+
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") {
         e.preventDefault();
@@ -107,10 +226,14 @@ export default function App() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [next, prev]);
+  }, [isPdfExport, next, prev]);
 
   // Touch swipe navigation
   useEffect(() => {
+    if (isPdfExport) {
+      return;
+    }
+
     let startX = 0;
     let startY = 0;
     const onTouchStart = (e: TouchEvent) => {
@@ -131,13 +254,13 @@ export default function App() {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [next, prev]);
+  }, [isPdfExport, next, prev]);
 
   const slideId = slides[current];
 
   return (
     <>
-    <div className="deck-root">
+    {!isPdfExport && <div className="deck-root">
       {/* Ambient background blobs */}
       <div className="deck-bg">
         <div className="blob blob-top" />
@@ -171,14 +294,37 @@ export default function App() {
           ))}
         </nav>
 
-        <a
-          href="https://www.mayiguide.com"
-          target="_blank"
-          rel="noreferrer"
-          className="btn-primary btn-sm"
-        >
-          Live site
-        </a>
+        <div className="header-actions">
+          {!isMobile && (
+            <>
+              <button
+                type="button"
+                className="btn-secondary btn-sm"
+                onClick={handleDownloadPdf}
+                disabled={isDownloadingPdf}
+                title="Download a PDF rendered from the export-safe deck."
+              >
+                {isDownloadingPdf ? "Generating PDF..." : "Download PDF"}
+              </button>
+              <button
+                type="button"
+                className="btn-secondary btn-sm"
+                onClick={handlePrint}
+                title="Print in landscape or save as PDF. Enable backgrounds in the print dialog for best results."
+              >
+                Print / Save PDF
+              </button>
+            </>
+          )}
+          <a
+            href="https://www.mayiguide.com"
+            target="_blank"
+            rel="noreferrer"
+            className="btn-primary btn-sm"
+          >
+            Live site
+          </a>
+        </div>
       </header>
 
       {/* Slide area */}
@@ -192,21 +338,7 @@ export default function App() {
             transition={{ duration: 0.38 }}
             className="slide-wrap"
           >
-            {slideId === "founder" && <SlideFounder />}
-            {slideId === "hero" && <SlideHero goTo={setCurrent} />}
-            {slideId === "problem" && <SlideProblem />}
-            {slideId === "loss" && <SlideLoss />}
-            {slideId === "engine" && <SlideEngine />}
-            {slideId === "capture-detail" && <SlideCaptureDetail />}
-            {slideId === "connect-detail" && <SlideConnectDetail />}
-            {slideId === "convert-detail" && <SlideConvertDetail />}
-            {slideId === "roi" && <SlideROI />}
-            {slideId === "why-wins" && <SlideWhyWins />}
-            {slideId === "moats" && <SlideMoats />}
-            {slideId === "vision" && <SlideVision />}
-            {slideId === "path" && <SlidePath />}
-            {slideId === "demo" && <SlideDemo />}
-            {slideId === "appendix" && <SlideAppendix />}
+            {renderSlide(slideId, setCurrent, { isExportMode: false })}
             {/* slideId === "color-options" && <SlideColorOptions /> */}
           </motion.div>
         </AnimatePresence>
@@ -234,32 +366,41 @@ export default function App() {
           <ChevronRight size={20} />
         </button>
       </footer>
-    </div>
+    </div>}
 
     {/* Print-only deck: all slides rendered simultaneously, one per page */}
-    <div className="print-deck" aria-hidden="true">
-      {SLIDES.map((id) => (
+    <div className="print-deck" aria-hidden={isPdfExport ? undefined : "true"}>
+      {exportSlides.map((id) => (
         <div key={id} className="print-slide">
-          {id === "hero" && <SlideHero goTo={() => {}} />}
-          {id === "founder" && <SlideFounder />}
-          {id === "problem" && <SlideProblem />}
-          {id === "loss" && <SlideLoss />}
-          {id === "engine" && <SlideEngine />}
-          {id === "capture-detail" && <SlideCaptureDetail />}
-          {id === "connect-detail" && <SlideConnectDetail />}
-          {id === "convert-detail" && <SlideConvertDetail />}
-          {id === "roi" && <SlideROI />}
-          {id === "why-wins" && <SlideWhyWins />}
-          {id === "path" && <SlidePath />}
-          {id === "moats" && <SlideMoats />}
-          {id === "vision" && <SlideVision />}
-          {id === "demo" && <SlideDemo />}
-          {id === "appendix" && <SlideAppendix />}
+          {renderSlide(id, () => {}, { isExportMode: isPdfExport })}
         </div>
       ))}
     </div>
     </>
   );
+}
+
+function renderSlide(
+  slideId: (typeof SLIDES)[number],
+  goTo: (index: number) => void,
+  options: { isExportMode: boolean },
+) {
+  if (slideId === "founder") return <SlideFounder />;
+  if (slideId === "hero") return <SlideHero goTo={goTo} />;
+  if (slideId === "problem") return <SlideProblem />;
+  if (slideId === "loss") return <SlideLoss />;
+  if (slideId === "engine") return <SlideEngine />;
+  if (slideId === "capture-detail") return <SlideCaptureDetail />;
+  if (slideId === "connect-detail") return <SlideConnectDetail />;
+  if (slideId === "convert-detail") return <SlideConvertDetail />;
+  if (slideId === "roi") return <SlideROI />;
+  if (slideId === "why-wins") return <SlideWhyWins />;
+  if (slideId === "moats") return <SlideMoats />;
+  if (slideId === "vision") return <SlideVision />;
+  if (slideId === "path") return <SlidePath />;
+  if (slideId === "demo") return <SlideDemo isExportMode={options.isExportMode} />;
+  if (slideId === "appendix") return <SlideAppendix />;
+  return null;
 }
 
 // ─── Slide 0: Founder ───────────────────────────────────────────────────────────
