@@ -108,9 +108,6 @@ export default function App() {
   const exportSlides = isPdfExport && exportSlideId ? [exportSlideId] : SLIDES;
   const [current, setCurrent] = useState(0);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
-  const handlePrint = useCallback(() => {
-    window.print();
-  }, []);
   const handleDownloadPdf = useCallback(() => {
     if (isDownloadingPdf) {
       return;
@@ -296,25 +293,15 @@ export default function App() {
 
         <div className="header-actions">
           {!isMobile && (
-            <>
-              <button
-                type="button"
-                className="btn-secondary btn-sm"
-                onClick={handleDownloadPdf}
-                disabled={isDownloadingPdf}
-                title="Download a PDF rendered from the export-safe deck."
-              >
-                {isDownloadingPdf ? "Generating PDF..." : "Download PDF"}
-              </button>
-              <button
-                type="button"
-                className="btn-secondary btn-sm"
-                onClick={handlePrint}
-                title="Print in landscape or save as PDF. Enable backgrounds in the print dialog for best results."
-              >
-                Print / Save PDF
-              </button>
-            </>
+            <button
+              type="button"
+              className="btn-secondary btn-sm"
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+              title="Download a PDF rendered from the export-safe deck."
+            >
+              {isDownloadingPdf ? "Generating PDF..." : "Download PDF"}
+            </button>
           )}
           <a
             href="https://www.mayiguide.com"
