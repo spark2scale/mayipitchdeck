@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import { computerUseRouter } from "./routes/computerUse.js";
+import { pdfExportRouter } from "./routes/pdfExport.js";
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3001);
@@ -24,6 +25,15 @@ app.use(express.json({ limit: "20mb" })); // screenshots can be large
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => res.json({ ok: true, ts: Date.now() }));
 app.use("/api/computer-use", computerUseRouter);
+app.use("/api/export", pdfExportRouter);
+
+app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  console.error("[server] request failed", error);
+  res.status(500).json({
+    error: "request_failed",
+    message: error instanceof Error ? error.message : "Unknown server error",
+  });
+});
 
 // ── Start ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {

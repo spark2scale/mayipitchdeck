@@ -1,5 +1,6 @@
 [build]
 builder = "NIXPACKS"
+buildCommand = "npm ci && npx playwright install chromium"
 
 [deploy]
 startCommand = "npx tsx src/index.ts"
