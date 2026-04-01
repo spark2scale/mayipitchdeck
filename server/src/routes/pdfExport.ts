@@ -12,20 +12,24 @@ const EXPORT_VIEWPORT_HEIGHT = 900;
 const DEFAULT_FRONTEND_URL = "http://127.0.0.1:5173/";
 const SLIDES = [
   "hero",
-  "founder",
   "problem",
   "loss",
+  "demo",
   "engine",
-  "capture-detail",
-  "connect-detail",
-  "convert-detail",
+  "ccc-overview",
   "roi",
+  "traction",
+  "founder",
+  "enterprise-grade",
   "why-wins",
   "path",
   "moats",
   "vision",
-  "demo",
+  "ask",
   "appendix",
+  "capture-detail",
+  "connect-detail",
+  "convert-detail",
 ] as const;
 
 let browserPromise: Promise<Browser> | null = null;
