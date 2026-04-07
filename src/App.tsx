@@ -424,7 +424,7 @@ type DetailStage = {
 
 const CAPTURE_DETAIL: DetailStage = {
   label: "Capture",
-  eyebrow: "Capture",
+  eyebrow: "Appendix: Capture",
   percent: "30%",
   friction: "Front office personnel spend 30% of their time manually capturing patient information and scheduling appointments.",
   summary: "of front-office time automated",
@@ -454,7 +454,7 @@ const CAPTURE_DETAIL: DetailStage = {
 
 const CONNECT_DETAIL: DetailStage = {
   label: "Connect",
-  eyebrow: "Connect",
+  eyebrow: "Appendix: Connect",
   percent: "20%",
   friction: "Front office personnel spend 20% of their time manually entering data into payer portals, and emailing or calling payers to verify insurance.",
   summary: "of front-office time automated",
@@ -484,7 +484,7 @@ const CONNECT_DETAIL: DetailStage = {
 
 const CONVERT_DETAIL: DetailStage = {
   label: "Convert",
-  eyebrow: "Convert",
+  eyebrow: "Appendix: Convert",
   percent: "10%",
   friction: "Front desk personnel spend 10% of their time making outbound calls for patient recalls, scheduling surgeries, or billing.",
   summary: "of front-office time automated",
