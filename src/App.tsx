@@ -14,26 +14,31 @@ import {
   ArrowRight, ScanText, BotMessageSquare, UserRound,
   FileSearch, MailCheck, Workflow,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote, MousePointerClick,
+  type LucideIcon,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 const SLIDES = [
   "hero",
-  "founder",
   "problem",
   "loss",
+  "demo",
   "engine",
-  "capture-detail",
-  "connect-detail",
-  "convert-detail",
+  "ccc-overview",
   "roi",
+  "traction",
+  "founder",
+  "enterprise-grade",
   "why-wins",
   "path",
   "moats",
   "vision",
-  "demo",
+  "ask",
   "appendix",
+  "capture-detail",
+  "connect-detail",
+  "convert-detail",
   // "color-options",
 ] as const;
 
@@ -105,6 +110,10 @@ export default function App() {
     return SLIDES.find((candidate) => candidate === slide) ?? null;
   }, [searchParams]);
   const slides = isMobile && !isPdfExport ? SLIDES.filter((s) => s !== "appendix" && s !== "demo") : SLIDES;
+  const navSlides = useMemo(() => {
+    const askIndex = slides.indexOf("ask");
+    return askIndex >= 0 ? slides.slice(0, askIndex + 1) : slides;
+  }, [slides]);
   const exportSlides = isPdfExport && exportSlideId ? [exportSlideId] : SLIDES;
   const [current, setCurrent] = useState(0);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -254,6 +263,7 @@ export default function App() {
   }, [isPdfExport, next, prev]);
 
   const slideId = slides[current];
+  const navCurrent = Math.min(current, navSlides.length - 1);
 
   return (
     <>
@@ -280,13 +290,13 @@ export default function App() {
         </button>
 
         <nav className="slide-dots" aria-label="Slide navigation">
-          {slides.map((id, i) => (
+          {navSlides.map((id, i) => (
             <button
               key={id}
               onClick={() => setCurrent(i)}
-              className={`dot ${i === current ? "dot-active" : ""}`}
+              className={`dot ${i === navCurrent ? "dot-active" : ""}`}
               aria-label={`Slide ${i + 1}`}
-              aria-current={i === current ? "true" : undefined}
+              aria-current={i === navCurrent ? "true" : undefined}
             />
           ))}
         </nav>
@@ -342,7 +352,7 @@ export default function App() {
           <ChevronLeft size={20} />
         </button>
         <span className="slide-counter">
-          {current + 1} / {slides.length}
+          {navCurrent + 1} / {navSlides.length}
         </span>
         <button
           onClick={next}
@@ -380,14 +390,222 @@ function renderSlide(
   if (slideId === "capture-detail") return <SlideCaptureDetail />;
   if (slideId === "connect-detail") return <SlideConnectDetail />;
   if (slideId === "convert-detail") return <SlideConvertDetail />;
+  if (slideId === "ccc-overview") return <SlideCCCOverview />;
   if (slideId === "roi") return <SlideROI />;
+  if (slideId === "traction") return <SlideTraction />;
+  if (slideId === "enterprise-grade") return <SlideEnterpriseGrade />;
   if (slideId === "why-wins") return <SlideWhyWins />;
   if (slideId === "moats") return <SlideMoats />;
   if (slideId === "vision") return <SlideVision />;
-  if (slideId === "path") return <SlidePath />;
+  if (slideId === "path") return <SlidePath goTo={goTo} />;
+  if (slideId === "ask") return <SlideAsk />;
   if (slideId === "demo") return <SlideDemo isExportMode={options.isExportMode} />;
   if (slideId === "appendix") return <SlideAppendix />;
   return null;
+}
+
+type DetailCardShade = "card-capture" | "card-connect" | "card-convert";
+
+type DetailStage = {
+  label: string;
+  eyebrow: string;
+  percent: string;
+  friction: string;
+  summary: string;
+  shade: DetailCardShade;
+  accent: string;
+  cards: ReadonlyArray<{
+    icon: LucideIcon;
+    title: string;
+    text: string;
+    compactText: string;
+  }>;
+};
+
+const CAPTURE_DETAIL: DetailStage = {
+  label: "Capture",
+  eyebrow: "Capture",
+  percent: "30%",
+  friction: "Front office personnel spend 30% of their time manually capturing patient information and scheduling appointments.",
+  summary: "of front-office time automated",
+  shade: "card-capture",
+  accent: CCC_COLORS.capture,
+  cards: [
+    {
+      icon: BotMessageSquare,
+      title: "AI Comms",
+      text: "AI answers patient calls and texts, captures demographic and insurance information, negotiates availability, and schedules consultations in the EMR/PMS.",
+      compactText: "Calls, texts, intake, insurance capture, and scheduling.",
+    },
+    {
+      icon: ScanText,
+      title: "AI Object Character Recognition",
+      text: "AI extracts patient demographic and insurance information from faxes and documents and schedules consultations in the EMR/PMS.",
+      compactText: "Fax and document extraction into the scheduling workflow.",
+    },
+    {
+      icon: UserRound,
+      title: "Personalization",
+      text: "All customer conversations and future intent are captured in the CRM. This data is used to personalize patient engagement at every touchpoint.",
+      compactText: "CRM memory that personalizes each patient touchpoint.",
+    },
+  ],
+};
+
+const CONNECT_DETAIL: DetailStage = {
+  label: "Connect",
+  eyebrow: "Connect",
+  percent: "20%",
+  friction: "Front office personnel spend 20% of their time manually entering data into payer portals, and emailing or calling payers to verify insurance.",
+  summary: "of front-office time automated",
+  shade: "card-connect",
+  accent: CCC_COLORS.connect,
+  cards: [
+    {
+      icon: FileSearch,
+      title: "AI submits patient data in payer portals",
+      text: "AI navigates payer portals, enters patient data, and triggers insurance pre-authorization automatically.",
+      compactText: "Portal submission and pre-auth initiation without staff entry.",
+    },
+    {
+      icon: MailCheck,
+      title: "AI analyzes emails to reconcile pre-auth",
+      text: "Responses that arrive via email are reconciled, resubmitted, or flagged — without staff involvement.",
+      compactText: "Email reconciliation, resubmission, and escalation automatically.",
+    },
+    {
+      icon: Workflow,
+      title: "Agentic CRM automates pipelines",
+      text: "Inputs, agentic operations, and outputs are defined for each stage in the CRM and automatically moved to the next stage until complete.",
+      compactText: "Stage-based CRM operations move work to completion.",
+    },
+  ],
+};
+
+const CONVERT_DETAIL: DetailStage = {
+  label: "Convert",
+  eyebrow: "Convert",
+  percent: "10%",
+  friction: "Front desk personnel spend 10% of their time making outbound calls for patient recalls, scheduling surgeries, or billing.",
+  summary: "of front-office time automated",
+  shade: "card-convert",
+  accent: CCC_COLORS.convert,
+  cards: [
+    {
+      icon: PhoneOutgoing,
+      title: "Patient Recall Automation",
+      text: "AI identifies patients due for follow-ups and automatically initiates call or text outreach based on last visit date and procedure history.",
+      compactText: "Follow-up outreach triggered by visit and procedure history.",
+    },
+    {
+      icon: SurgeryIcon,
+      title: "Procedure & Surgery Coordination",
+      text: "AI coordinates procedure scheduling across clinics and surgery centers. Automatically confirms availability and manages paperwork.",
+      compactText: "Cross-clinic scheduling, availability, and paperwork orchestration.",
+    },
+    {
+      icon: Banknote,
+      title: "Intelligent Collections",
+      text: "AI agents follow up on outstanding balances through personalized calls and texts. Improves collection rates and reduces days in A/R.",
+      compactText: "Personalized collections outreach that improves A/R performance.",
+    },
+  ],
+};
+
+const CCC_STAGES = [CAPTURE_DETAIL, CONNECT_DETAIL, CONVERT_DETAIL] as const;
+
+const ECONOMIC_MOAT_VALUES = [
+  { label: "Hours saved / week", value: "10 hrs charting", emphasis: false },
+  { label: "Annual labor value", value: "$50,000", emphasis: true },
+  { label: "May I annual price", value: "$7,200", emphasis: false },
+  { label: "Practitioner ROI", value: "7×", emphasis: true },
+] as const;
+
+const TRACTION_PRIMARY_METRICS = [
+  { value: "2", label: "Practices" },
+  { value: "9", label: "Providers" },
+  { value: "3,082", label: "Calls handled /\u00a0month" },
+  { value: "381", label: "AI leads captured /\u00a0month" },
+] as const;
+
+const TRACTION_SECONDARY_METRICS = [
+  { value: "18.6%", label: "of call volume occurs after hours" },
+  { value: "21.5%", label: "of captured leads happen after hours" },
+] as const;
+
+const TRACTION_CUSTOMERS = [
+  {
+    name: "AFB Plastic Surgery",
+    logoSrc: "/afbLogoBrown.png",
+    logoAlt: "AFB Plastic Surgery logo",
+    logoClassName: "traction-customer-logo-light",
+    profile: "7-provider plastic surgery practice in Austin, Texas",
+    impact: "Validates May I in a premium, high-intent specialty where missed calls directly translate into missed consult revenue.",
+  },
+  {
+    name: "Rosemead Eye Center",
+    logoSrc: "/RosemeadEyeLogo.png",
+    logoAlt: "Rosemead Eye Center logo",
+    logoClassName: undefined,
+    profile: "2-provider ophthalmology practice in Rosemead, California",
+    impact: "Shows the platform adapts across specialties, capturing patient demand in a high-volume workflow-heavy environment.",
+  },
+] as const;
+
+const OPEN_AGENT_RISKS = [
+  {
+    stat: "~20%",
+    headline: "of ClawHub marketplace flagged as malware",
+    source: "Bitdefender, Feb 2026",
+  },
+  {
+    stat: "1,467",
+    headline: "malicious skills identified",
+    source: "Snyk ToxicSkills report",
+  },
+  {
+    stat: "42,000+",
+    headline: "exposed instances without authentication",
+    source: "Shodan / Censys",
+  },
+  {
+    stat: "CVE-2026-25253",
+    headline: "one-click RCE, CVSS 8.8 — a severe flaw that could let an attacker take over a system with a single click",
+    source: "NVD",
+  },
+] as const;
+
+const ENTERPRISE_CONTROLS = [
+  "HIPAA-compliant infrastructure from day one",
+  "No open marketplace — curated, audited workflows",
+  "Healthcare-specific guardrails and validation",
+  "Human-in-the-loop for critical decisions",
+  "SOC 2 compliance pathway",
+  "Closed-loop system — no third-party skills",
+] as const;
+
+const ASK_ROUND_DETAILS = [
+  { label: "Raising", value: "$5M" },
+  { label: "Instrument", value: "Priced Seed Round" },
+  { label: "Valuation cap", value: "$35M" },
+  { label: "Use of funds", value: "Engineering + GTM teams, customer acquisition, tokens" },
+] as const;
+
+const ASK_MILESTONES = [
+  "Hire a CTO + engineering team",
+  "Hire sales / marketing lead + GTM team",
+  "Product GA with first 50 paying practices",
+  "Prove unit economics (CAC, LTV, payback)",
+  "Build pipeline for Series A",
+] as const;
+
+function renderDetailCards(cards: DetailStage["cards"], shade: DetailCardShade) {
+  return cards.map(({ icon: Icon, title, text }) => (
+    <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
+      <div className="detail-card-title"><Icon size={20} />{title}</div>
+      <div className="detail-card-text">{text}</div>
+    </motion.div>
+  ));
 }
 
 // ─── Slide 0: Founder ───────────────────────────────────────────────────────────
@@ -451,20 +669,32 @@ function SlideFounder() {
 
 function SlideHero({ goTo }: { goTo: (i: number) => void }) {
   const isMobile = useIsMobile();
-  const agendaAll = [
-    { num: "2",  label: "Founder & CEO",         slide: 1  },
-    { num: "3",  label: "The Problem",            slide: 2  },
-    { num: "5",  label: "The May I System",       slide: 4  },
-    { num: "9",  label: "Business Impact",        slide: 8  },
-    { num: "10", label: "Competitive Landscape",  slide: 9  },
-    { num: "11", label: "Investor Case",          slide: 10 },
-    { num: "12", label: "Revenue Projections",    slide: 11 },
-    { num: "13", label: "Vision",                 slide: 12 },
-    { num: "14", label: "Live Demo",              slide: 13 },
-    { num: "15", label: "Appendix",               slide: 14 },
+  const visibleSlides: readonly SlideId[] = isMobile
+    ? SLIDES.filter((slide): slide is Exclude<SlideId, "appendix" | "demo"> => slide !== "appendix" && slide !== "demo")
+    : SLIDES;
+  const agendaAll: ReadonlyArray<{ num: string; label: string; slideId: SlideId }> = [
+    { num: "2",  label: "The Problem",            slideId: "problem" },
+    { num: "4",  label: "Live Demo",              slideId: "demo" },
+    { num: "5",  label: "The May I System",       slideId: "engine" },
+    { num: "7",  label: "Business Impact",        slideId: "roi" },
+    { num: "8",  label: "Traction",               slideId: "traction" },
+    { num: "9",  label: "Founder & CEO",          slideId: "founder" },
+    { num: "10", label: "Enterprise Security",    slideId: "enterprise-grade" },
+    { num: "11", label: "Competitive Landscape",  slideId: "why-wins" },
+    { num: "12", label: "Investor Case",          slideId: "path" },
+    { num: "13", label: "Revenue Projections",    slideId: "moats" },
+    { num: "14", label: "Vision",                 slideId: "vision" },
+    { num: "15", label: "The Ask",                slideId: "ask" },
+    { num: "16", label: "Appendix",               slideId: "appendix" },
   ];
   const agenda = isMobile ? agendaAll.filter((a) => a.label !== "Live Demo") : agendaAll;
   const agendaRef = useRef<HTMLDivElement>(null);
+  const goToSlide = useCallback((slideId: SlideId) => {
+    const slideIndex = visibleSlides.indexOf(slideId);
+    if (slideIndex >= 0) {
+      goTo(slideIndex);
+    }
+  }, [goTo, visibleSlides]);
 
   return (
     <div className="slide slide-hero">
@@ -550,10 +780,10 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
               {agenda.slice(0, Math.ceil(agenda.length / 2)).flatMap((left, i) => {
                 const right = agenda[Math.ceil(agenda.length / 2) + i];
                 return [
-                  <motion.button key={`ll-${left.num}`} variants={fadeUp} className="agenda-chip-label" onClick={() => goTo(left.slide)}>{left.label}</motion.button>,
-                  <motion.span   key={`ln-${left.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(left.slide)}>{left.num}</motion.span>,
-                  right ? <motion.button key={`rl-${right.num}`} variants={fadeUp} className={`agenda-chip-label agenda-chip-label--right${right.num === "15" ? " agenda-item-appendix" : ""}`} onClick={() => goTo(right.slide)}>{right.label}</motion.button> : <span key={`rl-empty-${i}`} />,
-                  right ? <motion.span   key={`rn-${right.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goTo(right.slide)}>{right.num}</motion.span> : <span key={`rn-empty-${i}`} />,
+                  <motion.button key={`ll-${left.num}`} variants={fadeUp} className="agenda-chip-label" onClick={() => goToSlide(left.slideId)}>{left.label}</motion.button>,
+                  <motion.span   key={`ln-${left.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goToSlide(left.slideId)}>{left.num}</motion.span>,
+                  right ? <motion.button key={`rl-${right.num}`} variants={fadeUp} className={`agenda-chip-label agenda-chip-label--right${right.num === "17" ? " agenda-item-appendix" : ""}`} onClick={() => goToSlide(right.slideId)}>{right.label}</motion.button> : <span key={`rl-empty-${i}`} />,
+                  right ? <motion.span   key={`rn-${right.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goToSlide(right.slideId)}>{right.num}</motion.span> : <span key={`rn-empty-${i}`} />,
                 ];
               })}
             </div>
@@ -703,6 +933,13 @@ function SlideLoss() {
               of first-time inquiries never receive a timely callback
             </div>
           </div>
+          <div className="loss-callout-inner">
+            <div className="loss-big-stat">$500K+</div>
+            <div className="loss-big-label">
+              annual revenue leaked from a typical 5-physician practice
+            </div>
+            <div className="loss-big-source">Patient10x, 2025</div>
+          </div>
         </motion.div>
       </div>
     </div>
@@ -825,31 +1062,10 @@ function SlideEngine() {
 // ─── Slide 6a: Capture detail ─────────────────────────────────────────────────
 
 function SlideCaptureDetail() {
-  const cards = [
-    {
-      icon: <BotMessageSquare size={20} />,
-      title: "AI Comms",
-      text: "AI answers patient calls and texts, captures demographic and insurance information, negotiates availability, and schedules consultations in the EMR/PMS.",
-      shade: "card-capture",
-    },
-    {
-      icon: <ScanText size={20} />,
-      title: "AI Object Character Recognition",
-      text: "AI extracts patient demographic and insurance information from faxes and documents and schedules consultations in the EMR/PMS.",
-      shade: "card-capture",
-    },
-    {
-      icon: <UserRound size={20} />,
-      title: "Personalization",
-      text: "All customer conversations and future intent are captured in the CRM. This data is used to personalize patient engagement at every touchpoint.",
-      shade: "card-capture",
-    },
-  ];
-
   return (
     <div className="slide slide-detail">
       <div className="detail-left">
-        <div className="detail-eyebrow">Capture</div>
+        <div className="detail-eyebrow">{CAPTURE_DETAIL.eyebrow}</div>
         <div className="detail-friction">
           Front office personnel spend{" "}
           <span className="detail-pct">30%</span> of their time manually
@@ -862,12 +1078,7 @@ function SlideCaptureDetail() {
         initial="hidden"
         animate="show"
       >
-        {cards.map(({ icon, title, text, shade }) => (
-          <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
-            <div className="detail-card-title">{icon}{title}</div>
-            <div className="detail-card-text">{text}</div>
-          </motion.div>
-        ))}
+        {renderDetailCards(CAPTURE_DETAIL.cards, CAPTURE_DETAIL.shade)}
       </motion.div>
     </div>
   );
@@ -876,31 +1087,10 @@ function SlideCaptureDetail() {
 // ─── Slide 6b: Connect detail ─────────────────────────────────────────────────
 
 function SlideConnectDetail() {
-  const cards = [
-    {
-      icon: <FileSearch size={20} />,
-      title: "AI submits patient data in payer portals",
-      text: "AI navigates payer portals, enters patient data, and triggers insurance pre-authorization automatically.",
-      shade: "card-connect",
-    },
-    {
-      icon: <MailCheck size={20} />,
-      title: "AI analyzes emails to reconcile pre-auth",
-      text: "Responses that arrive via email are reconciled, resubmitted, or flagged — without staff involvement.",
-      shade: "card-connect",
-    },
-    {
-      icon: <Workflow size={20} />,
-      title: "Agentic CRM automates pipelines",
-      text: "Inputs, agentic operations, and outputs are defined for each stage in the CRM and automatically moved to the next stage until complete.",
-      shade: "card-connect",
-    },
-  ];
-
   return (
     <div className="slide slide-detail">
       <div className="detail-left">
-        <div className="detail-eyebrow">Connect</div>
+        <div className="detail-eyebrow">{CONNECT_DETAIL.eyebrow}</div>
         <div className="detail-friction">
           Front office personnel spend{" "}
           <span className="detail-pct">20%</span> of their time manually
@@ -914,12 +1104,7 @@ function SlideConnectDetail() {
         initial="hidden"
         animate="show"
       >
-        {cards.map(({ icon, title, text, shade }) => (
-          <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
-            <div className="detail-card-title">{icon}{title}</div>
-            <div className="detail-card-text">{text}</div>
-          </motion.div>
-        ))}
+        {renderDetailCards(CONNECT_DETAIL.cards, CONNECT_DETAIL.shade)}
       </motion.div>
     </div>
   );
@@ -928,31 +1113,10 @@ function SlideConnectDetail() {
 // ─── Slide 6c: Convert detail ─────────────────────────────────────────────────
 
 function SlideConvertDetail() {
-  const cards = [
-    {
-      icon: <PhoneOutgoing size={20} />,
-      title: "Patient Recall Automation",
-      text: "AI identifies patients due for follow-ups and automatically initiates call or text outreach based on last visit date and procedure history.",
-      shade: "card-convert",
-    },
-    {
-      icon: <SurgeryIcon size={20} />,
-      title: "Procedure & Surgery Coordination",
-      text: "AI coordinates procedure scheduling across clinics and surgery centers. Automatically confirms availability and manages paperwork.",
-      shade: "card-convert",
-    },
-    {
-      icon: <Banknote size={20} />,
-      title: "Intelligent Collections",
-      text: "AI agents follow up on outstanding balances through personalized calls and texts. Improves collection rates and reduces days in A/R.",
-      shade: "card-convert",
-    },
-  ];
-
   return (
     <div className="slide slide-detail">
       <div className="detail-left">
-        <div className="detail-eyebrow">Convert</div>
+        <div className="detail-eyebrow">{CONVERT_DETAIL.eyebrow}</div>
         <div className="detail-friction">
           Front desk personnel spend{" "}
           <span className="detail-pct">10%</span> of their time making
@@ -966,12 +1130,58 @@ function SlideConvertDetail() {
         initial="hidden"
         animate="show"
       >
-        {cards.map(({ icon, title, text, shade }) => (
-          <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
-            <div className="detail-card-title">{icon}{title}</div>
-            <div className="detail-card-text">{text}</div>
-          </motion.div>
+        {renderDetailCards(CONVERT_DETAIL.cards, CONVERT_DETAIL.shade)}
+      </motion.div>
+    </div>
+  );
+}
+
+function SlideCCCOverview() {
+  return (
+    <div className="slide slide-ccc-summary">
+      <motion.div className="ccc-summary-header" variants={stagger} initial="hidden" animate="show">
+        <motion.div variants={fadeUp} className="detail-eyebrow ccc-summary-eyebrow">
+          The May I System
+        </motion.div>
+        <motion.h2 variants={fadeUp} className="ccc-summary-title">
+          {CCC_STAGES.map((stage, index) => (
+            <span key={stage.label} className="ccc-summary-title-segment">
+              <span className="ccc-summary-title-word" style={{ color: stage.accent }}>{stage.label}</span>
+              {index < CCC_STAGES.length - 1 ? <span className="ccc-summary-title-arrow">→</span> : null}
+            </span>
+          ))}
+        </motion.h2>
+        <motion.p variants={fadeUp} className="ccc-summary-subtitle">
+          A single operating view of how May I automates intake, payer workflows, and downstream revenue follow-up.
+        </motion.p>
+      </motion.div>
+
+      <motion.div className="ccc-summary-grid" variants={stagger} initial="hidden" animate="show">
+        {CCC_STAGES.map((stage) => (
+          <motion.section key={stage.label} variants={fadeUp} className={`ccc-summary-panel ${stage.shade}`}>
+            <div className="ccc-summary-panel-label" style={{ color: stage.accent }}>{stage.label}</div>
+            <div className="ccc-summary-metric">
+              <div className="ccc-summary-percent" style={{ color: stage.accent }}>{stage.percent}</div>
+              <div className="ccc-summary-metric-text">{stage.summary}</div>
+            </div>
+            <div className="ccc-summary-rows">
+              {stage.cards.map(({ icon: Icon, title, compactText }) => (
+                <div key={title} className="ccc-summary-row">
+                  <div className="ccc-summary-row-title-wrap">
+                    <Icon size={16} color={stage.accent} />
+                    <div className="ccc-summary-row-title">{title}</div>
+                  </div>
+                  <div className="ccc-summary-row-text">{compactText}</div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
         ))}
+      </motion.div>
+
+      <motion.div variants={fadeUp} initial="hidden" animate="show" className="ccc-summary-footer">
+        <span className="ccc-summary-footer-total">60%</span>
+        <span className="ccc-summary-footer-text">of front-office time automated across capture, connect, and convert.</span>
       </motion.div>
     </div>
   );
@@ -1030,6 +1240,140 @@ function SlideROI() {
             <div className="roi-label">{label}</div>
           </motion.div>
         ))}
+      </motion.div>
+      <motion.div
+        className="roi-moat-strip"
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+      >
+        <div className="roi-moat-strip-head">
+          <span className="roi-moat-strip-label">The Economic Moat</span>
+          <span className="roi-moat-strip-tag">FTE Replacement, not SaaS</span>
+        </div>
+        <div className="roi-moat-strip-grid">
+          {ECONOMIC_MOAT_VALUES.map(({ label, value, emphasis }) => (
+            <div key={label} className={`roi-moat-strip-item${emphasis ? " roi-moat-strip-item-emphasis" : ""}`}>
+              <div className="roi-moat-strip-key">{label}</div>
+              <div className="roi-moat-strip-value">{value}</div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function SlideTraction() {
+  return (
+    <div className="slide slide-traction">
+      <SlideHeader
+        eyebrow="Traction"
+        title="Early signal that the flywheel is turning."
+      />
+      <motion.div className="traction-layout" variants={stagger} initial="hidden" animate="show">
+        <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
+          <div className="traction-panel-label">Live customer usage</div>
+
+          <div className="traction-summary-grid">
+            {TRACTION_PRIMARY_METRICS.slice(0, 2).map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-primary">
+                <div className="traction-stat-value">{metric.value}</div>
+                <div className="traction-stat-label">{metric.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="traction-featured-stack">
+            {TRACTION_PRIMARY_METRICS.slice(2).map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
+                <div className="traction-stat-value">{metric.value}</div>
+                <div className="traction-stat-label">{metric.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="traction-secondary-grid">
+            {TRACTION_SECONDARY_METRICS.map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-secondary">
+                <div className="traction-stat-value">{metric.value}</div>
+                <div className="traction-stat-label">{metric.label}</div>
+              </div>
+            ))}
+          </div>
+
+        </motion.section>
+
+        <motion.section variants={fadeUp} className="traction-panel traction-panel-customers">
+          <div className="traction-panel-label">Customer footprint</div>
+          <div className="traction-customer-grid">
+            {TRACTION_CUSTOMERS.map((customer) => (
+              <article key={customer.name} className="traction-customer-card">
+                <div className="traction-customer-logo-wrap">
+                  <img
+                    src={customer.logoSrc}
+                    alt={customer.logoAlt}
+                    className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
+                  />
+                </div>
+                <div className="traction-customer-name">{customer.name}</div>
+                <div className="traction-customer-profile">{customer.profile}</div>
+                <p className="traction-customer-impact">{customer.impact}</p>
+              </article>
+            ))}
+          </div>
+          <p className="traction-proof-headline">
+            Real production demand across two distinct specialty practices.
+          </p>
+          <p className="traction-proof-copy">
+            May I is already live in workflows where speed to response drives revenue and patient conversion. <span className="traction-proof-accent">This is production usage.</span> It is recurring, specialty-specific call volume with measurable after-hours capture.
+          </p>
+          <div className="traction-customer-intro">
+            Two deployments, two specialties, two states. Early evidence that the product travels across healthcare verticals without changing the core wedge.
+          </div>
+        </motion.section>
+      </motion.div>
+    </div>
+  );
+}
+
+function SlideEnterpriseGrade() {
+  return (
+    <div className="slide slide-enterprise-grade">
+      <SlideHeader
+        eyebrow="Why Enterprise-Grade Matters"
+        title="Open-source AI agents are a healthcare liability."
+      />
+      <motion.div className="enterprise-grid" variants={stagger} initial="hidden" animate="show">
+        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-risk">
+          <div className="enterprise-panel-label enterprise-panel-label-risk">The OpenClaw Crisis — Feb 2026</div>
+          <div className="enterprise-risk-list">
+            {OPEN_AGENT_RISKS.map(({ stat, headline, source }) => (
+              <div key={stat} className="enterprise-risk-item">
+                <div className="enterprise-risk-stat">{stat}</div>
+                <div className="enterprise-risk-copy">
+                  <div className="enterprise-risk-headline">{headline}</div>
+                  <div className="enterprise-risk-source">{source}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-safe">
+          <div className="enterprise-panel-label enterprise-panel-label-safe">May I's Enterprise Approach</div>
+          <div className="enterprise-safe-list">
+            {ENTERPRISE_CONTROLS.map((item) => (
+              <div key={item} className="enterprise-safe-item">
+                <CheckCircle2 size={18} className="enterprise-safe-icon" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      </motion.div>
+      <motion.div variants={fadeUp} initial="hidden" animate="show" className="enterprise-footer-note">
+        In healthcare, security isn't a feature — it's a license to operate.
       </motion.div>
     </div>
   );
@@ -1152,26 +1496,32 @@ function SlideMoats_original() {
 END COMMENTED OUT */
 
 function SlideMoats() {
-  const rows: { year: string; providers: string; share: string; arr: string; val: string; milestone?: boolean }[] = [
-    { year: "Year 1", providers: "150",    share: "0.01%", arr: "$1.08M",   val: "$8.6M"           },
-    { year: "Year 2", providers: "450",    share: "0.04%", arr: "$3.24M",   val: "$25.9M"          },
-    { year: "Year 3", providers: "1,125",  share: "0.10%", arr: "$8.10M",   val: "$64.8M"          },
-    { year: "Year 4", providers: "2,475",  share: "0.23%", arr: "$17.82M",  val: "$142.5M"         },
-    { year: "Year 5", providers: "4,950",  share: "0.45%", arr: "$35.64M",  val: "$285.1M"         },
-    { year: "Year 6", providers: "8,415",  share: "0.77%", arr: "$60.58M",  val: "$484.7M"         },
-    { year: "Year 7", providers: "12,622", share: "1.15%", arr: "$90.88M",  val: "$727.0M"         },
-    { year: "Year 8", providers: "17,600", share: "1.60%", arr: "$126.72M", val: "$1.01B", milestone: true },
+  const rows: {
+    year: string;
+    providers: string;
+    share: string;
+    arr: string;
+    arrValue: number;
+    val: string;
+    growth: string;
+    milestone?: boolean;
+  }[] = [
+    { year: "Year 1", providers: "350", share: "0.03%", arr: "$2.52M", arrValue: 2.52, val: "$20.1M", growth: "—" },
+    { year: "Year 2", providers: "1,050", share: "0.10%", arr: "$7.56M", arrValue: 7.56, val: "$60.4M", growth: "300% (3x)" },
+    { year: "Year 3", providers: "3,150", share: "0.29%", arr: "$22.68M", arrValue: 22.68, val: "$181.4M", growth: "300% (3x)" },
+    { year: "Year 4", providers: "7,875", share: "0.72%", arr: "$56.70M", arrValue: 56.7, val: "$453.6M", growth: "250% (2.5x)" },
+    { year: "Year 5", providers: "17,600", share: "1.60%", arr: "$126.72M", arrValue: 126.72, val: "$1.013B", growth: "223% (2.2x)", milestone: true },
   ];
 
-  const arrValues = [1.08, 3.24, 8.10, 17.82, 35.64, 60.58, 90.88, 126.72];
-  const xLabels   = ["Y1", "Y2", "Y3", "Y4", "Y5", "Y6", "Y7", "Y8"];
+  const arrValues = rows.map((row) => row.arrValue);
+  const xLabels = rows.map((_, index) => `Y${index + 1}`);
 
   const W = 420, H = 280;
   const PAD = { l: 52, r: 16, t: 18, b: 34 };
   const CW  = W - PAD.l - PAD.r;
   const CH  = H - PAD.t - PAD.b;
   const MAX = 140;
-  const BAR_SLOT = CW / 8;
+  const BAR_SLOT = CW / rows.length;
   const BAR_W    = BAR_SLOT * 0.58;
   const BAR_OFF  = (BAR_SLOT - BAR_W) / 2;
   const chartBottom = PAD.t + CH;
@@ -1284,16 +1634,18 @@ function SlideMoats() {
                 <th>Share</th>
                 <th>ARR</th>
                 <th>Valuation (8×)</th>
+                <th>Growth</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ year, providers, share, arr, val, milestone }) => (
+              {rows.map(({ year, providers, share, arr, val, growth, milestone }) => (
                 <tr key={year} className={milestone ? "rev-row-milestone" : ""}>
                   <td className="rev-year">{year}</td>
                   <td className="rev-num">{providers}</td>
                   <td className="rev-share">{share}</td>
                   <td className="rev-arr">{arr}</td>
                   <td className="rev-val">{val}</td>
+                  <td className="rev-growth">{growth}</td>
                 </tr>
               ))}
             </tbody>
@@ -1399,9 +1751,67 @@ function SlideVision() {
   );
 }
 
+function SlideAsk() {
+  return (
+    <div className="slide slide-ask">
+      <motion.div className="ask-header" variants={stagger} initial="hidden" animate="show">
+        <motion.div variants={fadeUp} className="eyebrow-tag">The Ask</motion.div>
+        <motion.h2 variants={fadeUp} className="ask-title">
+          Join us in building the revenue integrity layer for healthcare.
+        </motion.h2>
+      </motion.div>
+
+      <motion.div className="ask-grid" variants={stagger} initial="hidden" animate="show">
+        <motion.section variants={fadeUp} className="ask-panel">
+          <div className="ask-panel-label">Round Details</div>
+          <div className="ask-detail-list">
+            {ASK_ROUND_DETAILS.map(({ label, value }) => (
+              <div key={label} className="ask-detail-row">
+                <div className="ask-detail-key">{label}</div>
+                <div className="ask-detail-value">{value}</div>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section variants={fadeUp} className="ask-panel">
+          <div className="ask-panel-label">Milestones This Capital Unlocks</div>
+          <div className="ask-milestone-list">
+            {ASK_MILESTONES.map((item) => (
+              <div key={item} className="ask-milestone-item">
+                <ArrowRight size={16} className="ask-milestone-icon" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      </motion.div>
+
+      <motion.div variants={fadeUp} initial="hidden" animate="show" className="ask-contact-bar">
+        <span>Chami Rupasinghe</span>
+        <span className="ask-contact-sep">|</span>
+        <span>chamir@mayiguide.com</span>
+        <span className="ask-contact-sep">|</span>
+        <span>mayiguide.com</span>
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── Slide: Path to $1B ─────────────────────────────────────────────────────
 
-function SlidePath() {
+function SlidePath({ goTo }: { goTo: (i: number) => void }) {
+  const isMobile = useIsMobile();
+  const visibleSlides: readonly SlideId[] = isMobile
+    ? SLIDES.filter((slide): slide is Exclude<SlideId, "appendix" | "demo"> => slide !== "appendix" && slide !== "demo")
+    : SLIDES;
+  const goToAppendix = useCallback(() => {
+    const slideIndex = visibleSlides.indexOf("appendix");
+    if (slideIndex >= 0) {
+      goTo(slideIndex);
+    }
+  }, [goTo, visibleSlides]);
+
   // ── Layout constants (SVG user-space coords) ──
   const W = 820, H = 436;
   const ROWS = 9;
@@ -1647,38 +2057,34 @@ function SlidePath() {
           </motion.div>
         </motion.div>
 
-        {/* ── Right column – Economic Moat + Sensitivity ── */}
+        {/* ── Right column – Segment Priority Framework ── */}
         <motion.div className="path-right-col" variants={stagger} initial="hidden" animate="show">
-          <motion.div variants={fadeUp} className="path-col-label">The Economic Moat</motion.div>
-          <motion.div variants={fadeUp} className="moat-block">
-            <div className="moat-tag-line">FTE Replacement, not SaaS</div>
-            {([
-              ["Hours saved / week", "10 hrs charting", false],
-              ["Annual labor value", "$50,000", true],
-              ["May I annual price", "$7,200", false],
-              ["Practitioner ROI", "7× — no-brainer", true],
-            ] as const).map(([k, v, bold]) => (
-              <div key={k} className={`moat-row${bold ? " moat-row-bold" : ""}`}>
-                <span className="moat-k">{k}</span>
-                <span className="moat-v">{v}</span>
-              </div>
-            ))}
-          </motion.div>
-
           <motion.div variants={fadeUp} className="priority-legend">
             <div className="priority-legend-title">Segment Priority Framework</div>
-            {([
-              [1, "High-Yield Retail",     "Massive ATV; every lead is a \u201cmust-win\u201d."],
-              [2, "Velocity Hubs",          "High transaction counts; ROI comes from time saved."],
-              [3, "Specialty Segments",     "High complexity; ROI comes from billing/auth accuracy."],
-              [4, "Infrastructure Tier",    "The \u201clong-game\u201d volume play."],
-            ] as const).map(([num, label, desc]) => (
-              <div key={num} className={`pl-row pl-row-${num}`}>
-                <span className="pl-badge">{num}</span>
-                <span className="pl-label">{label}</span>
-                <span className="pl-desc">{desc}</span>
-              </div>
-            ))}
+            <div className="priority-legend-rows">
+              {([
+                [1, "High-Yield Retail",     "Massive ATV; every lead is a \u201cmust-win\u201d."],
+                [2, "Velocity Hubs",          "High transaction counts; ROI comes from time saved."],
+                [3, "Specialty Segments",     "High complexity; ROI comes from billing/auth accuracy."],
+                [4, "Infrastructure Tier",    "The \u201clong-game\u201d volume play."],
+              ] as const).map(([num, label, desc]) => (
+                <div key={num} className={`pl-row pl-row-${num}`}>
+                  <span className="pl-badge">{num}</span>
+                  <span className="pl-label">{label}</span>
+                  <span className="pl-desc">{desc}</span>
+                </div>
+              ))}
+            </div>
+            <motion.button
+              type="button"
+              variants={fadeUp}
+              className="priority-legend-link"
+              onClick={goToAppendix}
+              aria-label="Go to slide 16, Appendix market segment analysis"
+            >
+              <span>Go to slide 16: Market Segment Analysis</span>
+              <ArrowRight size={14} />
+            </motion.button>
           </motion.div>
         </motion.div>
       </div>
