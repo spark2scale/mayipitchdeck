@@ -1363,10 +1363,10 @@ strong { color: var(--mi-text); font-weight: 600; }
   justify-content: center;
 }
 
-.traction-grid {
+.traction-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 22px;
   align-items: stretch;
 }
 
@@ -1374,8 +1374,17 @@ strong { color: var(--mi-text); font-weight: 600; }
   border: 1px solid var(--mi-border);
   background: rgba(0, 51, 32, 0.38);
   backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.traction-panel {
   padding: 22px 24px;
-  min-height: 408px;
+  min-height: 210px;
+}
+
+.traction-panel-metrics {
+  display: flex;
+  flex-direction: column;
 }
 
 .traction-panel-label {
@@ -1387,66 +1396,182 @@ strong { color: var(--mi-text); font-weight: 600; }
   margin-bottom: 18px;
 }
 
-.traction-metric-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.traction-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.traction-metric-item {
+.traction-featured-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.traction-secondary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.traction-stat-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 0;
+  border: 1px solid rgba(196, 146, 71, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
+    rgba(0, 24, 16, 0.88);
+  padding: 18px 18px 16px;
+}
+
+.traction-stat-card-primary {
+  min-height: 118px;
+}
+
+.traction-stat-card-featured {
+  min-height: 132px;
+}
+
+.traction-stat-card-featured .traction-stat-label {
+  max-width: none;
+  white-space: nowrap;
+}
+
+.traction-stat-card-featured .traction-stat-value {
+  color: var(--mi-copper);
+}
+
+.traction-stat-card-secondary {
+  min-height: 118px;
+}
+
+.traction-stat-card-primary .traction-stat-value {
+  font-size: clamp(28px, 3vw, 40px);
+}
+
+.traction-stat-value {
+  font-size: clamp(34px, 4vw, 60px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  color: var(--mi-text);
+  margin-bottom: 10px;
+}
+
+.traction-stat-card-secondary .traction-stat-value {
+  font-size: clamp(28px, 3vw, 40px);
+  color: var(--mi-text);
+}
+
+.traction-stat-label {
+  max-width: 16ch;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--mi-muted);
+}
+
+.traction-proof-headline {
+  margin: 0 0 16px;
+  font-size: clamp(28px, 2.7vw, 42px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--mi-text);
+}
+
+.traction-proof-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.traction-proof-accent {
+  color: var(--mi-copper);
+  font-weight: 700;
+}
+
+.traction-panel-customers {
+  display: flex;
+  flex-direction: column;
+}
+
+.traction-customer-intro {
+  margin: 0 0 18px;
+  max-width: 70ch;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.traction-customer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.traction-customer-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  padding: 22px 20px 20px;
+  border-radius: 0;
+  border: 1px solid rgba(196, 146, 71, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+    rgba(0, 24, 16, 0.88);
+}
+
+.traction-customer-logo-wrap {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 38px;
-  padding: 0 16px;
-  border: 1px solid rgba(0, 74, 46, 0.28);
-  background: rgba(0, 24, 16, 0.64);
-  color: var(--ccc-capture);
-  font-size: 14px;
-  font-weight: 500;
+  justify-content: flex-start;
+  min-height: 66px;
+  margin-bottom: 18px;
 }
 
-.traction-metric-icon {
-  flex-shrink: 0;
-  color: var(--ccc-capture);
+.traction-customer-logo {
+  max-width: 190px;
+  max-height: 58px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
-.traction-panel-voice {
-  display: flex;
-  flex-direction: column;
+.traction-customer-logo-light {
+  filter: brightness(0) invert(0.92) sepia(0.08) saturate(0.55) hue-rotate(355deg);
+  opacity: 0.98;
 }
 
-.traction-quote-block {
-  padding-top: 52px;
-}
-
-.traction-quote {
-  margin: 0 0 42px;
-  color: rgba(255, 255, 255, 0.92);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(26px, 3.2vw, 42px);
-  line-height: 1.18;
-  font-style: italic;
+.traction-customer-name {
+  margin-bottom: 8px;
+  font-size: 20px;
+  line-height: 1.15;
+  font-weight: 700;
   letter-spacing: -0.02em;
+  color: var(--mi-text);
 }
 
-.traction-quote-attrib {
-  margin: 0;
-  color: var(--mi-muted);
+.traction-customer-profile {
+  margin-bottom: 12px;
   font-size: 13px;
   line-height: 1.45;
+  color: var(--mi-copper);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.traction-proof-placeholder {
-  margin-top: auto;
-  align-self: center;
-  max-width: 320px;
-  text-align: center;
-  color: var(--ccc-capture);
-  font-size: 13px;
-  line-height: 1.4;
-  font-style: italic;
-  font-weight: 600;
+.traction-customer-impact {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 /* ─── Slide: Enterprise Grade ───────────────────────────────────────────── */
@@ -2097,6 +2222,13 @@ strong { color: var(--mi-text); font-weight: 600; }
   background: rgba(0, 51, 32, 0.28);
   padding: 16px 18px;
   min-height: 100%;
+  justify-content: flex-start;
+}
+
+.priority-legend-rows {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   justify-content: center;
 }
 
@@ -2151,6 +2283,27 @@ strong { color: var(--mi-text); font-weight: 600; }
   font-size: 12px;
   color: rgba(168, 196, 184, 0.65);
   line-height: 1.45;
+}
+
+.priority-legend-link {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding-top: 12px;
+  border-top: 1px solid rgba(168, 196, 184, 0.14);
+  color: var(--mi-copper);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: opacity 0.2s ease;
+}
+
+.priority-legend-link:hover {
+  opacity: 0.82;
 }
 
 .sens-row-highlight {
@@ -2626,6 +2779,11 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     padding: 12px 14px;
   }
 
+  .print-slide .priority-legend-link {
+    padding-top: 9px;
+    font-size: 9px;
+  }
+
   .print-slide .priority-legend-title {
     font-size: 9px;
   }
@@ -2718,7 +2876,7 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     font-size: 18px;
   }
 
-  .print-slide .traction-grid {
+  .print-slide .traction-layout {
     gap: 18px;
   }
 
@@ -2757,34 +2915,101 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
 
   .print-slide .traction-panel {
     padding: 18px 18px 16px;
-    min-height: 338px;
+  }
+
+  .print-slide .traction-panel {
+    min-height: 228px;
   }
 
   .print-slide .traction-panel-label {
     margin-bottom: 14px;
   }
 
-  .print-slide .traction-metric-list {
-    gap: 9px;
+  .print-slide .traction-summary-grid {
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
-  .print-slide .traction-metric-item {
-    min-height: 31px;
-    padding: 0 12px;
-    font-size: 12px;
+  .print-slide .traction-featured-stack {
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
-  .print-slide .traction-quote-block {
-    padding-top: 36px;
+  .print-slide .traction-secondary-grid {
+    gap: 12px;
   }
 
-  .print-slide .traction-quote {
-    margin-bottom: 28px;
+  .print-slide .traction-stat-card {
+    border-radius: 0;
+    padding: 16px 16px 14px;
+  }
+
+  .print-slide .traction-stat-card-primary {
+    min-height: 94px;
+  }
+
+  .print-slide .traction-stat-card-featured {
+    min-height: 102px;
+  }
+
+  .print-slide .traction-stat-card-secondary {
+    min-height: 94px;
+  }
+
+  .print-slide .traction-stat-card-primary .traction-stat-value {
+    font-size: 30px;
+  }
+
+  .print-slide .traction-stat-value {
+    font-size: 38px;
+    margin-bottom: 8px;
+  }
+
+  .print-slide .traction-stat-card-secondary .traction-stat-value {
+    font-size: 30px;
+  }
+
+  .print-slide .traction-stat-label {
+    font-size: 11px;
+  }
+
+  .print-slide .traction-proof-headline {
+    margin-bottom: 12px;
     font-size: 31px;
   }
 
-  .print-slide .traction-quote-attrib,
-  .print-slide .traction-proof-placeholder {
+  .print-slide .traction-proof-copy,
+  .print-slide .traction-customer-intro {
+    font-size: 13px;
+  }
+
+  .print-slide .traction-customer-grid {
+    gap: 12px;
+  }
+
+  .print-slide .traction-customer-card {
+    min-height: 206px;
+    padding: 18px 16px 16px;
+    border-radius: 0;
+  }
+
+  .print-slide .traction-customer-logo-wrap {
+    min-height: 56px;
+    margin-bottom: 14px;
+  }
+
+  .print-slide .traction-customer-logo {
+    max-width: 156px;
+    max-height: 46px;
+  }
+
+  .print-slide .traction-customer-name {
+    font-size: 17px;
+  }
+
+  .print-slide .traction-customer-profile,
+  .print-slide .traction-customer-impact,
+  .print-slide .traction-customer-footer {
     font-size: 11px;
   }
 
@@ -3139,7 +3364,7 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     text-align: center;
   }
 
-  .traction-grid {
+  .traction-layout {
     grid-template-columns: 1fr;
     gap: 14px;
   }
@@ -3183,23 +3408,72 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     padding: 18px 18px 16px;
   }
 
-  .traction-metric-item {
-    min-height: 34px;
-    padding: 0 12px;
+  .traction-summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .traction-featured-stack {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .traction-secondary-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .traction-stat-card {
+    border-radius: 0;
+    padding: 16px 16px 14px;
+  }
+
+  .traction-stat-card-primary,
+  .traction-stat-card-secondary {
+    min-height: unset;
+  }
+
+  .traction-stat-value {
+    font-size: clamp(28px, 7vw, 42px);
+    margin-bottom: 8px;
+  }
+
+  .traction-stat-card-secondary .traction-stat-value {
+    font-size: clamp(24px, 6vw, 34px);
+  }
+
+  .traction-stat-label {
+    max-width: none;
+    font-size: 12px;
+  }
+
+  .traction-proof-headline {
+    max-width: none;
+    font-size: clamp(24px, 6.5vw, 34px);
+  }
+
+  .traction-proof-copy,
+  .traction-customer-intro,
+  .traction-customer-impact,
+  .traction-customer-footer {
     font-size: 13px;
   }
 
-  .traction-quote-block {
-    padding-top: 10px;
+  .traction-customer-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .traction-quote {
-    margin-bottom: 20px;
-    font-size: clamp(22px, 7vw, 30px);
+  .traction-customer-card {
+    min-height: unset;
+    border-radius: 0;
+    padding: 18px 16px 16px;
   }
 
-  .traction-proof-placeholder {
-    margin-top: 28px;
+  .traction-customer-logo {
+    max-width: 168px;
+    max-height: 48px;
   }
 
   .ccc-summary-title {
@@ -3285,6 +3559,11 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     gap: 10px;
     padding: 14px 14px;
     min-height: unset;
+  }
+
+  .priority-legend-link {
+    font-size: 10px;
+    padding-top: 10px;
   }
 
   .pl-row {

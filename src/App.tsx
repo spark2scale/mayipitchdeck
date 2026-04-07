@@ -397,7 +397,7 @@ function renderSlide(
   if (slideId === "why-wins") return <SlideWhyWins />;
   if (slideId === "moats") return <SlideMoats />;
   if (slideId === "vision") return <SlideVision />;
-  if (slideId === "path") return <SlidePath />;
+  if (slideId === "path") return <SlidePath goTo={goTo} />;
   if (slideId === "ask") return <SlideAsk />;
   if (slideId === "demo") return <SlideDemo isExportMode={options.isExportMode} />;
   if (slideId === "appendix") return <SlideAppendix />;
@@ -521,13 +521,35 @@ const ECONOMIC_MOAT_VALUES = [
   { label: "Practitioner ROI", value: "7×", emphasis: true },
 ] as const;
 
-const TRACTION_METRICS = [
-  "2 practices (9 providers)",
-  "Monthly call volume processed",
-  "Revenue recovered for customers",
-  "Pilot-to-paid conversion rate",
-  "Customer NPS / satisfaction",
-  "LOIs or waitlist depth",
+const TRACTION_PRIMARY_METRICS = [
+  { value: "2", label: "Practices" },
+  { value: "9", label: "Providers" },
+  { value: "3,082", label: "Calls handled /\u00a0month" },
+  { value: "381", label: "AI leads captured /\u00a0month" },
+] as const;
+
+const TRACTION_SECONDARY_METRICS = [
+  { value: "18.6%", label: "of call volume occurs after hours" },
+  { value: "21.5%", label: "of captured leads happen after hours" },
+] as const;
+
+const TRACTION_CUSTOMERS = [
+  {
+    name: "AFB Plastic Surgery",
+    logoSrc: "/afbLogoBrown.png",
+    logoAlt: "AFB Plastic Surgery logo",
+    logoClassName: "traction-customer-logo-light",
+    profile: "7-provider plastic surgery practice in Austin, Texas",
+    impact: "Validates May I in a premium, high-intent specialty where missed calls directly translate into missed consult revenue.",
+  },
+  {
+    name: "Rosemead Eye Center",
+    logoSrc: "/RosemeadEyeLogo.png",
+    logoAlt: "Rosemead Eye Center logo",
+    logoClassName: undefined,
+    profile: "2-provider ophthalmology practice in Rosemead, California",
+    impact: "Shows the platform adapts across specialties, capturing patient demand in a high-volume workflow-heavy environment.",
+  },
 ] as const;
 
 const OPEN_AGENT_RISKS = [
@@ -1249,27 +1271,65 @@ function SlideTraction() {
         eyebrow="Traction"
         title="Early signal that the flywheel is turning."
       />
-      <motion.div className="traction-grid" variants={stagger} initial="hidden" animate="show">
+      <motion.div className="traction-layout" variants={stagger} initial="hidden" animate="show">
         <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
-          <div className="traction-panel-label">Metrics to insert</div>
-          <div className="traction-metric-list">
-            {TRACTION_METRICS.map((metric) => (
-              <div key={metric} className="traction-metric-item">
-                <ArrowRight size={16} className="traction-metric-icon" />
-                <span>{metric}</span>
+          <div className="traction-panel-label">Live customer usage</div>
+
+          <div className="traction-summary-grid">
+            {TRACTION_PRIMARY_METRICS.slice(0, 2).map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-primary">
+                <div className="traction-stat-value">{metric.value}</div>
+                <div className="traction-stat-label">{metric.label}</div>
               </div>
             ))}
           </div>
+
+          <div className="traction-featured-stack">
+            {TRACTION_PRIMARY_METRICS.slice(2).map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
+                <div className="traction-stat-value">{metric.value}</div>
+                <div className="traction-stat-label">{metric.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="traction-secondary-grid">
+            {TRACTION_SECONDARY_METRICS.map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-secondary">
+                <div className="traction-stat-value">{metric.value}</div>
+                <div className="traction-stat-label">{metric.label}</div>
+              </div>
+            ))}
+          </div>
+
         </motion.section>
 
-        <motion.section variants={fadeUp} className="traction-panel traction-panel-voice">
-          <div className="traction-panel-label">Customer Voice</div>
-          <div className="traction-quote-block">
-            <p className="traction-quote">"[Insert customer testimonial]"</p>
-            <p className="traction-quote-attrib">— [Name], [Title], [Practice]</p>
+        <motion.section variants={fadeUp} className="traction-panel traction-panel-customers">
+          <div className="traction-panel-label">Customer footprint</div>
+          <div className="traction-customer-grid">
+            {TRACTION_CUSTOMERS.map((customer) => (
+              <article key={customer.name} className="traction-customer-card">
+                <div className="traction-customer-logo-wrap">
+                  <img
+                    src={customer.logoSrc}
+                    alt={customer.logoAlt}
+                    className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
+                  />
+                </div>
+                <div className="traction-customer-name">{customer.name}</div>
+                <div className="traction-customer-profile">{customer.profile}</div>
+                <p className="traction-customer-impact">{customer.impact}</p>
+              </article>
+            ))}
           </div>
-          <div className="traction-proof-placeholder">
-            [INSERT: Product screenshot or customer logo grid]
+          <p className="traction-proof-headline">
+            Real production demand across two distinct specialty practices.
+          </p>
+          <p className="traction-proof-copy">
+            May I is already live in workflows where speed to response drives revenue and patient conversion. <span className="traction-proof-accent">This is production usage.</span> It is recurring, specialty-specific call volume with measurable after-hours capture.
+          </p>
+          <div className="traction-customer-intro">
+            Two deployments, two specialties, two states. Early evidence that the product travels across healthcare verticals without changing the core wedge.
           </div>
         </motion.section>
       </motion.div>
@@ -1740,7 +1800,18 @@ function SlideAsk() {
 
 // ─── Slide: Path to $1B ─────────────────────────────────────────────────────
 
-function SlidePath() {
+function SlidePath({ goTo }: { goTo: (i: number) => void }) {
+  const isMobile = useIsMobile();
+  const visibleSlides: readonly SlideId[] = isMobile
+    ? SLIDES.filter((slide): slide is Exclude<SlideId, "appendix" | "demo"> => slide !== "appendix" && slide !== "demo")
+    : SLIDES;
+  const goToAppendix = useCallback(() => {
+    const slideIndex = visibleSlides.indexOf("appendix");
+    if (slideIndex >= 0) {
+      goTo(slideIndex);
+    }
+  }, [goTo, visibleSlides]);
+
   // ── Layout constants (SVG user-space coords) ──
   const W = 820, H = 436;
   const ROWS = 9;
@@ -1990,18 +2061,30 @@ function SlidePath() {
         <motion.div className="path-right-col" variants={stagger} initial="hidden" animate="show">
           <motion.div variants={fadeUp} className="priority-legend">
             <div className="priority-legend-title">Segment Priority Framework</div>
-            {([
-              [1, "High-Yield Retail",     "Massive ATV; every lead is a \u201cmust-win\u201d."],
-              [2, "Velocity Hubs",          "High transaction counts; ROI comes from time saved."],
-              [3, "Specialty Segments",     "High complexity; ROI comes from billing/auth accuracy."],
-              [4, "Infrastructure Tier",    "The \u201clong-game\u201d volume play."],
-            ] as const).map(([num, label, desc]) => (
-              <div key={num} className={`pl-row pl-row-${num}`}>
-                <span className="pl-badge">{num}</span>
-                <span className="pl-label">{label}</span>
-                <span className="pl-desc">{desc}</span>
-              </div>
-            ))}
+            <div className="priority-legend-rows">
+              {([
+                [1, "High-Yield Retail",     "Massive ATV; every lead is a \u201cmust-win\u201d."],
+                [2, "Velocity Hubs",          "High transaction counts; ROI comes from time saved."],
+                [3, "Specialty Segments",     "High complexity; ROI comes from billing/auth accuracy."],
+                [4, "Infrastructure Tier",    "The \u201clong-game\u201d volume play."],
+              ] as const).map(([num, label, desc]) => (
+                <div key={num} className={`pl-row pl-row-${num}`}>
+                  <span className="pl-badge">{num}</span>
+                  <span className="pl-label">{label}</span>
+                  <span className="pl-desc">{desc}</span>
+                </div>
+              ))}
+            </div>
+            <motion.button
+              type="button"
+              variants={fadeUp}
+              className="priority-legend-link"
+              onClick={goToAppendix}
+              aria-label="Go to slide 16, Appendix market segment analysis"
+            >
+              <span>Go to slide 16: Market Segment Analysis</span>
+              <ArrowRight size={14} />
+            </motion.button>
           </motion.div>
         </motion.div>
       </div>
