@@ -4,13 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   PhoneOff, Clock, Layers, RefreshCw,
   Database,
-  DollarSign, Users, Zap, Shield,
+  DollarSign,
   Brain, GitMerge,
   ChevronRight, ChevronLeft,
   Rocket,
   Phone, MessageSquare, Globe, Share2,
   Calendar, FileCheck,
-  CheckCircle2, XCircle,
+  CheckCircle2,
   ArrowRight, ScanText, BotMessageSquare, UserRound,
   FileSearch, MailCheck, Workflow,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote, MousePointerClick,
@@ -26,7 +26,7 @@ const SLIDES = [
   "demo",
   "engine",
   "ccc-overview",
-  "roi",
+  // "roi",
   "traction",
   "founder",
   "enterprise-grade",
@@ -391,7 +391,6 @@ function renderSlide(
   if (slideId === "connect-detail") return <SlideConnectDetail />;
   if (slideId === "convert-detail") return <SlideConvertDetail />;
   if (slideId === "ccc-overview") return <SlideCCCOverview />;
-  if (slideId === "roi") return <SlideROI />;
   if (slideId === "traction") return <SlideTraction />;
   if (slideId === "enterprise-grade") return <SlideEnterpriseGrade />;
   if (slideId === "why-wins") return <SlideWhyWins />;
@@ -514,19 +513,17 @@ const CONVERT_DETAIL: DetailStage = {
 
 const CCC_STAGES = [CAPTURE_DETAIL, CONNECT_DETAIL, CONVERT_DETAIL] as const;
 
-const ECONOMIC_MOAT_VALUES = [
-  { label: "Hours saved / week", value: "10 hrs charting", emphasis: false },
-  { label: "Annual labor value", value: "$50,000", emphasis: true },
-  { label: "May I annual price", value: "$7,200", emphasis: false },
-  { label: "Practitioner ROI", value: "7×", emphasis: true },
+const LIVE_USAGE_METRICS = [
+  { value: "2", heroValue: "2", heroLabel: "practices live", tractionLabel: "Practices" },
+  { value: "9", heroValue: "9", heroLabel: "providers", tractionLabel: "Providers" },
+  { value: "3,082", heroValue: "3,082", heroLabel: "calls/month", tractionLabel: "Calls handled /\u00a0month" },
+  { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
-const TRACTION_PRIMARY_METRICS = [
-  { value: "2", label: "Practices" },
-  { value: "9", label: "Providers" },
-  { value: "3,082", label: "Calls handled /\u00a0month" },
-  { value: "381", label: "AI leads captured /\u00a0month" },
-] as const;
+const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.map(({ value, tractionLabel }) => ({
+  value,
+  label: tractionLabel,
+}));
 
 const TRACTION_SECONDARY_METRICS = [
   { value: "18.6%", label: "of call volume occurs after hours" },
@@ -535,9 +532,9 @@ const TRACTION_SECONDARY_METRICS = [
 
 const TRACTION_CUSTOMERS = [
   {
-    name: "AFB Plastic Surgery",
+    name: "Austin Face and Body",
     logoSrc: "/afbLogoBrown.png",
-    logoAlt: "AFB Plastic Surgery logo",
+    logoAlt: "Austin Face and Body logo",
     logoClassName: "traction-customer-logo-light",
     profile: "7-provider plastic surgery practice in Austin, Texas",
     impact: "Validates May I in a premium, high-intent specialty where missed calls directly translate into missed consult revenue.",
@@ -636,7 +633,7 @@ function SlideFounder() {
         </motion.div>
 
         <motion.p variants={fadeUp} className="founder-tagline">
-          A seasoned <span className="accent-highlight">product leader</span> who guides teams to ideate, incubate, and launch enterprise grade software. In his past five years at <span className="accent-highlight">Microsoft</span> he has been focused on <span className="accent-highlight">Health and Life Sciences</span>, including two years in its prestigious <span className="accent-highlight">Microsoft Research</span> organization. Technical acumen is complemented by an <span className="accent-highlight">MBA from Duke University</span> and experience in marketing and sales.
+          A seasoned <span className="accent-highlight">technical product leader</span> who guides teams to ideate, incubate, and launch enterprise grade software. In his past five years at <span className="accent-highlight">Microsoft</span> he has been focused on <span className="accent-highlight">Health and Life Sciences</span>, including two years in its prestigious <span className="accent-highlight">Microsoft Research</span> organization. Technical acumen is complemented by an <span className="accent-highlight">MBA from Duke University</span> and experience in marketing and sales.
         </motion.p>
 
         <motion.div variants={fadeUp} className="founder-stats">
@@ -676,7 +673,7 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
     { num: "2",  label: "The Problem",            slideId: "problem" },
     { num: "4",  label: "Live Demo",              slideId: "demo" },
     { num: "5",  label: "The May I System",       slideId: "engine" },
-    { num: "7",  label: "Business Impact",        slideId: "roi" },
+    // { num: "7",  label: "Business Impact",        slideId: "roi" },
     { num: "8",  label: "Traction",               slideId: "traction" },
     { num: "9",  label: "Founder & CEO",          slideId: "founder" },
     { num: "10", label: "Enterprise Security",    slideId: "enterprise-grade" },
@@ -718,7 +715,7 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
         </motion.p>
       </motion.div>
 
-      {/* ── Bottom: card + agenda ── */}
+      {/* ── Bottom: engine + metrics ── */}
       <div className="hero-body">
         <motion.div
           className="hero-card-col"
@@ -768,27 +765,37 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
         </motion.div>
 
         <motion.div
-          className="hero-agenda-col"
+          className="hero-metrics-col"
           variants={stagger}
           initial="hidden"
           animate="show"
-          ref={agendaRef}
         >
-          <div className="hero-agenda">
-            <div className="agenda-title">Agenda</div>
-            <div className="agenda-columns">
-              {agenda.slice(0, Math.ceil(agenda.length / 2)).flatMap((left, i) => {
-                const right = agenda[Math.ceil(agenda.length / 2) + i];
-                return [
-                  <motion.button key={`ll-${left.num}`} variants={fadeUp} className="agenda-chip-label" onClick={() => goToSlide(left.slideId)}>{left.label}</motion.button>,
-                  <motion.span   key={`ln-${left.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goToSlide(left.slideId)}>{left.num}</motion.span>,
-                  right ? <motion.button key={`rl-${right.num}`} variants={fadeUp} className={`agenda-chip-label agenda-chip-label--right${right.num === "17" ? " agenda-item-appendix" : ""}`} onClick={() => goToSlide(right.slideId)}>{right.label}</motion.button> : <span key={`rl-empty-${i}`} />,
-                  right ? <motion.span   key={`rn-${right.num}`} variants={fadeUp} className="agenda-chip-num"   onClick={() => goToSlide(right.slideId)}>{right.num}</motion.span> : <span key={`rn-empty-${i}`} />,
-                ];
-              })}
-            </div>
+          <div className="hero-metrics-grid" aria-label="Live customer usage stats">
+            {LIVE_USAGE_METRICS.map((metric) => (
+              <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
+                <div className="hero-metric-value">{metric.heroValue}</div>
+                <div className="hero-metric-label">{metric.heroLabel}</div>
+              </motion.article>
+            ))}
           </div>
         </motion.div>
+      </div>
+
+      <div className="hero-agenda-hidden" aria-hidden="true" ref={agendaRef}>
+        <div className="hero-agenda">
+          <div className="agenda-title">Agenda</div>
+          <div className="agenda-columns">
+            {agenda.slice(0, Math.ceil(agenda.length / 2)).flatMap((left, i) => {
+              const right = agenda[Math.ceil(agenda.length / 2) + i];
+              return [
+                <button key={`ll-${left.num}`} className="agenda-chip-label" onClick={() => goToSlide(left.slideId)}>{left.label}</button>,
+                <span   key={`ln-${left.num}`} className="agenda-chip-num"   onClick={() => goToSlide(left.slideId)}>{left.num}</span>,
+                right ? <button key={`rl-${right.num}`} className={`agenda-chip-label agenda-chip-label--right${right.num === "17" ? " agenda-item-appendix" : ""}`} onClick={() => goToSlide(right.slideId)}>{right.label}</button> : <span key={`rl-empty-${i}`} />,
+                right ? <span   key={`rn-${right.num}`} className="agenda-chip-num"   onClick={() => goToSlide(right.slideId)}>{right.num}</span> : <span key={`rn-empty-${i}`} />,
+              ];
+            })}
+          </div>
+        </div>
       </div>
 
     </div>
@@ -802,30 +809,38 @@ function SlideProblem() {
     {
       icon: <PhoneOff size={36} />,
       title: "Missed Demand",
-      stat: "62%",
-      statLabel: "of calls go unanswered after hours",
-      text: "High-intent patients call, hit voicemail, and book elsewhere — sometimes within minutes.",
+      stat: "35%",
+      statLabel: "of calls during the day are missed",
+      text: "High-intent patients hit voicemail during business hours, and move on before staff recovers the lead.",
+      sourceHref: "https://www.mayiguide.com",
+      sourceLabel: "Source: May I - Austin Face and Body",
     },
     {
       icon: <Clock size={36} />,
       title: "Slow Speed-to-Lead",
-      stat: "11×",
-      statLabel: "drop in contact rate after 5 minutes",
-      text: "Every minute of delay collapses the probability of converting a caller into a patient.",
+      stat: "42hrs",
+      statLabel: "Average company response time",
+      text: "100× more likely to make contact and 21× more likely to qualify if lead is responded to within 5 mins",
+      sourceHref: "https://hbr.org/2011/03/the-short-life-of-online-sales-leads",
+      sourceLabel: "Source: Harvard Business Review",
     },
     {
       icon: <Layers size={36} />,
-      title: "Fragmented Workflows",
-      stat: "5–9",
-      statLabel: "disconnected tools per practice",
-      text: "Calls, texts, intake, scheduling, payer work — each in a separate silo.",
+      title: "Administrative Overload",
+      stat: "2:1",
+      statLabel: "More time on admin than patients",
+      text: "Administrative drag cuts capacity, slows follow-up, creates bottlenecks, and fuels burnout.",
+      sourceHref: "https://www.acpjournals.org/doi/10.7326/M16-0961",
+      sourceLabel: "Source: Annals of Internal Medicine",
     },
     {
       icon: <RefreshCw size={36} />,
-      title: "Manual Patient Ops",
-      stat: "3×",
-      statLabel: "patients re-enter the same info",
-      text: "Patients repeat themselves. Staff re-enter the same data. Everyone loses.",
+      title: "Patient Churn",
+      stat: "25%",
+      statLabel: "switched providers because they were unhappy",
+      text: "Poor patient experience now drives measurable provider switching across healthcare.",
+      sourceHref: "https://www.accenture.com/us-en/insightsnew/health/difference-between-loyalty-leaving",
+      sourceLabel: "Source: Accenture",
     },
   ];
 
@@ -841,13 +856,27 @@ function SlideProblem() {
         initial="hidden"
         animate="show"
       >
-        {problems.map(({ icon, title, stat, statLabel, text }) => (
+        {problems.map(({ icon, title, stat, statLabel, text, sourceHref, sourceLabel }) => (
           <motion.div key={title} variants={fadeUp} className="problem-card">
-            <div className="problem-icon">{icon}</div>
             <div className="problem-stat">{stat}</div>
             <div className="problem-stat-label">{statLabel}</div>
-            <h3 className="problem-title">{title}</h3>
-            <p className="problem-text">{text}</p>
+            <div className="problem-content-row">
+              <div className="problem-icon">{icon}</div>
+              <div className="problem-copy">
+                <h3 className="problem-title">{title}</h3>
+                <p className="problem-text">{text}</p>
+              </div>
+            </div>
+            {sourceHref && sourceLabel && (
+              <a
+                className="problem-source-link"
+                href={sourceHref}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {sourceLabel}
+              </a>
+            )}
           </motion.div>
         ))}
       </motion.div>
@@ -858,30 +887,48 @@ function SlideProblem() {
 // ─── Slide 3: Invisible Loss ──────────────────────────────────────────────────
 
 function SlideLoss() {
-  const stages = [
+  const losses = [
     {
-      icon: <DollarSign size={28} />,
-      label: "Marketing Spend",
-      sub: "Demand generated",
-      color: "#5fcf8a",
+      icon: <PhoneOff size={20} />,
+      label: "Capture",
+      stat: "35%",
+      impact: "$5K+",
+      impactQualifier: "per missed consult",
+      subtext: "High-intent demand never enters the funnel",
+      sourceHref: "https://www.plasticsurgery.org/news/plastic-surgery-statistics",
+      sourceLabel: "Source: ASPS statistics",
+      color: CCC_COLORS.capture,
+      featured: true,
+      hideImpactLabel: true,
+      hideSecondaryStat: true,
     },
     {
-      icon: <PhoneOff size={28} />,
-      label: "Missed Call",
-      sub: "Voicemail or no answer",
-      color: "#f59e0b",
+      icon: <Layers size={20} />,
+      label: "Connect",
+      stat: "2:1",
+      impact: "$450K",
+      impactQualifier: "per year lost to inefficiency",
+      subtext: "A 5-provider practice generating $6M annually requires 25% admin effort and it leaks ~$450K (30%).",
+      sourceHref: "https://www.healthaffairs.org/content/briefs/role-administrative-waste-excess-us-health-spending",
+      sourceLabel: "Source: Health Affairs",
+      color: CCC_COLORS.connect,
+      featured: true,
+      hideImpactLabel: true,
+      hideSecondaryStat: true,
     },
     {
-      icon: <Clock size={28} />,
-      label: "Slow Follow-up",
-      sub: "Intent cools within hours",
-      color: "#f97316",
-    },
-    {
-      icon: <XCircle size={28} />,
-      label: "Lost Procedure",
-      sub: "Revenue to competitors",
-      color: "#ef4444",
+      icon: <DollarSign size={20} />,
+      label: "Convert",
+      stat: "20-30%",
+      impact: "$250K",
+      impactQualifier: "per year lost post-visit",
+      subtext: "For a 5-provider practice: ~$1.5M (30%) in patient responsibility, with ~17% ($250K+) at risk",
+      sourceHref: "https://www.kff.org/health-costs/americans-challenges-with-health-care-costs/",
+      sourceLabel: "Source: KFF",
+      color: CCC_COLORS.convert,
+      featured: true,
+      hideImpactLabel: true,
+      hideSecondaryStat: true,
     },
   ];
 
@@ -889,57 +936,51 @@ function SlideLoss() {
     <div className="slide slide-loss">
       <SlideHeader
         eyebrow="Invisible Loss"
-        title="Practices lose revenue they cannot see."
+        title="Revenue leaks at every step of the patient journey"
       />
       <div className="loss-body">
         <motion.div
-          className="leak-funnel"
+          className="loss-grid"
           variants={stagger}
           initial="hidden"
           animate="show"
         >
-          {stages.map(({ icon, label, sub, color }, i) => (
-            <motion.div key={label} variants={fadeUp} className="leak-stage">
-              <div
-                className="leak-icon-wrap"
-                style={{ borderColor: color, color }}
-              >
-                {icon}
+          {losses.map(({ icon, label, stat, impact, impactQualifier, subtext, sourceHref, sourceLabel, color, featured, hideImpactLabel, hideSecondaryStat }) => (
+            <motion.section key={label} variants={fadeUp} className={`loss-card${featured ? " loss-card-featured" : ""}`}>
+              <div className="loss-card-head">
+                <div className="loss-card-label" style={{ color }}>{label}</div>
+                <div className="loss-card-icon" style={{ color, borderColor: color }}>
+                  {icon}
+                </div>
               </div>
-              <div className="leak-label">{label}</div>
-              <div className="leak-sub">{sub}</div>
-              {i < stages.length - 1 && (
-                <ArrowRight size={18} className="leak-arrow" />
+              <div className="loss-card-impact">{impact}</div>
+              {impactQualifier && <div className="loss-card-impact-qualifier">{impactQualifier}</div>}
+              {!hideImpactLabel && <div className="loss-card-impact-label">headline revenue loss</div>}
+              {!hideSecondaryStat && <div className="loss-card-stat">{stat}</div>}
+              {!hideSecondaryStat && <div className="loss-card-stat-label">supporting operating signal</div>}
+              <div className="loss-card-copy">{subtext}</div>
+              {sourceHref && sourceLabel && (
+                <a
+                  className="loss-card-source-link"
+                  href={sourceHref}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {sourceLabel}
+                </a>
               )}
-            </motion.div>
+            </motion.section>
           ))}
         </motion.div>
 
         <motion.div
-          className="loss-callout"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.45 }}
+          className="loss-summary"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
         >
-          <div className="loss-callout-inner">
-            <div className="loss-big-stat">$5,000+</div>
-            <div className="loss-big-label">
-              average procedure value lost per missed call in elective healthcare
-            </div>
-          </div>
-          <div className="loss-callout-inner">
-            <div className="loss-big-stat">30–40%</div>
-            <div className="loss-big-label">
-              of first-time inquiries never receive a timely callback
-            </div>
-          </div>
-          <div className="loss-callout-inner">
-            <div className="loss-big-stat">$500K+</div>
-            <div className="loss-big-label">
-              annual revenue leaked from a typical 5-physician practice
-            </div>
-            <div className="loss-big-source">Patient10x, 2025</div>
-          </div>
+          <span className="loss-summary-value">$800K</span>
+          <span className="loss-summary-text">annual revenue leakage per practice</span>
         </motion.div>
       </div>
     </div>
@@ -1189,6 +1230,7 @@ function SlideCCCOverview() {
 
 // ─── Slide 6: ROI ─────────────────────────────────────────────────────────────
 
+/*
 function SlideROI() {
   const metrics = [
     {
@@ -1263,6 +1305,7 @@ function SlideROI() {
     </div>
   );
 }
+*/
 
 function SlideTraction() {
   return (
@@ -1323,10 +1366,10 @@ function SlideTraction() {
             ))}
           </div>
           <p className="traction-proof-headline">
-            Real production demand across two distinct specialty practices.
+            <span className="traction-proof-accent">Real production demand</span> across two distinct specialty practices.
           </p>
           <p className="traction-proof-copy">
-            May I is already live in workflows where speed to response drives revenue and patient conversion. <span className="traction-proof-accent">This is production usage.</span> It is recurring, specialty-specific call volume with measurable after-hours capture.
+            May I is already live in workflows where speed to response drives revenue and patient conversion. This is production usage. It is recurring, specialty-specific call volume with measurable after-hours capture.
           </p>
           <div className="traction-customer-intro">
             Two deployments, two specialties, two states. Early evidence that the product travels across healthcare verticals without changing the core wedge.
@@ -1498,7 +1541,7 @@ END COMMENTED OUT */
 function SlideMoats() {
   const rows: {
     year: string;
-    providers: string;
+    providerCount: number;
     share: string;
     arr: string;
     arrValue: number;
@@ -1506,11 +1549,11 @@ function SlideMoats() {
     growth: string;
     milestone?: boolean;
   }[] = [
-    { year: "Year 1", providers: "350", share: "0.03%", arr: "$2.52M", arrValue: 2.52, val: "$20.1M", growth: "—" },
-    { year: "Year 2", providers: "1,050", share: "0.10%", arr: "$7.56M", arrValue: 7.56, val: "$60.4M", growth: "300% (3x)" },
-    { year: "Year 3", providers: "3,150", share: "0.29%", arr: "$22.68M", arrValue: 22.68, val: "$181.4M", growth: "300% (3x)" },
-    { year: "Year 4", providers: "7,875", share: "0.72%", arr: "$56.70M", arrValue: 56.7, val: "$453.6M", growth: "250% (2.5x)" },
-    { year: "Year 5", providers: "17,600", share: "1.60%", arr: "$126.72M", arrValue: 126.72, val: "$1.013B", growth: "223% (2.2x)", milestone: true },
+    { year: "Year 1", providerCount: 299, share: "0.02%", arr: "$2.2M", arrValue: 2.2, val: "$17.2M", growth: "—" },
+    { year: "Year 2", providerCount: 1048, share: "0.07%", arr: "$7.5M", arrValue: 7.5, val: "$60.4M", growth: "241% (3.4x)" },
+    { year: "Year 3", providerCount: 3742, share: "0.25%", arr: "$26.9M", arrValue: 26.9, val: "$215.5M", growth: "259% (3.6x)" },
+    { year: "Year 4", providerCount: 10476, share: "0.70%", arr: "$75.4M", arrValue: 75.4, val: "$603.5M", growth: "180% (2.8x)" },
+    { year: "Year 5", providerCount: 17959, share: "1.20%", arr: "$129.3M", arrValue: 129.3, val: "$1.03B", growth: "71% (1.7x)", milestone: true },
   ];
 
   const arrValues = rows.map((row) => row.arrValue);
@@ -1638,10 +1681,10 @@ function SlideMoats() {
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ year, providers, share, arr, val, growth, milestone }) => (
+              {rows.map(({ year, providerCount, share, arr, val, growth, milestone }) => (
                 <tr key={year} className={milestone ? "rev-row-milestone" : ""}>
                   <td className="rev-year">{year}</td>
-                  <td className="rev-num">{providers}</td>
+                  <td className="rev-num">{providerCount.toLocaleString("en-US")}</td>
                   <td className="rev-share">{share}</td>
                   <td className="rev-arr">{arr}</td>
                   <td className="rev-val">{val}</td>
@@ -1792,7 +1835,7 @@ function SlideAsk() {
         <span className="ask-contact-sep">|</span>
         <span>chamir@mayiguide.com</span>
         <span className="ask-contact-sep">|</span>
-        <span>mayiguide.com</span>
+        <span>www.mayiguide.com</span>
       </motion.div>
     </div>
   );
@@ -1836,24 +1879,24 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
   };
 
   const shareData = [
-    { pct: "2.2%", users: "24,200", hl: false },
-    { pct: "1.6%", users: "17,600", hl: true  },
-    { pct: "1.0%", users: "11,000", hl: false },
+    { pct: "1.7%", users: "25,442", hl: false },
+    { pct: "1.2%", users: "17,959", hl: true  },
+    { pct: "0.9%", users: "13,469", hl: false },
   ];
   const prices = ["$800/mo", "$600/mo", "$400/mo"];
 
   type Sc = { si: number; pi: number; arr: string; val: string;
               isBillion: boolean; isSweet: boolean; isAnnotate: boolean; };
   const scenarios: Sc[] = [
-    { si:0, pi:0, arr:"$232.3M", val:"$1.86B", isBillion:true,  isSweet:false, isAnnotate:false },
-    { si:0, pi:1, arr:"$174.2M", val:"$1.39B", isBillion:true,  isSweet:false, isAnnotate:false },
-    { si:0, pi:2, arr:"$116.2M", val:"$929M",  isBillion:false, isSweet:false, isAnnotate:false },
-    { si:1, pi:0, arr:"$168.9M", val:"$1.35B", isBillion:true,  isSweet:false, isAnnotate:false },
-    { si:1, pi:1, arr:"$126.7M", val:"$1.01B", isBillion:true,  isSweet:true,  isAnnotate:false },
-    { si:1, pi:2, arr:"$84.5M",  val:"$676M",  isBillion:false, isSweet:false, isAnnotate:false },
-    { si:2, pi:0, arr:"$105.6M", val:"$845M",  isBillion:false, isSweet:false, isAnnotate:true  },
-    { si:2, pi:1, arr:"$79.2M",  val:"$634M",  isBillion:false, isSweet:false, isAnnotate:false },
-    { si:2, pi:2, arr:"$52.8M",  val:"$422M",  isBillion:false, isSweet:false, isAnnotate:false },
+    { si:0, pi:0, arr:"$244.2M", val:"$1.95B", isBillion:true,  isSweet:false, isAnnotate:false },
+    { si:0, pi:1, arr:"$183.2M", val:"$1.47B", isBillion:true,  isSweet:false, isAnnotate:false },
+    { si:0, pi:2, arr:"$122.1M", val:"$977M",  isBillion:false, isSweet:false, isAnnotate:false },
+    { si:1, pi:0, arr:"$172.4M", val:"$1.38B", isBillion:true,  isSweet:false, isAnnotate:false },
+    { si:1, pi:1, arr:"$129.3M", val:"$1.03B", isBillion:true,  isSweet:true,  isAnnotate:false },
+    { si:1, pi:2, arr:"$86.2M",  val:"$690M",  isBillion:false, isSweet:false, isAnnotate:false },
+    { si:2, pi:0, arr:"$129.3M", val:"$1.03B", isBillion:true,  isSweet:false, isAnnotate:true  },
+    { si:2, pi:1, arr:"$97.0M",  val:"$776M",  isBillion:false, isSweet:false, isAnnotate:false },
+    { si:2, pi:2, arr:"$64.7M",  val:"$517M",  isBillion:false, isSweet:false, isAnnotate:false },
   ];
 
   return (
@@ -1861,7 +1904,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
       <motion.div className="path-top" variants={stagger} initial="hidden" animate="show">
         <motion.div variants={fadeUp} className="eyebrow-tag">Investor Case</motion.div>
         <motion.h2 variants={fadeUp} className="path-headline">
-          The <span className="path-accent">1.6%</span> Path to a{" "}
+          The <span className="path-accent">1.2%</span> Path to a{" "}
           <span className="path-accent">$1B</span> Valuation.
         </motion.h2>
       </motion.div>
@@ -1959,9 +2002,9 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
             <circle cx={ROOT.x} cy={ROOT.y} r={ROOT.r - 5}
               fill="none" stroke="rgba(0,74,46,0.35)" strokeWidth={0.75} />
             <text x={ROOT.x} y={ROOT.y - 7} textAnchor="middle"
-              fill="white" fontSize={20} fontWeight={700}>1.1M</text>
+              fill="white" fontSize={20} fontWeight={700}>1.5M</text>
             <text x={ROOT.x} y={ROOT.y + 8} textAnchor="middle"
-              fill="rgba(196,146,71,0.9)" fontSize={7} fontWeight={600}>PRACTITIONERS</text>
+              fill="rgba(196,146,71,0.9)" fontSize={7} fontWeight={600}>PROVIDERS</text>
             <text x={ROOT.x} y={ROOT.y + 20} textAnchor="middle"
               fill="rgba(168,196,184,0.5)" fontSize={6.5}>Total Market</text>
 
@@ -2095,18 +2138,203 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
 // ─── Appendix ───────────────────────────────────────────────────────────────
 
 const APX_ROWS = [
-  { cat: "Orthodontics",    prac: "~16,000",  pract: "~21,000",   atv: "$6,200",  trans: "~350 (Starts)",  tam: "~$35B",   sam: "$171.8M", pri: 1, note: 'High value \u201cStarts\u201d and extreme consumer shopping behavior. Predictable buying unit.' },
-  { cat: "Medical Spas",    prac: "~10,500",  pract: "~25,000",   atv: "$536",    trans: "~2,940",         tam: "~$17B",   sam: "$112.8M", pri: 1, note: 'Hyper-competitive retail environment. Highest demand for \u201cInstant Response\u201d AI agents.' },
-  { cat: "Plastic Surgery", prac: "~4,500",   pract: "~7,200",    atv: "$7,887",  trans: "~1,400",         tam: "~$50B",   sam: "$48.3M",  pri: 1, note: 'High ATV + High Lead Sensitivity. One \u201csaved\u201d lead pays for your tool for 10 years.' },
-  { cat: "Fertility (IVF)", prac: "~500",     pract: "~1,500",    atv: "$16,500", trans: "~950",           tam: "~$8B",    sam: "$5.4M",   pri: 1, note: 'Lowest practice count but highest ATV. Critical \u201cwhite glove\u201d service requirements.' },
-  { cat: "Urgent Care",     prac: "~12,000",  pract: "~45,000",   atv: "$220",    trans: "~11,000",        tam: "~$29B",   sam: "$128.9M", pri: 2, note: 'High velocity. AI value is in \u201cTriage\u201d and \u201cWait Time\u201d management, not just sales.' },
-  { cat: "Psychiatry",      prac: "~11,000",  pract: "~38,000",   atv: "$260",    trans: "~3,800",         tam: "~$11B",   sam: "$118.1M", pri: 2, note: 'Massive supply/demand imbalance. AI handles the overwhelming \u201cIntake\u201d volume.' },
-  { cat: "Weight Loss",     prac: "~4,000",   pract: "~8,000",    atv: "$350",    trans: "~2,500",         tam: "~$3.5B",  sam: "$42.9M",  pri: 2, note: 'Booming sector (GLP-1s). High volume of recurring \u201cCheck-in\u201d calls.' },
-  { cat: "Diagnostics",     prac: "~29,000",  pract: "~150,000",  atv: "$90",     trans: "~50,000+",       tam: "~$100B+", sam: "$311.5M", pri: 3, note: "B2B heavy. AI needs to talk to other doctors' offices more than patients." },
-  { cat: "Podiatry",        prac: "~9,900",   pract: "~19,000",   atv: "$185",    trans: "~5,000",         tam: "~$9B",    sam: "$106.3M", pri: 3, note: 'Moderate velocity. Transition to \u201cretail\u201d foot care (custom orthotics) is growing.' },
-  { cat: "Ophthalmology",   prac: "~3,700",   pract: "~19,000",   atv: "$3,500",  trans: "~5,500",         tam: "~$70B",   sam: "$39.7M",  pri: 3, note: 'Complex surgical billing. AI value moves from \u201cLeads\u201d to \u201cInsurance Pre-Auth.\u201d' },
-  { cat: "Primary Care",    prac: "~133,000", pract: "~502,000",  atv: "$200",    trans: "~5,500",         tam: "~$280B",  sam: "$1.43B",  pri: 4, note: 'Bureaucratic. High churn and low margin. Requires \u201cEnterprise\u201d sales motion.' },
-  { cat: "Hospitals",       prac: "~6,100",   pract: "~900,000",  atv: "$2,800+", trans: "~5,800 (Adm)",   tam: "~$1.3T",  sam: "$65.5M",  pri: 4, note: 'Massive sales cycles (18mo+). Requires deep Epic/Cerner native integrations.' },
+  {
+    category: "Retail",
+    vertical: "Fertility (IVF)",
+    practiceCount: "500",
+    mdDo: "1,500",
+    np: "400",
+    pa: "300",
+    other: "-",
+    totalProviders: "2,200",
+    atv: "$15,000",
+    annualTransactions: "800",
+    annualRevenue: "$12,000,000",
+    rationale: "Highest ATV in the set. Small target list, but each missed consult is expensive and conversion speed matters.",
+  },
+  {
+    category: "Retail",
+    vertical: "Plastic Surgery",
+    practiceCount: "5,500",
+    mdDo: "8,000",
+    np: "1,000",
+    pa: "1,200",
+    other: "-",
+    totalProviders: "10,200",
+    atv: "$2,500",
+    annualTransactions: "800",
+    annualRevenue: "$2,000,000",
+    rationale: "Classic high-consideration retail funnel. Lead response and consult scheduling directly influence revenue capture.",
+  },
+  {
+    category: "Retail",
+    vertical: "Dentistry & Ortho",
+    practiceCount: "179,000",
+    mdDo: "-",
+    np: "-",
+    pa: "-",
+    other: "213,315",
+    totalProviders: "213,315",
+    atv: "$350",
+    annualTransactions: "5,142",
+    annualRevenue: "$1,800,000",
+    rationale: "Largest retail practice base. Strong fit for always-on scheduling, recall, and treatment-start conversion workflows.",
+  },
+  {
+    category: "Retail",
+    vertical: "Ophthalmology / Optom.",
+    practiceCount: "45,000",
+    mdDo: "-",
+    np: "-",
+    pa: "-",
+    other: "42,000",
+    totalProviders: "60,500",
+    atv: "$250",
+    annualTransactions: "7,200",
+    annualRevenue: "$1,800,000",
+    rationale: "Combines recurring exams with elective conversion opportunities, creating both throughput and revenue sensitivity.",
+  },
+  {
+    category: "Retail",
+    vertical: "Dermatology",
+    practiceCount: "10,000",
+    mdDo: "12,000",
+    np: "1,400",
+    pa: "6,200",
+    other: "-",
+    totalProviders: "19,600",
+    atv: "$300",
+    annualTransactions: "6,000",
+    annualRevenue: "$1,800,000",
+    rationale: "Mix of medical and cosmetic demand. Front-desk load is high, while cosmetic consults reward fast response.",
+  },
+  {
+    category: "Retail",
+    vertical: "Veterinary",
+    practiceCount: "32,000",
+    mdDo: "-",
+    np: "-",
+    pa: "-",
+    other: "127,000",
+    totalProviders: "127,000",
+    atv: "$150",
+    annualTransactions: "10,000",
+    annualRevenue: "$1,500,000",
+    rationale: "Fragmented market with heavy inbound demand. Automation helps with urgent scheduling, reminders, and missed-call recovery.",
+  },
+  {
+    category: "Retail",
+    vertical: "Medical Spas",
+    practiceCount: "11,500",
+    mdDo: "10,488",
+    np: "21,500",
+    pa: "10,500",
+    other: "-",
+    totalProviders: "42,488",
+    atv: "$600",
+    annualTransactions: "2,333",
+    annualRevenue: "$1,400,000",
+    rationale: "Highly competitive consumer acquisition environment where speed-to-lead and reactivation drive outsized ROI.",
+  },
+  {
+    category: "Other",
+    vertical: "Surgery Centers (ASCs)",
+    practiceCount: "6,300",
+    mdDo: "100,000",
+    np: "-",
+    pa: "-",
+    other: "-",
+    totalProviders: "100,000",
+    atv: "$3,200",
+    annualTransactions: "2,200",
+    annualRevenue: "$7,040,000",
+    rationale: "High case-value settings support premium software budgets, especially for scheduling and pre-op coordination.",
+  },
+  {
+    category: "Other",
+    vertical: "Cardiology",
+    practiceCount: "15,000",
+    mdDo: "40,300",
+    np: "-",
+    pa: "-",
+    other: "-",
+    totalProviders: "40,300",
+    atv: "$400",
+    annualTransactions: "8,750",
+    annualRevenue: "$3,500,000",
+    rationale: "Referral-heavy specialty with dense scheduling and pre-procedure coordination that creates real ops leverage.",
+  },
+  {
+    category: "Other",
+    vertical: "Urgent Care",
+    practiceCount: "15,000",
+    mdDo: "-",
+    np: "-",
+    pa: "-",
+    other: "-",
+    totalProviders: "30,000",
+    atv: "$125",
+    annualTransactions: "14,400",
+    annualRevenue: "$1,800,000",
+    rationale: "Lower ATV, but exceptional visit velocity. Small workflow gains compound immediately across high transaction volume.",
+  },
+  {
+    category: "Other",
+    vertical: "Primary Care",
+    practiceCount: "230,000",
+    mdDo: "743,500",
+    np: "-",
+    pa: "-",
+    other: "-",
+    totalProviders: "743,500",
+    atv: "$180",
+    annualTransactions: "10,000",
+    annualRevenue: "$1,800,000",
+    rationale: "Massive footprint and repeat utilization make it the broadest platform expansion wedge for intake and follow-up automation.",
+  },
+  {
+    category: "Other",
+    vertical: "Podiatry",
+    practiceCount: "8,000",
+    mdDo: "12,500",
+    np: "-",
+    pa: "-",
+    other: "-",
+    totalProviders: "12,500",
+    atv: "$200",
+    annualTransactions: "4,000",
+    annualRevenue: "$800,000",
+    rationale: "Balanced mix of repeat care and procedures. Moderate size, but operational pain is consistent and automatable.",
+  },
+  {
+    category: "Other",
+    vertical: "Psychiatry",
+    practiceCount: "35,000",
+    mdDo: "95,000",
+    np: "-",
+    pa: "-",
+    other: "-",
+    totalProviders: "95,000",
+    atv: "$250",
+    annualTransactions: "3,000",
+    annualRevenue: "$750,000",
+    rationale: "Persistent access bottlenecks make qualification, intake, and scheduling automation disproportionately valuable.",
+  },
+  {
+    category: "",
+    vertical: "Total",
+    practiceCount: "592,800",
+    mdDo: "1,023,288",
+    np: "24,300",
+    pa: "18,200",
+    other: "382,315",
+    totalProviders: "1,496,603",
+    atv: "-",
+    annualTransactions: "-",
+    annualRevenue: "$37,990,000",
+    rationale: "Blended view across retail and ambulatory care shows a broad, diversified revenue base for expansion.",
+    total: true,
+  },
 ] as const;
 
 function SlideAppendix() {
@@ -2116,33 +2344,39 @@ function SlideAppendix() {
       <div className="appendix-table-wrap">
         <table className="appendix-table">
           <colgroup>
-            <col /><col /><col /><col /><col /><col /><col /><col /><col />
+            <col /><col /><col /><col /><col /><col /><col /><col /><col /><col /><col /><col />
           </colgroup>
           <thead>
             <tr>
-              <th className="apx-th-num">Priority</th>
               <th>Category</th>
+              <th>Vertical</th>
               <th className="apx-th-num">Practices</th>
-              <th className="apx-th-num">Practitioners</th>
+              <th className="apx-th-num">MD / DO</th>
+              <th className="apx-th-num">NP</th>
+              <th className="apx-th-num">PA</th>
+              <th className="apx-th-num">Other</th>
+              <th className="apx-th-num">Providers</th>
               <th className="apx-th-num">ATV</th>
-              <th className="apx-th-num">Ann. Trans.</th>
-              <th className="apx-th-num">TAM</th>
-              <th className="apx-th-num">SAM (ARR)</th>
+              <th className="apx-th-num">Ann. Tx / Practice</th>
+              <th className="apx-th-num">Ann. Rev / Practice</th>
               <th>Rationale</th>
             </tr>
           </thead>
           <tbody>
             {APX_ROWS.map((r) => (
-              <tr key={r.cat} className={`apx-row apx-pri${r.pri}`}>
-                <td className="apx-num"><span className={`apx-pri-badge p${r.pri}`}>{r.pri}</span></td>
-                <td className="apx-cat">{r.cat}</td>
-                <td className="apx-num">{r.prac}</td>
-                <td className="apx-num">{r.pract}</td>
+              <tr key={r.vertical} className={`apx-row${"total" in r && r.total ? " apx-total-row" : ""}`}>
+                <td className="apx-group">{r.category || "Total"}</td>
+                <td className="apx-cat">{r.vertical}</td>
+                <td className="apx-num">{r.practiceCount}</td>
+                <td className="apx-num">{r.mdDo}</td>
+                <td className="apx-num">{r.np}</td>
+                <td className="apx-num">{r.pa}</td>
+                <td className="apx-num">{r.other}</td>
+                <td className="apx-num">{r.totalProviders}</td>
                 <td className="apx-num">{r.atv}</td>
-                <td className="apx-num">{r.trans}</td>
-                <td className="apx-num">{r.tam}</td>
-                <td className="apx-num">{r.sam}</td>
-                <td className="apx-note">{r.note}</td>
+                <td className="apx-num">{r.annualTransactions}</td>
+                <td className="apx-num">{r.annualRevenue}</td>
+                <td className="apx-note">{r.rationale}</td>
               </tr>
             ))}
           </tbody>
