@@ -54,7 +54,7 @@ interface CaptureResult {
 const TYPE_DELAY_MS = 40; // delay between each character
 const DRIFT_SAME_POINT_DISTANCE_PX = 24;
 const DRIFT_CLICK_STREAK_THRESHOLD = 2;
-const MAX_TURNS = 3;
+const MAX_TURNS = 10;
 const MAX_RUNTIME_MS = 5 * 60 * 1000;
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
