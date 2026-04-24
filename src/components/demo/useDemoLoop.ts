@@ -17,19 +17,45 @@ interface ComputerAction {
   scrollY?: number;
 }
 
+type ToolMode = "ga" | "legacy";
+
+interface ActionSpace {
+  width: number;
+  height: number;
+}
+
+interface ViewportMeta {
+  cssWidth: number;
+  cssHeight: number;
+  devicePixelRatio: number;
+  visualViewportScale: number;
+  captureWidth: number;
+  captureHeight: number;
+}
+
 interface ApiResponse {
+  sessionId: string;
   callId: string;
   responseId: string;
+  mode: ToolMode;
+  actionSpace: ActionSpace;
   actions: ComputerAction[];
   logs: string[];
   done: boolean;
 }
 
+interface CaptureResult {
+  b64: string;
+  viewport: ViewportMeta;
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const CAPTURE_WIDTH = 1440;
-const CAPTURE_HEIGHT = 900;
 const TYPE_DELAY_MS = 40; // delay between each character
+const DRIFT_SAME_POINT_DISTANCE_PX = 24;
+const DRIFT_CLICK_STREAK_THRESHOLD = 2;
+const MAX_TURNS = 3;
+const MAX_RUNTIME_MS = 5 * 60 * 1000;
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
 
@@ -37,7 +63,7 @@ const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? ""
 
 export interface CursorRipple {
   id: number;
-  x: number;  // percent within demo area (0–100)
+  x: number; // percent within demo area (0–100)
   y: number;
 }
 
@@ -55,6 +81,17 @@ export interface DemoLoopActions {
   refresh: () => void;
 }
 
+interface DriftTracker {
+  missStreak: number;
+  lastMiss: { x: number; y: number } | null;
+  recoveryAttempts: number;
+}
+
+interface PendingRecovery {
+  reason: "coordinate_drift";
+  forceLegacy: boolean;
+}
+
 export function useDemoLoop(
   demoAreaRef: React.RefObject<HTMLElement | null>,
   _patientData: PatientData
@@ -68,10 +105,22 @@ export function useDemoLoop(
 
   const logSeq = useRef(0);
   const rippleSeq = useRef(0);
-  // Store current demoPage in a ref so async callbacks always read the latest value
   const demoPageRef = useRef<"data" | "form">("data");
-  // Track the last field the AI clicked so the subsequent `type` action knows where to type
   const lastClickedFieldRef = useRef<keyof PatientData | null>(null);
+
+  const sessionIdRef = useRef<string>("");
+  const modeRef = useRef<ToolMode>("ga");
+  const actionSpaceRef = useRef<ActionSpace>({ width: 1440, height: 900 });
+  const currentViewportRef = useRef<ViewportMeta | null>(null);
+  const pendingRecoveryRef = useRef<PendingRecovery | null>(null);
+  const driftRef = useRef<DriftTracker>({
+    missStreak: 0,
+    lastMiss: null,
+    recoveryAttempts: 0,
+  });
+  const turnCountRef = useRef(0);
+  const startedAtRef = useRef<number | null>(null);
+  const lockRef = useRef<{ width: string; height: string } | null>(null);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -87,8 +136,40 @@ export function useDemoLoop(
     ]);
   }, []);
 
-  /** Capture the demo area and normalise it to CAPTURE_WIDTH x CAPTURE_HEIGHT. */
-  const captureScreenshot = useCallback(async (): Promise<string> => {
+  const lockDemoAreaSize = useCallback(() => {
+    const el = demoAreaRef.current;
+    if (!el || lockRef.current) return;
+    const rect = el.getBoundingClientRect();
+    lockRef.current = {
+      width: el.style.width,
+      height: el.style.height,
+    };
+    el.style.width = `${Math.round(rect.width)}px`;
+    el.style.height = `${Math.round(rect.height)}px`;
+  }, [demoAreaRef]);
+
+  const unlockDemoAreaSize = useCallback(() => {
+    const el = demoAreaRef.current;
+    if (!el || !lockRef.current) return;
+    el.style.width = lockRef.current.width;
+    el.style.height = lockRef.current.height;
+    lockRef.current = null;
+  }, [demoAreaRef]);
+
+  const readViewportMeta = useCallback((captureWidth: number, captureHeight: number): ViewportMeta => {
+    const rect = demoAreaRef.current?.getBoundingClientRect();
+    return {
+      cssWidth: Math.max(1, Math.round(rect?.width ?? captureWidth)),
+      cssHeight: Math.max(1, Math.round(rect?.height ?? captureHeight)),
+      devicePixelRatio: window.devicePixelRatio || 1,
+      visualViewportScale: window.visualViewport?.scale ?? 1,
+      captureWidth,
+      captureHeight,
+    };
+  }, [demoAreaRef]);
+
+  /** Capture the demo area and return base64 image plus viewport metadata. */
+  const captureScreenshot = useCallback(async (): Promise<CaptureResult> => {
     const el = demoAreaRef.current;
     if (!el) throw new Error("Demo area ref not set");
 
@@ -102,15 +183,30 @@ export function useDemoLoop(
       logging: false,
     });
 
-    // Normalise to fixed 1440×900 for consistent AI coordinate space
-    const out = document.createElement("canvas");
-    out.width = CAPTURE_WIDTH;
-    out.height = CAPTURE_HEIGHT;
-    const ctx = out.getContext("2d")!;
-    ctx.drawImage(canvas, 0, 0, CAPTURE_WIDTH, CAPTURE_HEIGHT);
+    const viewport = readViewportMeta(canvas.width, canvas.height);
+    const prevViewport = currentViewportRef.current;
+    if (prevViewport) {
+      const cssChanged =
+        Math.abs(viewport.cssWidth - prevViewport.cssWidth) > 2 ||
+        Math.abs(viewport.cssHeight - prevViewport.cssHeight) > 2;
+      const dprChanged =
+        Math.abs(viewport.devicePixelRatio - prevViewport.devicePixelRatio) > 0.01;
+      const zoomChanged =
+        Math.abs(viewport.visualViewportScale - prevViewport.visualViewportScale) > 0.01;
 
-    return out.toDataURL("image/png").replace(/^data:image\/png;base64,/, "");
-  }, [demoAreaRef, addLogs]);
+      if (cssChanged || dprChanged || zoomChanged) {
+        addLogs([
+          "📐 Viewport change detected (resize/zoom). Re-capturing to keep coordinate mapping in sync.",
+        ]);
+      }
+    }
+    currentViewportRef.current = viewport;
+
+    return {
+      b64: canvas.toDataURL("image/png").replace(/^data:image\/png;base64,/, ""),
+      viewport,
+    };
+  }, [demoAreaRef, addLogs, readViewportMeta]);
 
   /** Show an animated ripple at (xPct, yPct) percent coordinates within demo area. */
   const showRipple = useCallback((xPct: number, yPct: number) => {
@@ -122,22 +218,56 @@ export function useDemoLoop(
   }, []);
 
   /**
-   * Map model coordinates (in 1440×900 space) to actual DOM coordinates
-   * within the demo area element.
+   * Map model coordinates (in action-space dimensions from server)
+   * to actual DOM coordinates within the demo area element.
    */
   const mapCoords = useCallback(
     (mx: number, my: number): { domX: number; domY: number; pctX: number; pctY: number } => {
       const el = demoAreaRef.current;
+      const actionSpace = actionSpaceRef.current;
       if (!el) return { domX: mx, domY: my, pctX: 50, pctY: 50 };
       const rect = el.getBoundingClientRect();
-      const domX = rect.left + (mx / CAPTURE_WIDTH) * rect.width;
-      const domY = rect.top + (my / CAPTURE_HEIGHT) * rect.height;
-      const pctX = (mx / CAPTURE_WIDTH) * 100;
-      const pctY = (my / CAPTURE_HEIGHT) * 100;
+      const safeWidth = Math.max(1, actionSpace.width);
+      const safeHeight = Math.max(1, actionSpace.height);
+      const clampedX = Math.max(0, Math.min(mx, safeWidth));
+      const clampedY = Math.max(0, Math.min(my, safeHeight));
+      const domX = rect.left + (clampedX / safeWidth) * rect.width;
+      const domY = rect.top + (clampedY / safeHeight) * rect.height;
+      const pctX = (clampedX / safeWidth) * 100;
+      const pctY = (clampedY / safeHeight) * 100;
       return { domX, domY, pctX, pctY };
     },
     [demoAreaRef]
   );
+
+  const applyResponseMetadata = useCallback((data: ApiResponse) => {
+    modeRef.current = data.mode;
+    actionSpaceRef.current = data.actionSpace;
+    sessionIdRef.current = data.sessionId;
+    addLogs([
+      `🧭 Mode: ${data.mode.toUpperCase()} | action space: ${data.actionSpace.width}x${data.actionSpace.height}`,
+    ]);
+  }, [addLogs]);
+
+  const triggerDriftRecovery = useCallback((reasonLabel: string) => {
+    const drift = driftRef.current;
+    drift.missStreak = 0;
+    drift.lastMiss = null;
+    drift.recoveryAttempts += 1;
+
+    if (drift.recoveryAttempts <= 1) {
+      pendingRecoveryRef.current = { reason: "coordinate_drift", forceLegacy: false };
+      addLogs([
+        `🛟 ${reasonLabel}. Attempting auto-correct in current mode (fresh screenshot + retry).`,
+      ]);
+      return;
+    }
+
+    pendingRecoveryRef.current = { reason: "coordinate_drift", forceLegacy: true };
+    addLogs([
+      "🛟 Drift persisted after retry. Requesting automatic fallback to LEGACY coordinate mode.",
+    ]);
+  }, [addLogs]);
 
   /** Animate typing a string into a target form field, one character at a time. */
   const animateType = useCallback(
@@ -170,6 +300,41 @@ export function useDemoLoop(
     []
   );
 
+  const queueRecoveryIfRepeatedMiss = useCallback((x: number, y: number) => {
+    const drift = driftRef.current;
+    const last = drift.lastMiss;
+    const isSameArea =
+      !!last &&
+      Math.hypot(x - last.x, y - last.y) <= DRIFT_SAME_POINT_DISTANCE_PX;
+
+    drift.missStreak = isSameArea ? drift.missStreak + 1 : 1;
+    drift.lastMiss = { x, y };
+
+    if (drift.missStreak >= DRIFT_CLICK_STREAK_THRESHOLD) {
+      triggerDriftRecovery("Repeated click misses detected at nearly the same coordinates");
+    }
+  }, [triggerDriftRecovery]);
+
+  const clearDriftMissStreak = useCallback(() => {
+    const drift = driftRef.current;
+    drift.missStreak = 0;
+    drift.lastMiss = null;
+  }, []);
+
+  const assertRuntimeGuard = useCallback(() => {
+    if (!startedAtRef.current) return;
+    const elapsedMs = Date.now() - startedAtRef.current;
+    if (elapsedMs > MAX_RUNTIME_MS) {
+      throw new Error("Demo time limit reached (5 minutes).");
+    }
+  }, []);
+
+  const assertTurnGuardBeforeNextResponse = useCallback(() => {
+    if (turnCountRef.current >= MAX_TURNS) {
+      throw new Error("Demo max turn limit reached (3 turns).");
+    }
+  }, []);
+
   /**
    * Execute a single batch of actions returned by the model. Returns whether
    * a screenshot was requested mid-batch (meaning we should re-send immediately).
@@ -187,16 +352,29 @@ export function useDemoLoop(
       for (const action of actions) {
         switch (action.type) {
           case "screenshot": {
-            // Take a screenshot now and continue the loop
-            const b64 = await captureScreenshot();
+            assertRuntimeGuard();
+            const capture = await captureScreenshot();
+            const recovery = pendingRecoveryRef.current;
+            pendingRecoveryRef.current = null;
+
             addLogs(["🔄 Sending screenshot back to AI for analysis"]);
+            assertTurnGuardBeforeNextResponse();
             const resp = await fetch(`${API_BASE}/api/computer-use/continue`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ screenshot: b64, callId, responseId }),
+              body: JSON.stringify({
+                screenshot: capture.b64,
+                viewport: capture.viewport,
+                sessionId: sessionIdRef.current,
+                callId,
+                responseId,
+                ...(recovery ? { recovery } : {}),
+              }),
             });
             if (!resp.ok) throw new Error(`API error: ${resp.status}`);
             const data: ApiResponse = await resp.json();
+            turnCountRef.current += 1;
+            applyResponseMetadata(data);
             addLogs(data.logs);
             callId = data.callId;
             responseId = data.responseId;
@@ -210,41 +388,42 @@ export function useDemoLoop(
 
           case "click":
           case "double_click": {
-            const { domX, domY, pctX, pctY } = mapCoords(action.x ?? 0, action.y ?? 0);
+            const mx = action.x ?? 0;
+            const my = action.y ?? 0;
+            const { domX, domY, pctX, pctY } = mapCoords(mx, my);
             showRipple(pctX, pctY);
 
-            // Check if this click targets the "Next Page" button
             const targetEl = document.elementFromPoint(domX, domY) as HTMLElement | null;
-            if (targetEl) {
-              const btn = targetEl.closest("#next-page-btn, [id='next-page-btn']") as HTMLElement | null;
-              if (btn ?? targetEl.id === "next-page-btn") {
-                addLogs(["🖱️ Clicking 'Next Page →' button"]);
-                setDemoPage("form");
-                demoPageRef.current = "form";
-                await new Promise((r) => setTimeout(r, 800)); // wait for transition
-              } else {
-                // Log which field is being clicked and remember it for the next type action
-                const fieldKey = resolveFieldKey(domX, domY);
-                if (fieldKey) {
-                  lastClickedFieldRef.current = fieldKey;
-                  addLogs([`🖱️ Clicking field: ${fieldKey}`]);
-                } else {
-                  addLogs([`🖱️ Clicking at (${Math.round(action.x ?? 0)}, ${Math.round(action.y ?? 0)})`]);
-                  (targetEl as HTMLElement)?.click?.();
-                }
-              }
+            const fieldKey = resolveFieldKey(domX, domY);
+            const btn = targetEl?.closest("#next-page-btn, [id='next-page-btn']") as HTMLElement | null;
+
+            if (btn || targetEl?.id === "next-page-btn") {
+              addLogs(["🖱️ Clicking 'Next Page →' button"]);
+              clearDriftMissStreak();
+              setDemoPage("form");
+              demoPageRef.current = "form";
+              await new Promise((r) => setTimeout(r, 800));
+            } else if (fieldKey) {
+              lastClickedFieldRef.current = fieldKey;
+              clearDriftMissStreak();
+              addLogs([`🖱️ Clicking field: ${fieldKey}`]);
+            } else {
+              addLogs([`🖱️ Click miss at (${Math.round(mx)}, ${Math.round(my)})`]);
+              targetEl?.click?.();
+              queueRecoveryIfRepeatedMiss(mx, my);
             }
+
             await new Promise((r) => setTimeout(r, 300));
             break;
           }
 
           case "type": {
             const text = action.text ?? "";
-            // Use the field the AI last clicked (stored in a ref to avoid closure staleness)
             const target: keyof PatientData | null = lastClickedFieldRef.current;
             if (target) {
               addLogs([`⌨️ Typing "${text}" into ${target}`]);
               await animateType(target, text);
+              clearDriftMissStreak();
             } else {
               addLogs([`⌨️ Typing "${text}"`]);
             }
@@ -283,6 +462,8 @@ export function useDemoLoop(
       return { callId, responseId, done };
     },
     [
+      assertRuntimeGuard,
+      assertTurnGuardBeforeNextResponse,
       captureScreenshot,
       addLogs,
       mapCoords,
@@ -290,6 +471,9 @@ export function useDemoLoop(
       resolveFieldKey,
       animateType,
       demoAreaRef,
+      applyResponseMetadata,
+      queueRecoveryIfRepeatedMiss,
+      clearDriftMissStreak,
     ]
   );
 
@@ -297,11 +481,20 @@ export function useDemoLoop(
 
   const startDemo = useCallback(async () => {
     if (status === "running") return;
+
     setStatus("running");
+    startedAtRef.current = Date.now();
+    turnCountRef.current = 0;
+    lockDemoAreaSize();
     addLogs(["🧠 AI agent initializing…"]);
+    addLogs([`🛡️ Guards active: max ${MAX_TURNS} turns, 5 minute runtime`]);
 
     try {
-      const b64 = await captureScreenshot();
+      assertRuntimeGuard();
+      const capture = await captureScreenshot();
+      addLogs([
+        `📐 Session viewport css:${capture.viewport.cssWidth}x${capture.viewport.cssHeight} capture:${capture.viewport.captureWidth}x${capture.viewport.captureHeight} dpr:${capture.viewport.devicePixelRatio.toFixed(2)} zoom:${capture.viewport.visualViewportScale.toFixed(2)}`,
+      ]);
       addLogs(["🔄 Sending initial screenshot to Azure OpenAI"]);
 
       const task = [
@@ -318,26 +511,29 @@ export function useDemoLoop(
       const startResp = await fetch(`${API_BASE}/api/computer-use/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ screenshot: b64, task }),
+        body: JSON.stringify({ screenshot: capture.b64, task, viewport: capture.viewport }),
       });
       if (!startResp.ok) throw new Error(`API error: ${startResp.status}`);
 
       const startData: ApiResponse = await startResp.json();
+      turnCountRef.current += 1;
+      applyResponseMetadata(startData);
       addLogs(startData.logs);
 
       if (startData.done) {
         setStatus("done");
         addLogs(["✅ Workflow completed!"]);
+        unlockDemoAreaSize();
         return;
       }
 
-      // Main loop
       let callId = startData.callId;
       let responseId = startData.responseId;
       let actions = startData.actions;
       let done: boolean = startData.done;
 
       while (!done) {
+        assertRuntimeGuard();
         const result = await executeActions(actions, callId, responseId);
         callId = result.callId;
         responseId = result.responseId;
@@ -345,18 +541,30 @@ export function useDemoLoop(
 
         if (done) break;
 
-        // After executing actions, capture fresh screenshot and continue
-        const freshB64 = await captureScreenshot();
+        const freshCapture = await captureScreenshot();
+        const recovery = pendingRecoveryRef.current;
+        pendingRecoveryRef.current = null;
+
         addLogs(["🔄 Sending updated screenshot to AI"]);
 
+        assertTurnGuardBeforeNextResponse();
         const contResp = await fetch(`${API_BASE}/api/computer-use/continue`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ screenshot: freshB64, callId, responseId }),
+          body: JSON.stringify({
+            screenshot: freshCapture.b64,
+            viewport: freshCapture.viewport,
+            sessionId: sessionIdRef.current,
+            callId,
+            responseId,
+            ...(recovery ? { recovery } : {}),
+          }),
         });
         if (!contResp.ok) throw new Error(`API error: ${contResp.status}`);
 
         const contData: ApiResponse = await contResp.json();
+        turnCountRef.current += 1;
+        applyResponseMetadata(contData);
         addLogs(contData.logs);
         callId = contData.callId;
         responseId = contData.responseId;
@@ -370,8 +578,20 @@ export function useDemoLoop(
       console.error("[useDemoLoop]", err);
       addLogs([`❌ Error: ${err instanceof Error ? err.message : String(err)}`]);
       setStatus("error");
+    } finally {
+      unlockDemoAreaSize();
     }
-  }, [status, captureScreenshot, addLogs, executeActions]);
+  }, [
+    status,
+    assertRuntimeGuard,
+    assertTurnGuardBeforeNextResponse,
+    captureScreenshot,
+    addLogs,
+    executeActions,
+    applyResponseMetadata,
+    lockDemoAreaSize,
+    unlockDemoAreaSize,
+  ]);
 
   // ── Refresh ───────────────────────────────────────────────────────────────
 
@@ -383,7 +603,18 @@ export function useDemoLoop(
     setFormValues({});
     setActiveField(null);
     setCursorRipples([]);
-  }, []);
+
+    sessionIdRef.current = "";
+    modeRef.current = "ga";
+    actionSpaceRef.current = { width: 1440, height: 900 };
+    currentViewportRef.current = null;
+    pendingRecoveryRef.current = null;
+    driftRef.current = { missStreak: 0, lastMiss: null, recoveryAttempts: 0 };
+    turnCountRef.current = 0;
+    startedAtRef.current = null;
+    lastClickedFieldRef.current = null;
+    unlockDemoAreaSize();
+  }, [unlockDemoAreaSize]);
 
   return [
     { status, logs, demoPage, formValues, activeField, cursorRipples },

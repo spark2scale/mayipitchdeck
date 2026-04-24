@@ -66,15 +66,18 @@ The `useDemoLoop` hook drives everything. It is called from `SlideDemo.tsx` and 
 
 ### Loop sequence
 
-1. **Screenshot**: `html2canvas` captures the `demoAreaRef` element (the left panel) and normalises it to **1440×900 px** — the fixed coordinate space the AI works in.
-2. **POST /api/computer-use/start**: Sends the base64 screenshot and a plain-English task prompt. Returns `{ callId, responseId, actions[], logs[], done }`.
+1. **Screenshot**: `html2canvas` captures the `demoAreaRef` element (the left panel) at runtime dimensions (no fixed 1440×900 resize). The client also sends a `viewport` object (`cssWidth`, `cssHeight`, `devicePixelRatio`, `visualViewportScale`, `captureWidth`, `captureHeight`).
+2. **POST /api/computer-use/start**: Sends screenshot, task, and viewport metadata. Returns `{ sessionId, callId, responseId, mode, actionSpace, actions[], logs[], done }`.
 3. **Execute actions**: The `executeActions()` function processes each action:
    - `screenshot` — captures a new screenshot and immediately POSTs to `/continue`
-   - `click` / `double_click` — maps model coordinates (1440×900) to real DOM coordinates via `mapCoords()`, detects if the target is `#next-page-btn` (triggers page transition) or a form field (stores field key in `lastClickedFieldRef`), shows a ripple animation
+   - `click` / `double_click` — maps model coordinates using the server-provided `actionSpace` (`width`, `height`) to real DOM coordinates via `mapCoords()`, detects if the target is `#next-page-btn` (triggers page transition) or a form field (stores field key in `lastClickedFieldRef`), shows a ripple animation
    - `type` — reads `lastClickedFieldRef.current` to know which field to animate into; calls `animateType()` which writes the text character-by-character at 40 ms/char
    - `scroll`, `keypress`, `wait` — handled with appropriate side effects
-4. **POST /api/computer-use/continue**: After each action batch, a fresh screenshot is captured and sent back to the model with the previous `callId` and `responseId`.
-5. Loop continues until the backend returns `done: true`.
+4. **POST /api/computer-use/continue**: After each action batch, a fresh screenshot + viewport is sent with `sessionId`, `callId`, and `responseId`.
+5. **Drift recovery**: Repeated click misses in the same area trigger automatic recovery:
+   - attempt 1: fresh screenshot retry in current mode
+   - attempt 2: backend restart in legacy tool mode (`computer_use_preview`) with explicit `display_width/display_height = captureWidth/captureHeight`
+6. Loop continues until the backend returns `done: true`.
 
 ### Key implementation detail — `lastClickedFieldRef`
 
@@ -89,19 +92,19 @@ html2canvas(demoAreaRef.current, {
   allowTaint: true,
   backgroundColor: "#001810",
 })
-// Then redrawn onto a 1440×900 canvas and base64-encoded (PNG, no data: prefix)
+// Sent as-is (runtime capture dimensions) plus viewport metadata
 ```
 
 ### Coordinate mapping
 
-Model coordinates (in 1440×900 space) are mapped to actual DOM coordinates using the `demoAreaRef` bounding rect:
+Model coordinates are mapped using server-provided action-space dimensions:
 
 ```typescript
-domX = rect.left + (mx / 1440) * rect.width
-domY = rect.top  + (my / 900)  * rect.height
+domX = rect.left + (mx / actionSpace.width) * rect.width
+domY = rect.top  + (my / actionSpace.height) * rect.height
 ```
 
-Percent coordinates for ripple placement use `(mx / 1440) * 100`.
+Percent coordinates for ripple placement use the same action-space denominators.
 
 ---
 
@@ -113,16 +116,34 @@ The Express server runs on Railway at `https://mayipitchdeck-production.up.railw
 
 **Request body:**
 ```json
-{ "screenshot": "<base64 PNG>", "task": "<plain English task description>" }
+{
+  "screenshot": "<base64 PNG>",
+  "task": "<plain English task description>",
+  "viewport": {
+    "cssWidth": 1220,
+    "cssHeight": 910,
+    "devicePixelRatio": 2,
+    "visualViewportScale": 1.25,
+    "captureWidth": 1220,
+    "captureHeight": 910
+  }
+}
 ```
 
-**What it does:** Creates an `AzureOpenAI` client and calls `client.responses.create()` using the Responses API with the `computer` tool (or `computer_use_preview` if `AZURE_USE_LEGACY_TOOL=true`). Sends the task text and initial screenshot as `input_image`.
+**What it does:** Creates an `AzureOpenAI` client and calls `client.responses.create()` using tool policy:
+- `AUTO` (default): start in GA `computer`
+- `GA`: force GA `computer`
+- `LEGACY`: force `computer_use_preview`
+The response always includes explicit `mode` and `actionSpace`.
 
 **Response body:**
 ```json
 {
+  "sessionId": "...",
   "callId": "...",
   "responseId": "...",
+  "mode": "ga",
+  "actionSpace": { "width": 1220, "height": 910 },
   "actions": [{ "type": "click", "x": 391, "y": 170 }, ...],
   "logs": ["🧠 Azure OpenAI computer-use session started", "🖱️ AI clicking at (391, 170)"],
   "done": false
@@ -133,10 +154,24 @@ The Express server runs on Railway at `https://mayipitchdeck-production.up.railw
 
 **Request body:**
 ```json
-{ "screenshot": "<base64 PNG>", "callId": "...", "responseId": "..." }
+{
+  "screenshot": "<base64 PNG>",
+  "sessionId": "...",
+  "callId": "...",
+  "responseId": "...",
+  "viewport": {
+    "cssWidth": 1220,
+    "cssHeight": 910,
+    "devicePixelRatio": 2,
+    "visualViewportScale": 1.25,
+    "captureWidth": 1220,
+    "captureHeight": 910
+  },
+  "recovery": { "reason": "coordinate_drift", "forceLegacy": false }
+}
 ```
 
-**What it does:** Calls `client.responses.create()` with `previous_response_id` (for conversation continuity) and a `computer_call_output` input containing the new screenshot. The model sees the result of its last action and decides the next steps.
+**What it does:** Calls `client.responses.create()` with `previous_response_id` and a `computer_call_output` screenshot. If `recovery.forceLegacy=true` and current mode is GA, the backend starts a new legacy-mode session from the latest screenshot and original task text.
 
 **Response body:** Same shape as `/start`. When the model has no more actions, `done: true` is returned with an empty `actions` array.
 
@@ -150,10 +185,11 @@ Required environment variables on Railway:
 | `AZURE_OPENAI_KEY` | API key |
 | `AZURE_OPENAI_DEPLOYMENT` | Deployment name |
 | `AZURE_OPENAI_API_VERSION` | Defaults to `2025-04-01-preview` |
-| `AZURE_USE_LEGACY_TOOL` | Set `true` to use `computer_use_preview` shape instead of GA `computer` |
+| `AZURE_USE_LEGACY_TOOL` | Set `true` to force legacy `computer_use_preview` |
+| `AZURE_COMPUTER_TOOL_MODE` | `AUTO` (default), `GA`, or `LEGACY` |
 | `PORT` | Set automatically by Railway |
 
-The tool definition for the GA shape is simply `{ type: "computer" }`. For the legacy shape it includes `display_width: 1440`, `display_height: 900`, and `environment: "browser"`.
+In legacy mode, tool definition includes dynamic `display_width/display_height` from `viewport.captureWidth/captureHeight` and `environment: "browser"`.
 
 ---
 
