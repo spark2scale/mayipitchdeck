@@ -633,7 +633,7 @@ function SlideFounder() {
         </motion.div>
 
         <motion.p variants={fadeUp} className="founder-tagline">
-          A seasoned <span className="accent-highlight">technical product leader</span> who guides teams to ideate, incubate, and launch enterprise grade software. In his past five years at <span className="accent-highlight">Microsoft</span> he has been focused on <span className="accent-highlight">Health and Life Sciences</span>, including two years in its prestigious <span className="accent-highlight">Microsoft Research</span> organization. Technical acumen is complemented by an <span className="accent-highlight">MBA from Duke University</span> and experience in marketing and sales.
+          A seasoned <span className="accent-highlight">technical product leader</span> who guides teams to ideate, incubate, and launch enterprise grade software. In his past five years at <span className="accent-highlight">Microsoft</span> he has been focused on <span className="accent-highlight">Health and Life Sciences</span>, specifically on the <span className="accent-highlight">Dragon Co-Pilot</span> team, including two years in its prestigious <span className="accent-highlight">Microsoft Research</span> organization. Technical acumen is complemented by an <span className="accent-highlight">MBA from Duke University</span> and experience in marketing and sales.
         </motion.p>
 
         <motion.div variants={fadeUp} className="founder-stats">
@@ -2411,5 +2411,3 @@ function SlideHeader({
     </motion.div>
   );
 }
-
-
