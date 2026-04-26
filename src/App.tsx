@@ -891,10 +891,9 @@ function SlideLoss() {
     {
       icon: <PhoneOff size={20} />,
       label: "Capture",
-      stat: "35%",
-      impact: "$5K+",
-      impactQualifier: "per missed consult",
-      subtext: "High-intent demand never enters the funnel",
+      impact: "$2.25M",
+      impactQualifier: "per year missed consults",
+      subtext: "25% conversion of 150 leads captured by AI per month at $5000 per procedure",
       sourceHref: "https://www.plasticsurgery.org/news/plastic-surgery-statistics",
       sourceLabel: "Source: ASPS statistics",
       color: CCC_COLORS.capture,
@@ -905,10 +904,9 @@ function SlideLoss() {
     {
       icon: <Layers size={20} />,
       label: "Connect",
-      stat: "2:1",
-      impact: "$450K",
+      impact: "$750K",
       impactQualifier: "per year lost to inefficiency",
-      subtext: "A 5-provider practice generating $6M annually requires 25% admin effort and it leaks ~$450K (30%).",
+      subtext: "A 5-provider practice generating $5M annually requires 30% admin effort and it leaks ~$750K (50%).",
       sourceHref: "https://www.healthaffairs.org/content/briefs/role-administrative-waste-excess-us-health-spending",
       sourceLabel: "Source: Health Affairs",
       color: CCC_COLORS.connect,
@@ -919,7 +917,6 @@ function SlideLoss() {
     {
       icon: <DollarSign size={20} />,
       label: "Convert",
-      stat: "20-30%",
       impact: "$250K",
       impactQualifier: "per year lost post-visit",
       subtext: "For a 5-provider practice: ~$1.5M (30%) in patient responsibility, with ~17% ($250K+) at risk",
@@ -939,6 +936,16 @@ function SlideLoss() {
         title="Revenue leaks at every step of the patient journey"
       />
       <div className="loss-body">
+        <motion.div
+          className="loss-summary"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
+          <span className="loss-summary-value">$3.25M</span>
+          <span className="loss-summary-text">annual revenue leakage per practice</span>
+        </motion.div>
+
         <motion.div
           className="loss-grid"
           variants={stagger}
@@ -971,16 +978,6 @@ function SlideLoss() {
               )}
             </motion.section>
           ))}
-        </motion.div>
-
-        <motion.div
-          className="loss-summary"
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-        >
-          <span className="loss-summary-value">$800K</span>
-          <span className="loss-summary-text">annual revenue leakage per practice</span>
         </motion.div>
       </div>
     </div>
