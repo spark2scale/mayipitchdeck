@@ -424,7 +424,7 @@ type DetailStage = {
 const CAPTURE_DETAIL: DetailStage = {
   label: "Capture",
   eyebrow: "Appendix: Capture",
-  percent: "30%",
+  percent: "15%",
   friction: "Front office personnel spend 30% of their time manually capturing patient information and scheduling appointments.",
   summary: "of front-office time automated",
   shade: "card-capture",
@@ -454,7 +454,7 @@ const CAPTURE_DETAIL: DetailStage = {
 const CONNECT_DETAIL: DetailStage = {
   label: "Connect",
   eyebrow: "Appendix: Connect",
-  percent: "20%",
+  percent: "10%",
   friction: "Front office personnel spend 20% of their time manually entering data into payer portals, and emailing or calling payers to verify insurance.",
   summary: "of front-office time automated",
   shade: "card-connect",
@@ -500,13 +500,13 @@ const CONVERT_DETAIL: DetailStage = {
       icon: SurgeryIcon,
       title: "Procedure & Surgery Coordination",
       text: "AI coordinates procedure scheduling across clinics and surgery centers. Automatically confirms availability and manages paperwork.",
-      compactText: "Cross-clinic scheduling, availability, and paperwork orchestration.",
+      compactText: "Cross-clinic scheduling and paperwork orchestration.",
     },
     {
       icon: Banknote,
       title: "Intelligent Collections",
       text: "AI agents follow up on outstanding balances through personalized calls and texts. Improves collection rates and reduces days in A/R.",
-      compactText: "Personalized collections outreach that improves A/R performance.",
+      compactText: "Personalized collections outreach improves A/R performance.",
     },
   ],
 };
@@ -891,9 +891,9 @@ function SlideLoss() {
     {
       icon: <PhoneOff size={20} />,
       label: "Capture",
-      impact: "$2.25M",
+      impact: "$1.8M",
       impactQualifier: "per year missed consults",
-      subtext: "25% conversion of 150 leads captured by AI per month at $5000 per procedure",
+      subtext: "AI captures missed-calls of which 10% are leads. 20% conversion of the 150 monthly leads at $5000/procedure",
       sourceHref: "https://www.plasticsurgery.org/news/plastic-surgery-statistics",
       sourceLabel: "Source: ASPS statistics",
       color: CCC_COLORS.capture,
@@ -937,22 +937,12 @@ function SlideLoss() {
       />
       <div className="loss-body">
         <motion.div
-          className="loss-summary"
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-        >
-          <span className="loss-summary-value">$3.25M</span>
-          <span className="loss-summary-text">annual revenue leakage per practice</span>
-        </motion.div>
-
-        <motion.div
           className="loss-grid"
           variants={stagger}
           initial="hidden"
           animate="show"
         >
-          {losses.map(({ icon, label, stat, impact, impactQualifier, subtext, sourceHref, sourceLabel, color, featured, hideImpactLabel, hideSecondaryStat }) => (
+          {losses.map(({ icon, label, impact, impactQualifier, subtext, sourceHref, sourceLabel, color, featured }) => (
             <motion.section key={label} variants={fadeUp} className={`loss-card${featured ? " loss-card-featured" : ""}`}>
               <div className="loss-card-head">
                 <div className="loss-card-label" style={{ color }}>{label}</div>
@@ -960,24 +950,57 @@ function SlideLoss() {
                   {icon}
                 </div>
               </div>
-              <div className="loss-card-impact">{impact}</div>
-              {impactQualifier && <div className="loss-card-impact-qualifier">{impactQualifier}</div>}
-              {!hideImpactLabel && <div className="loss-card-impact-label">headline revenue loss</div>}
-              {!hideSecondaryStat && <div className="loss-card-stat">{stat}</div>}
-              {!hideSecondaryStat && <div className="loss-card-stat-label">supporting operating signal</div>}
-              <div className="loss-card-copy">{subtext}</div>
-              {sourceHref && sourceLabel && (
-                <a
-                  className="loss-card-source-link"
-                  href={sourceHref}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {sourceLabel}
-                </a>
-              )}
+              <div className="loss-card-main">
+                <div className="loss-card-stat-wrap">
+                  <div className="loss-card-impact">{impact}</div>
+                  {impactQualifier && <div className="loss-card-impact-qualifier">{impactQualifier}</div>}
+                </div>
+                <div className="loss-card-text-wrap">
+                  <div className="loss-card-copy">{subtext}</div>
+                  {sourceHref && sourceLabel && (
+                    <a
+                      className="loss-card-source-link"
+                      href={sourceHref}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {sourceLabel}
+                    </a>
+                  )}
+                </div>
+              </div>
             </motion.section>
           ))}
+        </motion.div>
+
+        <motion.div
+          className="loss-summary"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
+          <span className="loss-summary-value">$2.8</span>
+          <span className="loss-summary-text">Million</span>
+          <span className="loss-summary-caption">per practice per year  revenue leak.</span>
+        </motion.div>
+
+        <motion.div
+          className="loss-market"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
+          <span className="loss-market-value loss-market-value-stat">$353</span>
+          <span className="loss-market-value">Billion</span>
+          <span className="loss-market-caption">2026 Business Process Operations market</span>
+          <a
+            className="loss-card-source-link"
+            href="https://www.fortunebusinessinsights.com/business-process-outsourcing-market-111583"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Source: Fortune Business Insights
+          </a>
         </motion.div>
       </div>
     </div>
@@ -1218,7 +1241,7 @@ function SlideCCCOverview() {
       </motion.div>
 
       <motion.div variants={fadeUp} initial="hidden" animate="show" className="ccc-summary-footer">
-        <span className="ccc-summary-footer-total">60%</span>
+        <span className="ccc-summary-footer-total">35%</span>
         <span className="ccc-summary-footer-text">of front-office time automated across capture, connect, and convert.</span>
       </motion.div>
     </div>

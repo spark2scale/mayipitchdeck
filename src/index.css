@@ -723,11 +723,16 @@ strong { color: var(--mi-text); font-weight: 600; }
 /* ─── Slide: Loss ────────────────────────────────────────────────────────── */
 
 .slide-loss { justify-content: center; }
-.loss-body { display: flex; flex-direction: column; gap: 28px; }
+.loss-body {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr) minmax(0, 5fr);
+  gap: 16px;
+  align-items: stretch;
+}
 
 .loss-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -736,7 +741,7 @@ strong { color: var(--mi-text); font-weight: 600; }
   background: rgba(0, 51, 32, 0.38);
   backdrop-filter: blur(10px);
   padding: 22px 20px 20px;
-  min-height: 250px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -745,7 +750,25 @@ strong { color: var(--mi-text); font-weight: 600; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+}
+
+.loss-card-main {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 3px;
+  align-items: start;
+}
+
+.loss-card-stat-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.loss-card-text-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .loss-card-label {
@@ -767,7 +790,7 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .loss-card-impact {
-  font-size: clamp(28px, 3.2vw, 42px);
+  font-size: clamp(24px, 2.7vw, 34px);
   font-weight: 700;
   color: var(--mi-copper);
   line-height: 1.02;
@@ -780,7 +803,7 @@ strong { color: var(--mi-text); font-weight: 600; }
   font-weight: 600;
   color: var(--mi-text);
   line-height: 1.2;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .loss-card-impact-label {
@@ -792,7 +815,7 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .loss-card-featured .loss-card-impact {
-  font-size: clamp(40px, 4.2vw, 62px);
+  font-size: clamp(30px, 3.4vw, 44px);
   line-height: 0.88;
 }
 
@@ -818,14 +841,15 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .loss-card-copy {
-  margin-top: auto;
+  margin-top: 0;
   font-size: 13px;
   color: var(--mi-muted);
   line-height: 1.5;
-  max-width: 26ch;
+  max-width: none;
 }
 
 .loss-card-source-link {
+  display: inline-block;
   margin-top: 12px;
   font-size: 11px;
   color: rgba(168, 196, 184, 0.82);
@@ -849,10 +873,11 @@ strong { color: var(--mi-text); font-weight: 600; }
   background: rgba(0, 51, 32, 0.38);
   backdrop-filter: blur(10px);
   padding: 18px 24px;
+  height: 100%;
 }
 
 .loss-summary-value {
-  font-size: clamp(48px, 5vw, 76px);
+  font-size: clamp(52px, 5vw, 74px);
   font-weight: 700;
   color: var(--mi-copper);
   line-height: 0.88;
@@ -860,11 +885,63 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .loss-summary-text {
+  font-size: clamp(34px, 3.5vw, 52px);
+  font-weight: 700;
+  color: var(--mi-copper);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  text-align: center;
+}
+
+.loss-summary-caption {
+  margin-top: 10px;
   font-size: 13px;
   font-weight: 600;
   color: var(--mi-text);
   line-height: 1.2;
   text-align: center;
+}
+
+.loss-market {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--mi-border);
+  background: rgba(0, 51, 32, 0.38);
+  backdrop-filter: blur(10px);
+  padding: 18px 24px;
+  height: 100%;
+  text-align: center;
+}
+
+.loss-market-value {
+  font-size: clamp(50px, 5.3vw, 82px);
+  font-weight: 700;
+  color: var(--mi-copper);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  margin-bottom: 8px;
+}
+
+.loss-market-value-stat {
+  font-size: clamp(60px, 6.2vw, 94px);
+  line-height: 0.82;
+}
+
+.loss-market-text {
+  font-size: clamp(18px, 2vw, 30px);
+  font-weight: 600;
+  color: var(--mi-text);
+  line-height: 1.2;
+}
+
+.loss-market-caption {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mi-text);
+  line-height: 1.2;
 }
 
 /* ─── Slide: Engine ──────────────────────────────────────────────────────── */
@@ -3439,14 +3516,17 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
   .problem-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
   /* ── Loss: stack cards ── */
+  .loss-body { grid-template-columns: 1fr; gap: 12px; }
   .loss-grid { grid-template-columns: 1fr; gap: 12px; }
   .loss-card { min-height: 0; padding: 18px 16px; }
+  .loss-card-main { grid-template-columns: 1fr; gap: 8px; }
   .loss-summary {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
     padding: 16px;
   }
+  .loss-market { padding: 16px; }
 
   /* ── Engine: reflow to inputs → engine → outcomes (top→middle→bottom) ── */
   .engine-grid { grid-template-columns: 1fr; gap: 16px; }
@@ -4358,4 +4438,3 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
   color: var(--mi-muted);
   word-break: break-word;
 }
-
