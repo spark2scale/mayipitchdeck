@@ -24,6 +24,7 @@ const SLIDES = [
   "problem",
   "loss",
   "demo",
+  "qualify",
   "engine",
   "ccc-overview",
   // "roi",
@@ -386,6 +387,7 @@ function renderSlide(
   if (slideId === "hero") return <SlideHero goTo={goTo} />;
   if (slideId === "problem") return <SlideProblem />;
   if (slideId === "loss") return <SlideLoss />;
+  if (slideId === "qualify") return <SlideQualify />;
   if (slideId === "engine") return <SlideEngine />;
   if (slideId === "capture-detail") return <SlideCaptureDetail />;
   if (slideId === "connect-detail") return <SlideConnectDetail />;
@@ -672,17 +674,18 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
   const agendaAll: ReadonlyArray<{ num: string; label: string; slideId: SlideId }> = [
     { num: "2",  label: "The Problem",            slideId: "problem" },
     { num: "4",  label: "Live Demo",              slideId: "demo" },
-    { num: "5",  label: "The May I System",       slideId: "engine" },
+    { num: "5",  label: "Product Workflow",       slideId: "qualify" },
+    { num: "6",  label: "The May I System",       slideId: "engine" },
     // { num: "7",  label: "Business Impact",        slideId: "roi" },
-    { num: "8",  label: "Traction",               slideId: "traction" },
-    { num: "9",  label: "Founder & CEO",          slideId: "founder" },
-    { num: "10", label: "Enterprise Security",    slideId: "enterprise-grade" },
-    { num: "11", label: "Competitive Landscape",  slideId: "why-wins" },
-    { num: "12", label: "Investor Case",          slideId: "path" },
-    { num: "13", label: "Revenue Projections",    slideId: "moats" },
-    { num: "14", label: "Vision",                 slideId: "vision" },
-    { num: "15", label: "The Ask",                slideId: "ask" },
-    { num: "16", label: "Appendix",               slideId: "appendix" },
+    { num: "9",  label: "Traction",               slideId: "traction" },
+    { num: "10", label: "Founder & CEO",          slideId: "founder" },
+    { num: "11", label: "Enterprise Security",    slideId: "enterprise-grade" },
+    { num: "12", label: "Competitive Landscape",  slideId: "why-wins" },
+    { num: "13", label: "Investor Case",          slideId: "path" },
+    { num: "14", label: "Revenue Projections",    slideId: "moats" },
+    { num: "15", label: "Vision",                 slideId: "vision" },
+    { num: "16", label: "The Ask",                slideId: "ask" },
+    { num: "17", label: "Appendix",               slideId: "appendix" },
   ];
   const agenda = isMobile ? agendaAll.filter((a) => a.label !== "Live Demo") : agendaAll;
   const agendaRef = useRef<HTMLDivElement>(null);
@@ -1009,6 +1012,31 @@ function SlideLoss() {
 
 // ─── Slide 4: Engine overview ─────────────────────────────────────────────────
 
+function SlideQualify() {
+  return (
+    <div className="slide slide-qualify">
+      <SlideHeader
+        eyebrow="LIVE USER EXPERIENCE"
+        title="May I - Revenue Integrity Engine"
+      />
+      <motion.figure
+        className="qualify-figure"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
+        <img
+          src="/Qualify.png"
+          alt="May I Qualify workflow showing weekly scheduling and customer conversation history"
+          className="qualify-image"
+        />
+      </motion.figure>
+    </div>
+  );
+}
+
+// ─── Slide 5: Engine overview ─────────────────────────────────────────────────
+
 function SlideEngine() {
   const captureOutcomes = [
     { icon: <Calendar size={16} />, text: "Booked consults" },
@@ -1129,7 +1157,7 @@ function SlideCaptureDetail() {
         <div className="detail-eyebrow">{CAPTURE_DETAIL.eyebrow}</div>
         <div className="detail-friction">
           Front office personnel spend{" "}
-          <span className="detail-pct">30%</span> of their time manually
+          <span className="detail-pct">15%</span> of their time manually
           capturing patient information and scheduling appointments.
         </div>
       </div>
@@ -1154,7 +1182,7 @@ function SlideConnectDetail() {
         <div className="detail-eyebrow">{CONNECT_DETAIL.eyebrow}</div>
         <div className="detail-friction">
           Front office personnel spend{" "}
-          <span className="detail-pct">20%</span> of their time manually
+          <span className="detail-pct">10%</span> of their time manually
           entering data into payer portals, and emailing or calling payers
           to verify insurance.
         </div>
@@ -2143,9 +2171,9 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
               variants={fadeUp}
               className="priority-legend-link"
               onClick={goToAppendix}
-              aria-label="Go to slide 16, Appendix market segment analysis"
+              aria-label="Go to slide 17, Appendix market segment analysis"
             >
-              <span>Go to slide 16: Market Segment Analysis</span>
+              <span>Go to slide 17: Market Segment Analysis</span>
               <ArrowRight size={14} />
             </motion.button>
           </motion.div>
