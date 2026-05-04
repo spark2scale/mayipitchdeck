@@ -2,7 +2,7 @@
 
 ## What the demo shows to the user
 
-The demo slide is titled **"AI Agentic Computer Use — Insurance Prior-Authorization Workflow"**. It is slide 14 in the investor pitch deck and is hidden on mobile.
+The demo slide is titled **"AI Agentic Computer Use — Insurance Prior-Authorization Workflow"**. It is slide 5 in the investor pitch deck and is hidden on mobile.
 
 The user sees a split layout:
 
@@ -218,4 +218,4 @@ railway.toml             — Root config; buildCommand: cd server && npm ci, sta
 
 - The demo slide is **excluded from the slides array on mobile** (`<= 768px`): `SLIDES.filter((s) => s !== "demo")`
 - The "Live Demo" agenda item on slide 1 is also **filtered out on mobile**.
-- The demo is slide index 13 in the full `SLIDES` array (0-indexed), page number 14 in the agenda.
+- The demo is slide index 4 in the full `SLIDES` array (0-indexed), page number 5 in the agenda.

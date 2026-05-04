@@ -23,8 +23,8 @@ const SLIDES = [
   "hero",
   "problem",
   "loss",
-  "demo",
   "qualify",
+  "demo",
   "engine",
   "ccc-overview",
   // "roi",
@@ -673,8 +673,8 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
     : SLIDES;
   const agendaAll: ReadonlyArray<{ num: string; label: string; slideId: SlideId }> = [
     { num: "2",  label: "The Problem",            slideId: "problem" },
-    { num: "4",  label: "Live Demo",              slideId: "demo" },
-    { num: "5",  label: "Product Workflow",       slideId: "qualify" },
+    { num: "4",  label: "Product Workflow",       slideId: "qualify" },
+    { num: "5",  label: "Live Demo",              slideId: "demo" },
     { num: "6",  label: "The May I System",       slideId: "engine" },
     // { num: "7",  label: "Business Impact",        slideId: "roi" },
     { num: "9",  label: "Traction",               slideId: "traction" },
