@@ -8,6 +8,9 @@ const pdfExportRouter = Router();
 const PDF_FILENAME = "MayI-Investor-Deck.pdf";
 const PDF_PAGE_WIDTH = 960;
 const PDF_PAGE_HEIGHT = 540;
+// 1600x900 preserves the pre-change visual scale better than a larger viewport.
+// The frontend slide layout uses capped widths and font sizes, so increasing the
+// Playwright viewport made content look smaller on the fixed 16:9 PDF page.
 const EXPORT_VIEWPORT_WIDTH = 1600;
 const EXPORT_VIEWPORT_HEIGHT = 900;
 const DEFAULT_FRONTEND_URL = "http://127.0.0.1:5173/";
