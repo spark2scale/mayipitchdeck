@@ -315,54 +315,55 @@ export default function App() {
         <div className="blob blob-bottom" />
       </div>
 
-      {/* Top navigation bar */}
-      <header className="deck-header">
-        <button className="header-logo" onClick={() => goToSlideIndex(0)} aria-label="Go to slide 1">
-          <img
-            src="/MayILogoTransparentBack.gif"
-            alt="May I"
-            className="logo-img"
-          />
-          <div>
-            <div className="logo-name">May I</div>
-            <div className="logo-sub">Investor Deck</div>
-          </div>
-        </button>
-
-        <nav className="slide-dots" aria-label="Slide navigation">
-          {navSlides.map((id, i) => (
-            <button
-              key={id}
-              onClick={() => goToSlideIndex(i)}
-              className={`dot ${i === navCurrent ? "dot-active" : ""}`}
-              aria-label={`Slide ${i + 1}`}
-              aria-current={i === navCurrent ? "true" : undefined}
+      {!isPdfExport && (
+        <header className="deck-header">
+          <button className="header-logo" onClick={() => goToSlideIndex(0)} aria-label="Go to slide 1">
+            <img
+              src="/MayILogoTransparentBack.gif"
+              alt="May I"
+              className="logo-img"
             />
-          ))}
-        </nav>
+            <div>
+              <div className="logo-name">May I</div>
+              <div className="logo-sub">Investor Deck</div>
+            </div>
+          </button>
 
-        <div className="header-actions">
-          {!isMobile && (
-            <button
-              type="button"
-              className="btn-secondary btn-sm"
-              onClick={handleDownloadPdf}
-              disabled={isDownloadingPdf}
-              title="Download a PDF rendered from the export-safe deck."
+          <nav className="slide-dots" aria-label="Slide navigation">
+            {navSlides.map((id, i) => (
+              <button
+                key={id}
+                onClick={() => goToSlideIndex(i)}
+                className={`dot ${i === navCurrent ? "dot-active" : ""}`}
+                aria-label={`Slide ${i + 1}`}
+                aria-current={i === navCurrent ? "true" : undefined}
+              />
+            ))}
+          </nav>
+
+          <div className="header-actions">
+            {!isMobile && (
+              <button
+                type="button"
+                className="btn-secondary btn-sm"
+                onClick={handleDownloadPdf}
+                disabled={isDownloadingPdf}
+                title="Download a PDF rendered from the export-safe deck."
+              >
+                {isDownloadingPdf ? "Generating PDF..." : "Download PDF"}
+              </button>
+            )}
+            <a
+              href="https://www.mayiguide.com"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-primary btn-sm"
             >
-              {isDownloadingPdf ? "Generating PDF..." : "Download PDF"}
-            </button>
-          )}
-          <a
-            href="https://www.mayiguide.com"
-            target="_blank"
-            rel="noreferrer"
-            className="btn-primary btn-sm"
-          >
-            Live site
-          </a>
-        </div>
-      </header>
+              Live site
+            </a>
+          </div>
+        </header>
+      )}
 
       {/* Slide area */}
       <main className="deck-main">
@@ -387,28 +388,29 @@ export default function App() {
         )}
       </main>
 
-      {/* Bottom prev/next controls */}
-      <footer className="deck-footer">
-        <button
-          onClick={prev}
-          disabled={current === 0}
-          className="nav-btn"
-          aria-label="Previous slide"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <span className="slide-counter">
-          {navCurrent + 1} / {navSlides.length}
-        </span>
-        <button
-          onClick={next}
-          disabled={current === slides.length - 1}
-          className="nav-btn"
-          aria-label="Next slide"
-        >
-          <ChevronRight size={20} />
-        </button>
-      </footer>
+      {!isPdfExport && (
+        <footer className="deck-footer">
+          <button
+            onClick={prev}
+            disabled={current === 0}
+            className="nav-btn"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <span className="slide-counter">
+            {navCurrent + 1} / {navSlides.length}
+          </span>
+          <button
+            onClick={next}
+            disabled={current === slides.length - 1}
+            className="nav-btn"
+            aria-label="Next slide"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </footer>
+      )}
     </div>
 
     {!isPdfExport && (
