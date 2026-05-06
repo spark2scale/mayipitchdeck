@@ -8,8 +8,8 @@ const pdfExportRouter = Router();
 const PDF_FILENAME = "MayI-Investor-Deck.pdf";
 const PDF_PAGE_WIDTH = 960;
 const PDF_PAGE_HEIGHT = 540;
-const EXPORT_VIEWPORT_WIDTH = 2560;
-const EXPORT_VIEWPORT_HEIGHT = 1664;
+const EXPORT_VIEWPORT_WIDTH = 1600;
+const EXPORT_VIEWPORT_HEIGHT = 900;
 const DEFAULT_FRONTEND_URL = "http://127.0.0.1:5173/";
 
 let browserPromise: Promise<Browser> | null = null;
