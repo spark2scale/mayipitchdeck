@@ -561,10 +561,16 @@ const CONVERT_DETAIL: DetailStage = {
 
 const CCC_STAGES = [CAPTURE_DETAIL, CONNECT_DETAIL, CONVERT_DETAIL] as const;
 
+const CCC_AGENT_TITLES: Record<(typeof CCC_STAGES)[number]["label"], string> = {
+  Capture: "Communications Agents",
+  Connect: "Revenue Operations Agents",
+  Convert: "Patient Retention Agents",
+};
+
 type RevenueCycleSolution = {
   icon: LucideIcon;
   title: string;
-  employeeType: "Agentic Front Office Employee" | "May I Communications Agent" | "Agentic Back Office Employee" | "May I Revenue Operations Agent" | "May I Patient Retention Agent";
+  employeeType: "Agentic Front Office Employee" | "May I Communications Agents" | "Agentic Back Office Employee" | "May I Revenue Operations Agents" | "May I Patient Retention Agents";
   functionLabel: string;
 };
 
@@ -619,9 +625,9 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     challenge: "Fragmented intake, missed patient information, and scheduling friction at first contact.",
     accent: CCC_COLORS.capture,
     solutions: [
-      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Comms", "May I Communications Agent", "Answers calls, texts, and books consults"),
-      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Object Character Recognition", "May I Communications Agent", "Extract patient and insurance data from IDs"),
-      getRevenueCycleSolution(CAPTURE_DETAIL, "Personalization", "May I Communications Agent", "Personalizes responses with patient data"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Comms", "May I Communications Agents", "Answers calls, texts, and books consults"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Object Character Recognition", "May I Communications Agents", "Extract patient and insurance data from IDs"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "Personalization", "May I Communications Agents", "Personalizes responses with patient data"),
     ],
   },
   {
@@ -638,9 +644,9 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     accent: CCC_COLORS.connect,
     separatorAfter: true,
     solutions: [
-      getRevenueCycleSolution(CONNECT_DETAIL, "AI submits patient data in payer portals", "May I Revenue Operations Agent", "Submits patient data and starts pre-auth"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "AI analyzes emails to reconcile pre-auth", "May I Revenue Operations Agent", "Responds to emails and triggers apps"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Agentic CRM automates pipelines", "May I Revenue Operations Agent", "Moves work through operational queues"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "AI submits patient data in payer portals", "May I Revenue Operations Agents", "Submits patient data and starts pre-auth"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "AI analyzes emails to reconcile pre-auth", "May I Revenue Operations Agents", "Responds to emails and triggers apps"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Agentic CRM automates pipelines", "May I Revenue Operations Agents", "Moves work through operational queues"),
     ],
   },
   {
@@ -671,9 +677,9 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     challenge: "Revenue is lost when follow-up, procedure coordination, and collections depend on manual outreach.",
     accent: CCC_COLORS.convert,
     solutions: [
-      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall Automation", "May I Patient Retention Agent", "Runs follow-up outreach for recalls"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Targeted Marketing", "May I Patient Retention Agent", "Targeted Marketing"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Intelligent Collections", "May I Patient Retention Agent", "Follows up on balances and collections"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall Automation", "May I Patient Retention Agents", "Runs follow-up outreach for recalls"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Targeted Marketing", "May I Patient Retention Agents", "Targeted Marketing"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Intelligent Collections", "May I Patient Retention Agents", "Follows up on balances and collections"),
     ],
   },
 ] as const;
@@ -1276,9 +1282,9 @@ function SlideEngine() {
         initial="hidden"
         animate="show"
       >
-        May I is the <strong>system of engagement</strong> — sitting between
-        patients and practices, owning the conversion layer while EMR/PMS
-        remains the system of record.
+        May I is the <strong>system of engagement</strong> — deploying
+        agents that sit between patients, systems and the practice, owning
+        the conversion layer while EMR/PMS remains the system of record.
       </motion.p>
       <motion.div
         className="engine-diagram"
@@ -1334,18 +1340,21 @@ function SlideEngine() {
         <div className="engine-col engine-col-outcomes">
           <div className="engine-group">
             <div className="engine-group-label engine-group-capture">Capture</div>
+            <div className="engine-group-agent engine-group-agent-capture">Communications Agents</div>
             {captureOutcomes.map(({ icon, text }) => (
               <div key={text} className="engine-chip engine-chip-out engine-chip-capture">{icon}<span>{text}</span></div>
             ))}
           </div>
           <div className="engine-group">
             <div className="engine-group-label engine-group-connect">Connect</div>
+            <div className="engine-group-agent engine-group-agent-connect">Revenue Operations Agents</div>
             {connectOutcomes.map(({ icon, text }) => (
               <div key={text} className="engine-chip engine-chip-out engine-chip-connect">{icon}<span>{text}</span></div>
             ))}
           </div>
           <div className="engine-group">
             <div className="engine-group-label engine-group-convert">Convert</div>
+            <div className="engine-group-agent engine-group-agent-convert">Patient Retention Agents</div>
             {convertOutcomes.map(({ icon, text }) => (
               <div key={text} className="engine-chip engine-chip-out engine-chip-convert">{icon}<span>{text}</span></div>
             ))}
@@ -1459,6 +1468,12 @@ function SlideCCCOverview() {
         {CCC_STAGES.map((stage) => (
           <motion.section key={stage.label} variants={fadeUp} className={`ccc-summary-panel ${stage.shade}`}>
             <div className="ccc-summary-panel-label" style={{ color: stage.accent }}>{stage.label}</div>
+            <div
+              className={`ccc-summary-agent-tile ccc-summary-agent-tile-${stage.label.toLowerCase()}`}
+              style={{ color: stage.accent }}
+            >
+              {CCC_AGENT_TITLES[stage.label]}
+            </div>
             <div className="ccc-summary-metric">
               <div className="ccc-summary-percent" style={{ color: stage.accent }}>{stage.percent}</div>
               <div className="ccc-summary-metric-text">{stage.summary}</div>
@@ -2007,26 +2022,29 @@ function SlideVision() {
     {
       num: "01",
       phase: "Today",
+      agentTitle: "Communications Agents",
       icon: <Phone size={32} />,
       headline: "Stop the leak",
       text: "Inbound capture, instant response, appointment booking — the wedge that pays for itself.",
-      color: "var(--mi-copper)",
+      color: CCC_COLORS.capture,
     },
     {
       num: "02",
       phase: "Tomorrow",
+      agentTitle: "Revenue Operations Agents",
       icon: <GitMerge size={32} />,
       headline: "Own the workflow, capture the data",
       text: "Insurance Pre-auth, Billing, Patient recalls — orchestrated by May I across the full patient journey.",
-      color: "#a78bfa",
+      color: CCC_COLORS.connect,
     },
     {
       num: "03",
       phase: "Future",
+      agentTitle: "Patient Retention Agents",
       icon: <Rocket size={32} />,
       headline: "Predict and action on the data",
       text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes indispensable infrastructure.",
-      color: "#5fcf8a",
+      color: CCC_COLORS.convert,
     },
   ];
 
@@ -2054,7 +2072,7 @@ function SlideVision() {
         initial="hidden"
         animate="show"
       >
-        {phases.map(({ num, phase, icon, headline, text, color }) => (
+        {phases.map(({ num, phase, agentTitle, icon, headline, text, color }) => (
           <motion.div key={phase} variants={fadeUp} className="vision-phase">
             <div className="vision-phase-num" style={{ color }}>
               {num}
@@ -2064,6 +2082,9 @@ function SlideVision() {
             </div>
             <div className="vision-phase-label" style={{ color }}>
               {phase}
+            </div>
+            <div className="vision-phase-agent" style={{ color }}>
+              {agentTitle}
             </div>
             <div className="vision-phase-headline">{headline}</div>
             <div className="vision-phase-text">{text}</div>
