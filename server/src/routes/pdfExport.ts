@@ -1,36 +1,16 @@
 import { Router, Request } from "express";
 import { PDFDocument } from "pdf-lib";
 import { chromium, type Browser } from "playwright";
+import { SLIDES, type SlideId } from "../../../shared/slides.js";
 
 const pdfExportRouter = Router();
 
 const PDF_FILENAME = "MayI-Investor-Deck.pdf";
 const PDF_PAGE_WIDTH = 960;
 const PDF_PAGE_HEIGHT = 540;
-const EXPORT_VIEWPORT_WIDTH = 1600;
-const EXPORT_VIEWPORT_HEIGHT = 900;
+const EXPORT_VIEWPORT_WIDTH = 2560;
+const EXPORT_VIEWPORT_HEIGHT = 1664;
 const DEFAULT_FRONTEND_URL = "http://127.0.0.1:5173/";
-const SLIDES = [
-  "hero",
-  "problem",
-  "loss",
-  "demo",
-  "engine",
-  "ccc-overview",
-  "roi",
-  "traction",
-  "founder",
-  "enterprise-grade",
-  "why-wins",
-  "path",
-  "moats",
-  "vision",
-  "ask",
-  "appendix",
-  "capture-detail",
-  "connect-detail",
-  "convert-detail",
-] as const;
 
 let browserPromise: Promise<Browser> | null = null;
 
@@ -73,7 +53,7 @@ function getExportUrl(req: Request) {
   return url.toString();
 }
 
-function buildSlideExportUrl(baseUrl: string, slideId: (typeof SLIDES)[number]) {
+function buildSlideExportUrl(baseUrl: string, slideId: SlideId) {
   const url = new URL(baseUrl);
   url.searchParams.set("slide", slideId);
   return url.toString();
@@ -104,7 +84,7 @@ pdfExportRouter.get("/pdf", async (req, res, next) => {
         { timeout: 30000 },
       );
 
-      const slide = page.locator(".print-slide").first();
+      const slide = page.locator("[data-export-capture=\"true\"]").first();
       await slide.waitFor({ state: "visible", timeout: 30000 });
       const slidePng = await slide.screenshot({
         type: "png",
