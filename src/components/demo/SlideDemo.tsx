@@ -54,7 +54,7 @@ function InteractiveSlideDemo() {
       >
         <div className="eyebrow-tag">Live Demo</div>
         <h2 className="slide-title demo-slide-title">
-          AI Agentic Computer Use
+          May I Revenue Operations Agent
           <span className="demo-slide-subtitle"> — Insurance Prior-Authorization Workflow</span>
         </h2>
       </motion.div>
@@ -137,7 +137,7 @@ function ExportSlideDemo() {
       <div className="demo-slide-header">
         <div className="eyebrow-tag">Live Demo</div>
         <h2 className="slide-title demo-slide-title">
-          AI Agentic Computer Use
+          May I Revenue Operations Agent
           <span className="demo-slide-subtitle"> — Insurance Prior-Authorization Workflow</span>
         </h2>
       </div>

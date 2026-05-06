@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import SlideDemo from "./components/demo/SlideDemo";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  PhoneOff, Clock, Layers, RefreshCw,
+  PhoneOff, Layers,
   Database,
   DollarSign,
   Brain, GitMerge,
@@ -11,7 +11,7 @@ import {
   Phone, MessageSquare, Globe, Share2,
   Calendar, FileCheck,
   CheckCircle2,
-  ArrowRight, ScanText, BotMessageSquare, UserRound,
+  ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
   FileSearch, MailCheck, Workflow,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote, MousePointerClick,
   type LucideIcon,
@@ -117,6 +117,7 @@ export default function App() {
   }, [slides]);
   const exportSlides = isPdfExport && exportSlideId ? [exportSlideId] : SLIDES;
   const [current, setCurrent] = useState(0);
+  const [problemBuilt, setProblemBuilt] = useState(isPdfExport);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const handleDownloadPdf = useCallback(() => {
     if (isDownloadingPdf) {
@@ -209,11 +210,56 @@ export default function App() {
     };
   }, [exportSlideId, isPdfExport]);
 
-  const next = useCallback(
-    () => setCurrent((c) => Math.min(c + 1, slides.length - 1)),
-    [slides.length]
+  useEffect(() => {
+    if (isPdfExport) {
+      setProblemBuilt(true);
+    }
+  }, [isPdfExport]);
+
+  const goToSlideIndex = useCallback(
+    (index: number) => {
+      const targetIndex = Math.max(0, Math.min(index, slides.length - 1));
+      const targetSlide = slides[targetIndex];
+      setCurrent(targetIndex);
+      setProblemBuilt(isPdfExport ? true : false);
+      if (targetSlide === "problem" && isPdfExport) {
+        setProblemBuilt(true);
+      }
+    },
+    [isPdfExport, slides]
   );
-  const prev = useCallback(() => setCurrent((c) => Math.max(c - 1, 0)), []);
+
+  const next = useCallback(
+    () => {
+      const currentSlide = slides[current];
+
+      if (currentSlide === "problem" && !problemBuilt) {
+        setProblemBuilt(true);
+        return;
+      }
+
+      const nextIndex = Math.min(current + 1, slides.length - 1);
+      const nextSlide = slides[nextIndex];
+
+      setCurrent(nextIndex);
+      setProblemBuilt(nextSlide === "problem" ? false : false);
+    },
+    [current, problemBuilt, slides]
+  );
+  const prev = useCallback(() => {
+    const currentSlide = slides[current];
+
+    if (currentSlide === "problem" && problemBuilt) {
+      setProblemBuilt(false);
+      return;
+    }
+
+    const prevIndex = Math.max(current - 1, 0);
+    const prevSlide = slides[prevIndex];
+
+    setCurrent(prevIndex);
+    setProblemBuilt(prevSlide === "problem");
+  }, [current, problemBuilt, slides]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -278,7 +324,7 @@ export default function App() {
 
       {/* Top navigation bar */}
       <header className="deck-header">
-        <button className="header-logo" onClick={() => setCurrent(0)} aria-label="Go to slide 1">
+        <button className="header-logo" onClick={() => goToSlideIndex(0)} aria-label="Go to slide 1">
           <img
             src="/MayILogoTransparentBack.gif"
             alt="May I"
@@ -294,7 +340,7 @@ export default function App() {
           {navSlides.map((id, i) => (
             <button
               key={id}
-              onClick={() => setCurrent(i)}
+              onClick={() => goToSlideIndex(i)}
               className={`dot ${i === navCurrent ? "dot-active" : ""}`}
               aria-label={`Slide ${i + 1}`}
               aria-current={i === navCurrent ? "true" : undefined}
@@ -336,7 +382,7 @@ export default function App() {
             transition={{ duration: 0.38 }}
             className="slide-wrap"
           >
-            {renderSlide(slideId, setCurrent, { isExportMode: false })}
+            {renderSlide(slideId, goToSlideIndex, { isExportMode: false, problemBuilt })}
             {/* slideId === "color-options" && <SlideColorOptions /> */}
           </motion.div>
         </AnimatePresence>
@@ -370,7 +416,7 @@ export default function App() {
     <div className="print-deck" aria-hidden={isPdfExport ? undefined : "true"}>
       {exportSlides.map((id) => (
         <div key={id} className="print-slide">
-          {renderSlide(id, () => {}, { isExportMode: isPdfExport })}
+          {renderSlide(id, () => {}, { isExportMode: isPdfExport, problemBuilt: id === "problem" ? true : problemBuilt })}
         </div>
       ))}
     </div>
@@ -381,11 +427,11 @@ export default function App() {
 function renderSlide(
   slideId: (typeof SLIDES)[number],
   goTo: (index: number) => void,
-  options: { isExportMode: boolean },
+  options: { isExportMode: boolean; problemBuilt: boolean },
 ) {
   if (slideId === "founder") return <SlideFounder />;
   if (slideId === "hero") return <SlideHero goTo={goTo} />;
-  if (slideId === "problem") return <SlideProblem />;
+  if (slideId === "problem") return <SlideProblem isBuilt={options.problemBuilt || options.isExportMode} />;
   if (slideId === "loss") return <SlideLoss />;
   if (slideId === "qualify") return <SlideQualify />;
   if (slideId === "engine") return <SlideEngine />;
@@ -487,7 +533,7 @@ const CONVERT_DETAIL: DetailStage = {
   label: "Convert",
   eyebrow: "Appendix: Convert",
   percent: "10%",
-  friction: "Front desk personnel spend 10% of their time making outbound calls for patient recalls, scheduling surgeries, or billing.",
+  friction: "Front desk personnel spend 10% of their time making outbound calls for patient recalls, targeted marketing, or billing.",
   summary: "of front-office time automated",
   shade: "card-convert",
   accent: CCC_COLORS.convert,
@@ -500,9 +546,9 @@ const CONVERT_DETAIL: DetailStage = {
     },
     {
       icon: SurgeryIcon,
-      title: "Procedure & Surgery Coordination",
-      text: "AI coordinates procedure scheduling across clinics and surgery centers. Automatically confirms availability and manages paperwork.",
-      compactText: "Cross-clinic scheduling and paperwork orchestration.",
+      title: "Targeted Marketing",
+      text: "AI identifies patient segments, unused benefits, and timing signals to trigger personalized outreach that drives additional visits and product conversion.",
+      compactText: "Personalized outreach campaigns drive visits and conversion.",
     },
     {
       icon: Banknote,
@@ -514,6 +560,123 @@ const CONVERT_DETAIL: DetailStage = {
 };
 
 const CCC_STAGES = [CAPTURE_DETAIL, CONNECT_DETAIL, CONVERT_DETAIL] as const;
+
+type RevenueCycleSolution = {
+  icon: LucideIcon;
+  title: string;
+  employeeType: "Agentic Front Office Employee" | "May I Communications Agent" | "Agentic Back Office Employee" | "May I Revenue Operations Agent" | "May I Patient Retention Agent";
+  functionLabel: string;
+};
+
+type RevenueCycleStage = {
+  id: string;
+  stage: string;
+  persona: "Front-office" | "Back-office" | "Clinician";
+  metricTitle: string;
+  metricValue: string;
+  metricLabel: string;
+  commentary: string;
+  sourceHref: string;
+  sourceLabel: string;
+  challenge: string;
+  accent: string;
+  showMetricCard?: boolean;
+  separatorAfter?: boolean;
+  solutions: ReadonlyArray<RevenueCycleSolution>;
+};
+
+function getRevenueCycleSolution(
+  source: DetailStage,
+  title: string,
+  employeeType: RevenueCycleSolution["employeeType"],
+  functionLabel: string,
+): RevenueCycleSolution {
+  const card = source.cards.find((entry) => entry.title === title);
+
+  if (!card) {
+    throw new Error(`Missing solution card: ${title}`);
+  }
+
+  return {
+    icon: card.icon,
+    title: card.title,
+    employeeType,
+    functionLabel,
+  };
+}
+
+const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
+  {
+    id: "intake",
+    stage: "Patient Intake",
+    persona: "Front-office",
+    metricTitle: "Missed Demand",
+    metricValue: "35%",
+    metricLabel: "of calls during the day are missed",
+    commentary: "High-intent patients hit voicemail during business hours, and move on before staff recovers the lead.",
+    sourceHref: "https://www.mayiguide.com",
+    sourceLabel: "Source: May I - Austin Face and Body",
+    challenge: "Fragmented intake, missed patient information, and scheduling friction at first contact.",
+    accent: CCC_COLORS.capture,
+    solutions: [
+      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Comms", "May I Communications Agent", "Answers calls, texts, and books consults"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Object Character Recognition", "May I Communications Agent", "Extract patient and insurance data from IDs"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "Personalization", "May I Communications Agent", "Personalizes responses with patient data"),
+    ],
+  },
+  {
+    id: "preauth",
+    stage: "Pre-authorization",
+    persona: "Back-office",
+    metricTitle: "Administrative Overload",
+    metricValue: "2:1",
+    metricLabel: "more time on admin than patients",
+    commentary: "Administrative drag cuts capacity, slows follow-up, creates bottlenecks, and fuels burnout.",
+    sourceHref: "https://www.acpjournals.org/doi/10.7326/M16-0961",
+    sourceLabel: "Source: Annals of Internal Medicine",
+    challenge: "Manual payer data entry, status chasing, and rework across pre-auth workflows.",
+    accent: CCC_COLORS.connect,
+    separatorAfter: true,
+    solutions: [
+      getRevenueCycleSolution(CONNECT_DETAIL, "AI submits patient data in payer portals", "May I Revenue Operations Agent", "Submits patient data and starts pre-auth"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "AI analyzes emails to reconcile pre-auth", "May I Revenue Operations Agent", "Responds to emails and triggers apps"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Agentic CRM automates pipelines", "May I Revenue Operations Agent", "Moves work through operational queues"),
+    ],
+  },
+  {
+    id: "consult",
+    stage: "Consult",
+    persona: "Clinician",
+    metricTitle: "Slow Speed-to-Lead",
+    metricValue: "42hrs",
+    metricLabel: "average company response time",
+    commentary: "Practices are 100x more likely to make contact and 21x more likely to qualify if they respond within 5 minutes.",
+    sourceHref: "https://hbr.org/2011/03/the-short-life-of-online-sales-leads",
+    sourceLabel: "Source: Harvard Business Review",
+    challenge: "Incomplete patient context and poor workflow handoff into the consult decision point.",
+    accent: "var(--mi-copper)",
+    showMetricCard: false,
+    solutions: [],
+  },
+  {
+    id: "recall",
+    stage: "Patient Recall / Collections",
+    persona: "Back-office",
+    metricTitle: "Patient Churn",
+    metricValue: "25%",
+    metricLabel: "switched providers because they were unhappy",
+    commentary: "Poor patient experience now drives measurable provider switching across healthcare.",
+    sourceHref: "https://www.accenture.com/us-en/insightsnew/health/difference-between-loyalty-leaving",
+    sourceLabel: "Source: Accenture",
+    challenge: "Revenue is lost when follow-up, procedure coordination, and collections depend on manual outreach.",
+    accent: CCC_COLORS.convert,
+    solutions: [
+      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall Automation", "May I Patient Retention Agent", "Runs follow-up outreach for recalls"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Targeted Marketing", "May I Patient Retention Agent", "Targeted Marketing"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Intelligent Collections", "May I Patient Retention Agent", "Follows up on balances and collections"),
+    ],
+  },
+] as const;
 
 const LIVE_USAGE_METRICS = [
   { value: "2", heroValue: "2", heroLabel: "practices live", tractionLabel: "Practices" },
@@ -581,13 +744,6 @@ const ENTERPRISE_CONTROLS = [
   "Human-in-the-loop for critical decisions",
   "SOC 2 compliance pathway",
   "Closed-loop system — no third-party skills",
-] as const;
-
-const ASK_ROUND_DETAILS = [
-  { label: "Raising", value: "$5M" },
-  { label: "Instrument", value: "Priced Seed Round" },
-  { label: "Valuation cap", value: "$35M" },
-  { label: "Use of funds", value: "Engineering + GTM teams, customer acquisition, tokens" },
 ] as const;
 
 const ASK_MILESTONES = [
@@ -714,7 +870,7 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
           <span className="headline-accent"> for Healthcare.</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="hero-sub">
-          May I captures, qualifies, and converts every high-intent patient inquiry — before the competition picks up the phone.
+          May I deploys agentic employees to capture demand, run operations, and drive patient retention.
         </motion.p>
       </motion.div>
 
@@ -807,81 +963,135 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
 
 // ─── Slide 2: Problem ─────────────────────────────────────────────────────────
 
-function SlideProblem() {
-  const problems = [
-    {
-      icon: <PhoneOff size={36} />,
-      title: "Missed Demand",
-      stat: "35%",
-      statLabel: "of calls during the day are missed",
-      text: "High-intent patients hit voicemail during business hours, and move on before staff recovers the lead.",
-      sourceHref: "https://www.mayiguide.com",
-      sourceLabel: "Source: May I - Austin Face and Body",
-    },
-    {
-      icon: <Clock size={36} />,
-      title: "Slow Speed-to-Lead",
-      stat: "42hrs",
-      statLabel: "Average company response time",
-      text: "100× more likely to make contact and 21× more likely to qualify if lead is responded to within 5 mins",
-      sourceHref: "https://hbr.org/2011/03/the-short-life-of-online-sales-leads",
-      sourceLabel: "Source: Harvard Business Review",
-    },
-    {
-      icon: <Layers size={36} />,
-      title: "Administrative Overload",
-      stat: "2:1",
-      statLabel: "More time on admin than patients",
-      text: "Administrative drag cuts capacity, slows follow-up, creates bottlenecks, and fuels burnout.",
-      sourceHref: "https://www.acpjournals.org/doi/10.7326/M16-0961",
-      sourceLabel: "Source: Annals of Internal Medicine",
-    },
-    {
-      icon: <RefreshCw size={36} />,
-      title: "Patient Churn",
-      stat: "25%",
-      statLabel: "switched providers because they were unhappy",
-      text: "Poor patient experience now drives measurable provider switching across healthcare.",
-      sourceHref: "https://www.accenture.com/us-en/insightsnew/health/difference-between-loyalty-leaving",
-      sourceLabel: "Source: Accenture",
-    },
-  ];
-
+function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
   return (
     <div className="slide slide-problem">
       <SlideHeader
         eyebrow="The Problem"
-        title="Patient experience is stuck in 1985."
+        title="Practice experience is stuck in 1985."
       />
       <motion.div
-        className="problem-grid"
+        className="problem-layout"
         variants={stagger}
         initial="hidden"
         animate="show"
       >
-        {problems.map(({ icon, title, stat, statLabel, text, sourceHref, sourceLabel }) => (
-          <motion.div key={title} variants={fadeUp} className="problem-card">
-            <div className="problem-stat">{stat}</div>
-            <div className="problem-stat-label">{statLabel}</div>
-            <div className="problem-content-row">
-              <div className="problem-icon">{icon}</div>
-              <div className="problem-copy">
-                <h3 className="problem-title">{title}</h3>
-                <p className="problem-text">{text}</p>
-              </div>
-            </div>
-            {sourceHref && sourceLabel && (
-              <a
-                className="problem-source-link"
-                href={sourceHref}
-                target="_blank"
-                rel="noreferrer"
+        <div className="problem-timeline">
+          {REVENUE_CYCLE_STAGES.map(({ id, stage, persona, metricTitle, metricValue, metricLabel, commentary, sourceHref, sourceLabel, accent, showMetricCard = true, separatorAfter = false, solutions }, index) => (
+            <motion.section
+              key={stage}
+              layout
+              variants={fadeUp}
+              className={`problem-stage${separatorAfter ? " problem-stage-separator-after" : ""}`}
+              data-stage-id={id}
+              transition={{ layout: { duration: 0.42, ease: "easeInOut" } }}
+            >
+              {showMetricCard ? (
+                <motion.div
+                  layout
+                  className={`problem-challenge-card${isBuilt ? " problem-challenge-card-built" : ""}`}
+                  style={{ borderTopColor: accent }}
+                  transition={{ layout: { duration: 0.42, ease: "easeInOut" } }}
+                >
+                  <Users size={28} className="problem-staff-card-icon" aria-hidden="true" />
+                  <div className="problem-card-label">{metricTitle}</div>
+                  <div className="problem-stage-stat" style={{ color: accent }}>{metricValue}</div>
+                  <div className="problem-stage-stat-label">{metricLabel}</div>
+                  <AnimatePresence initial={false}>
+                    {!isBuilt ? (
+                      <motion.div
+                        key="problem-card-body"
+                        initial={{ opacity: 1, y: 0 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.22, ease: "easeOut" }}
+                      >
+                        <div className="problem-stage-commentary">{commentary}</div>
+                        <a
+                          className="problem-source-link"
+                          href={sourceHref}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {sourceLabel}
+                        </a>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </motion.div>
+              ) : (
+                <motion.div
+                  layout
+                  className={`problem-card-placeholder${isBuilt ? " problem-card-placeholder-built" : ""}`}
+                  aria-hidden="true"
+                  transition={{ layout: { duration: 0.42, ease: "easeInOut" } }}
+                />
+              )}
+
+              <motion.div
+                layout
+                className="problem-stage-track"
+                transition={{ layout: { duration: 0.42, ease: "easeInOut" } }}
               >
-                {sourceLabel}
-              </a>
-            )}
-          </motion.div>
-        ))}
+                <div className="problem-stage-line" aria-hidden="true" />
+                <div className="problem-stage-marker" style={{ borderColor: accent, backgroundColor: accent }} aria-hidden="true" />
+                <div className="problem-stage-meta">
+                  <div className="problem-stage-title">{stage}</div>
+                  <div className="problem-persona-badge" style={{ color: accent, borderColor: accent }}>
+                    {persona}
+                  </div>
+                </div>
+                {index < REVENUE_CYCLE_STAGES.length - 1 ? (
+                  <ArrowRight
+                    size={16}
+                    className="problem-stage-arrow"
+                    style={{ color: accent }}
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </motion.div>
+
+              <AnimatePresence initial={false}>
+                {isBuilt && solutions.length > 0 ? (
+                  <motion.div
+                    layout
+                    className="problem-solutions"
+                    initial={{ opacity: 0, y: 28 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 28 }}
+                    transition={{ duration: 0.38, ease: "easeOut" }}
+                  >
+                    <div className="problem-solution-card" style={{ borderTopColor: accent }}>
+                      <div className="problem-solutions-label" style={{ color: accent }}>
+                        <img
+                          src="/MayILogoTransparentBack.gif"
+                          alt="May I"
+                          className="problem-solutions-logo"
+                        />
+                        <div className="problem-solutions-label-text">
+                          <span className="problem-solutions-label-brand">May I</span>
+                          <span className="problem-solutions-label-role">
+                            {solutions[0].employeeType.replace(/^May I\s+/, "")}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="problem-solution-group">
+                        {solutions.map(({ icon: Icon, title, functionLabel }) => (
+                          <div key={title} className="problem-solution-row">
+                            <div className="problem-solution-title">
+                              <Icon size={16} />
+                              <span>{functionLabel}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </motion.section>
+          ))}
+        </div>
       </motion.div>
     </div>
   );
@@ -920,11 +1130,11 @@ function SlideLoss() {
     {
       icon: <DollarSign size={20} />,
       label: "Convert",
-      impact: "$250K",
-      impactQualifier: "per year lost post-visit",
-      subtext: "For a 5-provider practice: ~$1.5M (30%) in patient responsibility, with ~17% ($250K+) at risk",
-      sourceHref: "https://www.kff.org/health-costs/americans-challenges-with-health-care-costs/",
-      sourceLabel: "Source: KFF",
+      impact: "$2.0M",
+      impactQualifier: "per year patient lifetime revenue expansion potential",
+      subtext: "Existing patients are 12x more likely to return than new patients are to convert. A 5% increase in retention can increase profits by 25–95%.",
+      sourceHref: "https://www.bain.com/insights/retaining-customers-is-the-real-challenge",
+      sourceLabel: "Source: Bain & Company",
       color: CCC_COLORS.convert,
       featured: true,
       hideImpactLabel: true,
@@ -936,7 +1146,7 @@ function SlideLoss() {
     <div className="slide slide-loss">
       <SlideHeader
         eyebrow="Invisible Loss"
-        title="Revenue leaks at every step of the patient journey"
+        title="Revenue is lost — or left on the table — at every step of the practice journey."
       />
       <div className="loss-body">
         <motion.div
@@ -982,9 +1192,9 @@ function SlideLoss() {
           initial="hidden"
           animate="show"
         >
-          <span className="loss-summary-value">$2.8</span>
+          <span className="loss-summary-value">$4.6</span>
           <span className="loss-summary-text">Million</span>
-          <span className="loss-summary-caption">per practice per year  revenue leak.</span>
+          <span className="loss-summary-caption">per practice per year revenue opportunity</span>
         </motion.div>
 
         <motion.div
@@ -1017,7 +1227,7 @@ function SlideQualify() {
     <div className="slide slide-qualify">
       <SlideHeader
         eyebrow="LIVE USER EXPERIENCE"
-        title="May I - Revenue Integrity Engine"
+        title="May I Communications Agent"
       />
       <motion.figure
         className="qualify-figure"
@@ -1050,7 +1260,7 @@ function SlideEngine() {
   ];
   const convertOutcomes = [
     { icon: <PhoneOutgoing size={16} />, text: "Patient recalls" },
-    { icon: <FileCheck size={16} />, text: "Surgery coordination" },
+    { icon: <FileCheck size={16} />, text: "Targeted marketing" },
     { icon: <Banknote size={16} />, text: "Collections" },
   ];
 
@@ -1107,8 +1317,8 @@ function SlideEngine() {
           <div className="engine-core-items">
             {[
               { icon: <BotMessageSquare size={26} />, text: "Agentic Voice + Text + Vision" },
-              { icon: <Brain size={26} />, text: "Agentic CRM Orchestrator & Memory" },
               { icon: <MousePointerClick size={26} />, text: "Agentic Computer Use" },
+              { icon: <Brain size={26} />, text: "Agentic CRM Orchestrator & Memory" },
             ].map(({ icon, text }) => (
               <div key={text} className="engine-core-item">
                 {icon}
@@ -1209,7 +1419,7 @@ function SlideConvertDetail() {
         <div className="detail-friction">
           Front desk personnel spend{" "}
           <span className="detail-pct">10%</span> of their time making
-          outbound calls for patient recalls, scheduling surgeries, or
+          outbound calls for patient recalls, targeted marketing, or
           billing.
         </div>
       </div>
@@ -1475,28 +1685,74 @@ function SlideEnterpriseGrade() {
 function SlideWhyWins() {
   const rows = [
     {
-      competitor: "Generic AI Telephony",
-      does: "Answers calls",
-      gap: "No workflow execution or specialty revenue logic",
-      isMayI: false,
+      category: "AI Comms (Enterprise)",
+      company: "PolyAI",
+      strength: "Enterprise-grade voice AI with highly natural conversational experiences",
+      gap: "Non-healthcare native; Missing healthcare workflows; Missing AI CRM; Missing operational automation",
+      win: "Purpose-built for healthcare operations with end-to-end execution across the patient journey",
     },
     {
-      competitor: "Answering Services",
-      does: "Takes messages",
-      gap: "Adds labor, delays follow-up, no conversion ownership",
-      isMayI: false,
+      category: "AI Comms (Healthcare)",
+      company: "Hyro",
+      strength: "Strong chat + voice front door",
+      gap: "Missing AI CRM; Missing CU workflow automation",
+      win: "Executes workflows beyond conversation",
     },
     {
-      competitor: "Patient Engagement Tools",
-      does: "Post-visit comms",
-      gap: "Lives downstream of the missed-call problem",
-      isMayI: false,
+      category: "AI Workflow Automation",
+      company: "Notable Health",
+      strength: "Intake, scheduling, outreach workflows",
+      gap: "",
+      win: "Nimbler, GenAI native.",
     },
     {
-      competitor: "May I",
-      does: "AI comms + CRM memory + workflow + revenue outcomes",
-      gap: "Owns the full patient conversion layer",
-      isMayI: true,
+      category: "AI Workflow Automation",
+      company: "Infinitus Systems",
+      strength: "Automates payer calls, prior auth",
+      gap: "Missing AI CRM; Missing CU workflow automation",
+      win: "Covers full patient + revenue journey",
+    },
+    {
+      category: "AI CRM (Horizontal)",
+      company: "HubSpot",
+      strength: "Easy-to-use CRM + AI features",
+      gap: "Non-healthcare native; Missing AI Comms; Missing AI employees",
+      win: "Replaces manual CRM usage entirely",
+    },
+    {
+      category: "AI CRM (Horizontal)",
+      company: "Zoho",
+      strength: "Affordable CRM + automation tools",
+      gap: "Non-healthcare native; Fragmented AI; Missing AI Comms",
+      win: "Unified AI-native system",
+    },
+    {
+      category: "Patient CRM / Engagement",
+      company: "Klara",
+      strength: "Messaging, intake, patient coordination",
+      gap: "Missing AI Employees; Missing autonomous workflows; Limited AI depth",
+      win: "AI replaces staff across workflows",
+    },
+    {
+      category: "Patient CRM / Engagement",
+      company: "NexHealth",
+      strength: "Scheduling APIs, patient experience",
+      gap: "Missing AI Employees; Missing AI Comms depth; Limited automation",
+      win: "Drives conversion autonomously",
+    },
+    {
+      category: "AI RCM Automation",
+      company: "AKASA",
+      strength: "Strong billing + coding automation",
+      gap: "Missing AI Comms; Missing AI CRM; Front office gap",
+      win: "Covers both front + back office",
+    },
+    {
+      category: "AI RCM Automation",
+      company: "R1 RCM",
+      strength: "Scaled outsourcing + revenue ops",
+      gap: "Not AI-native; Missing AI Comms; Missing AI CRM",
+      win: "Software replaces labor model",
     },
   ];
 
@@ -1504,45 +1760,41 @@ function SlideWhyWins() {
     <div className="slide slide-why-wins">
       <SlideHeader
         eyebrow="Competitive Landscape"
-        title="Generic AI answers calls. May I drives outcomes."
+        title={<>May I: Healthcare-Native AI Automation<br />for the Full Practice Workflow</>}
       />
       <motion.div
-        className="compare-table"
+        className="competitive-table-wrap"
         variants={stagger}
         initial="hidden"
         animate="show"
       >
-        <div className="compare-header">
-          <div className="compare-col-a">Solution</div>
-          <div className="compare-col-b">What it does</div>
-          <div className="compare-col-c">Gap / May I advantage</div>
-        </div>
-        {rows.map(({ competitor, does, gap, isMayI }) => (
-          <motion.div
-            key={competitor}
-            variants={fadeUp}
-            className={`compare-row ${isMayI ? "compare-row-mayi" : ""}`}
-          >
-            <div className="compare-col-a">
-              {isMayI ? (
-                <span className="compare-badge">
-                  <CheckCircle2 size={14} />
-                  {competitor}
-                </span>
-              ) : (
-                <span className="compare-competitor">{competitor}</span>
-              )}
-            </div>
-            <div className="compare-col-b">{does}</div>
-            <div
-              className={`compare-col-c ${
-                isMayI ? "compare-mayi-text" : "compare-gap-text"
-              }`}
-            >
-              {gap}
-            </div>
-          </motion.div>
-        ))}
+        <table className="competitive-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Company</th>
+              <th>What They Do Well</th>
+              <th>Gaps (Explicit)</th>
+              <th>Why May I Wins</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ category, company, strength, gap, win }, index) => (
+              <motion.tr key={`${company}-${category}-${index}`} variants={fadeUp}>
+                <td className="competitive-category">{category}</td>
+                <td className="competitive-company">{company}</td>
+                <td>{strength}</td>
+                <td className="competitive-gap">{gap || "\u2014"}</td>
+                <td className="competitive-win">
+                  <span className="competitive-win-badge">
+                    <CheckCircle2 size={12} />
+                    {win}
+                  </span>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
       </motion.div>
     </div>
   );
@@ -1854,18 +2106,6 @@ function SlideAsk() {
 
       <motion.div className="ask-grid" variants={stagger} initial="hidden" animate="show">
         <motion.section variants={fadeUp} className="ask-panel">
-          <div className="ask-panel-label">Round Details</div>
-          <div className="ask-detail-list">
-            {ASK_ROUND_DETAILS.map(({ label, value }) => (
-              <div key={label} className="ask-detail-row">
-                <div className="ask-detail-key">{label}</div>
-                <div className="ask-detail-value">{value}</div>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        <motion.section variants={fadeUp} className="ask-panel">
           <div className="ask-panel-label">Milestones This Capital Unlocks</div>
           <div className="ask-milestone-list">
             {ASK_MILESTONES.map((item) => (
@@ -1876,14 +2116,24 @@ function SlideAsk() {
             ))}
           </div>
         </motion.section>
-      </motion.div>
 
-      <motion.div variants={fadeUp} initial="hidden" animate="show" className="ask-contact-bar">
-        <span>Chami Rupasinghe</span>
-        <span className="ask-contact-sep">|</span>
-        <span>chamir@mayiguide.com</span>
-        <span className="ask-contact-sep">|</span>
-        <span>www.mayiguide.com</span>
+        <motion.section variants={fadeUp} className="ask-panel ask-contact-panel">
+          <div className="ask-panel-label">Contact</div>
+          <div className="ask-contact-list">
+            <span className="ask-contact-item">
+              <UserRound size={28} className="ask-contact-icon" />
+              <span>Chami Rupasinghe</span>
+            </span>
+            <span className="ask-contact-item">
+              <MailCheck size={28} className="ask-contact-icon" />
+              <span>chamir@mayiguide.com</span>
+            </span>
+            <span className="ask-contact-item">
+              <Globe size={28} className="ask-contact-icon" />
+              <span>www.mayiguide.com</span>
+            </span>
+          </div>
+        </motion.section>
       </motion.div>
     </div>
   );
@@ -2441,7 +2691,7 @@ function SlideHeader({
   title,
 }: {
   eyebrow: string;
-  title: string;
+  title: React.ReactNode;
 }) {
   return (
     <motion.div
