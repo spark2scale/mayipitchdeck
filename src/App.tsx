@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import SlideDemo from "./components/demo/SlideDemo";
 import { motion, AnimatePresence } from "framer-motion";
+import { SLIDES, type SlideId } from "../shared/slides.js";
 import {
   PhoneOff, Layers,
   Database,
@@ -16,32 +17,6 @@ import {
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote, MousePointerClick,
   type LucideIcon,
 } from "lucide-react";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-const SLIDES = [
-  "hero",
-  "problem",
-  "loss",
-  "qualify",
-  "demo",
-  "engine",
-  "ccc-overview",
-  // "roi",
-  "traction",
-  "founder",
-  "enterprise-grade",
-  "why-wins",
-  "path",
-  "moats",
-  "vision",
-  "ask",
-  "appendix",
-  "capture-detail",
-  "connect-detail",
-  "convert-detail",
-  // "color-options",
-] as const;
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
@@ -67,7 +42,6 @@ export const CCC_COLORS = {
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
 const PDF_EXPORT_SETTLE_MS = 2600;
-type SlideId = (typeof SLIDES)[number];
 
 function getApiOrigin() {
   if (import.meta.env.DEV) {
@@ -116,7 +90,14 @@ export default function App() {
     return askIndex >= 0 ? slides.slice(0, askIndex + 1) : slides;
   }, [slides]);
   const exportSlides = isPdfExport && exportSlideId ? [exportSlideId] : SLIDES;
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(() => {
+    if (!exportSlideId) {
+      return 0;
+    }
+
+    const exportIndex = SLIDES.indexOf(exportSlideId);
+    return exportIndex >= 0 ? exportIndex : 0;
+  });
   const [problemBuilt, setProblemBuilt] = useState(isPdfExport);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const handleDownloadPdf = useCallback(() => {
@@ -216,6 +197,18 @@ export default function App() {
     }
   }, [isPdfExport]);
 
+  useEffect(() => {
+    if (!isPdfExport || !exportSlideId) {
+      return;
+    }
+
+    const exportIndex = SLIDES.indexOf(exportSlideId);
+    if (exportIndex >= 0) {
+      setCurrent(exportIndex);
+    }
+    setProblemBuilt(true);
+  }, [exportSlideId, isPdfExport]);
+
   const goToSlideIndex = useCallback(
     (index: number) => {
       const targetIndex = Math.max(0, Math.min(index, slides.length - 1));
@@ -314,7 +307,7 @@ export default function App() {
 
   return (
     <>
-    {!isPdfExport && <div className="deck-root">
+    <div className="deck-root">
       {/* Ambient background blobs */}
       <div className="deck-bg">
         <div className="blob blob-top" />
@@ -373,19 +366,25 @@ export default function App() {
 
       {/* Slide area */}
       <main className="deck-main">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={slideId}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -18 }}
-            transition={{ duration: 0.38 }}
-            className="slide-wrap"
-          >
-            {renderSlide(slideId, goToSlideIndex, { isExportMode: false, problemBuilt })}
-            {/* slideId === "color-options" && <SlideColorOptions /> */}
-          </motion.div>
-        </AnimatePresence>
+        {isPdfExport ? (
+          <div className="slide-wrap" data-export-capture="true">
+            {renderSlide(slideId, goToSlideIndex, { isExportMode: true, problemBuilt })}
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={slideId}
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -18 }}
+              transition={{ duration: 0.38 }}
+              className="slide-wrap"
+            >
+              {renderSlide(slideId, goToSlideIndex, { isExportMode: false, problemBuilt })}
+              {/* slideId === "color-options" && <SlideColorOptions /> */}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </main>
 
       {/* Bottom prev/next controls */}
@@ -410,16 +409,17 @@ export default function App() {
           <ChevronRight size={20} />
         </button>
       </footer>
-    </div>}
-
-    {/* Print-only deck: all slides rendered simultaneously, one per page */}
-    <div className="print-deck" aria-hidden={isPdfExport ? undefined : "true"}>
-      {exportSlides.map((id) => (
-        <div key={id} className="print-slide">
-          {renderSlide(id, () => {}, { isExportMode: isPdfExport, problemBuilt: id === "problem" ? true : problemBuilt })}
-        </div>
-      ))}
     </div>
+
+    {!isPdfExport && (
+      <div className="print-deck" aria-hidden="true">
+        {exportSlides.map((id) => (
+          <div key={id} className="print-slide">
+            {renderSlide(id, () => {}, { isExportMode: false, problemBuilt: id === "problem" ? true : problemBuilt })}
+          </div>
+        ))}
+      </div>
+    )}
     </>
   );
 }
@@ -1112,7 +1112,7 @@ function SlideLoss() {
       label: "Capture",
       impact: "$1.8M",
       impactQualifier: "per year missed consults",
-      subtext: "AI captures missed-calls of which 10% are leads. 20% conversion of the 150 monthly leads at $5000/procedure",
+      subtext: "AI captures missed-calls of which 10% are leads. Of the 150 leads/month, 20% convert at $5K/proc",
       sourceHref: "https://www.plasticsurgery.org/news/plastic-surgery-statistics",
       sourceLabel: "Source: ASPS statistics",
       color: CCC_COLORS.capture,
@@ -1125,7 +1125,7 @@ function SlideLoss() {
       label: "Connect",
       impact: "$750K",
       impactQualifier: "per year lost to inefficiency",
-      subtext: "A 5-provider practice generating $5M annually requires 30% admin effort and it leaks ~$750K (50%).",
+      subtext: "A 5-provider practice generating $5M annually requires 30% admin effort and 50% leaks.",
       sourceHref: "https://www.healthaffairs.org/content/briefs/role-administrative-waste-excess-us-health-spending",
       sourceLabel: "Source: Health Affairs",
       color: CCC_COLORS.connect,
@@ -1152,7 +1152,7 @@ function SlideLoss() {
     <div className="slide slide-loss">
       <SlideHeader
         eyebrow="Invisible Loss"
-        title="Revenue is lost — or left on the table — at every step of the practice journey."
+        title="Revenue is lost - or left on the table - at every step"
       />
       <div className="loss-body">
         <motion.div

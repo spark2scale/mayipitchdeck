@@ -938,6 +938,10 @@ strong { color: var(--mi-text); font-weight: 600; }
 /* ─── Slide: Loss ────────────────────────────────────────────────────────── */
 
 .slide-loss { justify-content: center; }
+.slide-loss .slide-title {
+  max-width: none;
+  white-space: nowrap;
+}
 .loss-body {
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(0, 3fr) minmax(0, 5fr);
@@ -3050,14 +3054,10 @@ html[data-export-mode="pdf"] body,
 html[data-export-mode="pdf"] #root {
   margin: 0;
   padding: 0;
-  width: auto;
-  height: auto;
-  overflow: visible;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   background: #02110b;
-}
-
-html[data-export-mode="pdf"] .deck-root {
-  display: none !important;
 }
 
 html[data-export-mode="pdf"] *,
@@ -3068,43 +3068,16 @@ html[data-export-mode="pdf"] *::after {
 }
 
 html[data-export-mode="pdf"] .print-deck {
-  display: block;
-  width: var(--export-slide-width);
-  height: var(--export-slide-height);
-  margin: 0;
-  padding: 0;
+  display: none !important;
+}
+
+html[data-export-mode="pdf"] .deck-root,
+html[data-export-mode="pdf"] .deck-main {
   overflow: hidden;
 }
 
-html[data-export-mode="pdf"] .print-slide {
-  width: var(--export-slide-width);
-  height: var(--export-slide-height);
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  page-break-after: always;
-  break-after: page;
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  flex: 0 0 auto;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(144, 99, 35, 0.22) 0%, transparent 35%),
-    radial-gradient(circle at 85% 15%, rgba(0, 74, 46, 0.45) 0%, transparent 28%),
-    radial-gradient(circle at 50% 90%, rgba(0, 51, 32, 0.35) 0%, transparent 40%),
-    linear-gradient(180deg, #021f15 0%, var(--mi-bg) 40%, #02110b 100%);
-}
-
-html[data-export-mode="pdf"] .print-slide:last-child {
-  page-break-after: avoid;
-  break-after: avoid;
-}
-
-html[data-export-mode="pdf"] .print-slide > * {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
+html[data-export-mode="pdf"] .slide-wrap[data-export-capture="true"] {
+  box-shadow: none;
 }
 
 html[data-export-mode="pdf"] .blob {
@@ -3128,11 +3101,6 @@ html[data-export-mode="pdf"] .dap-root {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
-}
-
-html[data-export-mode="pdf"] .print-slide .slide {
-  min-height: 100%;
-  overflow: hidden;
 }
 
 html[data-export-mode="pdf"] .demo-page-export {
