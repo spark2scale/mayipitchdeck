@@ -6,14 +6,13 @@ import {
   PhoneOff, Layers,
   Database,
   DollarSign,
-  Brain, GitMerge,
+  Brain, ShieldAlert,
   ChevronRight, ChevronLeft,
-  Rocket,
   Phone, MessageSquare, Globe, Share2,
   FileCheck,
   CheckCircle2,
   ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
-  FileSearch, MailCheck, Workflow,
+  FileSearch, MailCheck, Workflow, ScanSearch,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
   AudioLines, Printer, CirclePlus, Landmark,
   type LucideIcon,
@@ -783,6 +782,24 @@ function renderDetailCards(cards: DetailStage["cards"], shade: DetailCardShade) 
   ));
 }
 
+function renderDetailFrictionText(friction: string, percent: string) {
+  const match = friction.match(/\d+%/);
+  if (!match || match.index == null) {
+    return friction;
+  }
+
+  const start = friction.slice(0, match.index);
+  const end = friction.slice(match.index + match[0].length);
+
+  return (
+    <>
+      {start}
+      <span className="detail-pct">{percent}</span>
+      {end}
+    </>
+  );
+}
+
 // ─── Slide 0: Founder ───────────────────────────────────────────────────────────
 
 function SlideFounder() {
@@ -1393,9 +1410,7 @@ function SlideCaptureDetail() {
       <div className="detail-left">
         <div className="detail-eyebrow">{CAPTURE_DETAIL.eyebrow}</div>
         <div className="detail-friction">
-          {CAPTURE_DETAIL.friction.split(CAPTURE_DETAIL.percent)[0]}
-          <span className="detail-pct">{CAPTURE_DETAIL.percent}</span>
-          {CAPTURE_DETAIL.friction.split(CAPTURE_DETAIL.percent)[1]}
+          {renderDetailFrictionText(CAPTURE_DETAIL.friction, CAPTURE_DETAIL.percent)}
         </div>
       </div>
       <motion.div
@@ -1418,9 +1433,7 @@ function SlideConnectDetail() {
       <div className="detail-left">
         <div className="detail-eyebrow">{CONNECT_DETAIL.eyebrow}</div>
         <div className="detail-friction">
-          {CONNECT_DETAIL.friction.split(CONNECT_DETAIL.percent)[0]}
-          <span className="detail-pct">{CONNECT_DETAIL.percent}</span>
-          {CONNECT_DETAIL.friction.split(CONNECT_DETAIL.percent)[1]}
+          {renderDetailFrictionText(CONNECT_DETAIL.friction, CONNECT_DETAIL.percent)}
         </div>
       </div>
       <motion.div
@@ -1443,9 +1456,7 @@ function SlideConvertDetail() {
       <div className="detail-left">
         <div className="detail-eyebrow">{CONVERT_DETAIL.eyebrow}</div>
         <div className="detail-friction">
-          {CONVERT_DETAIL.friction.split(CONVERT_DETAIL.percent)[0]}
-          <span className="detail-pct">{CONVERT_DETAIL.percent}</span>
-          {CONVERT_DETAIL.friction.split(CONVERT_DETAIL.percent)[1]}
+          {renderDetailFrictionText(CONVERT_DETAIL.friction, CONVERT_DETAIL.percent)}
         </div>
       </div>
       <motion.div
@@ -1476,7 +1487,7 @@ function SlideCCCOverview() {
           ))}
         </motion.h2>
         <motion.p variants={fadeUp} className="ccc-summary-subtitle">
-          35% of front-office and back-office time automated across capture, connect, and convert.
+          Per practice, May I Agents open a $4.6M annual opportunity while saving 35% of front-office and back-office costs.
         </motion.p>
       </motion.div>
 
@@ -2060,8 +2071,8 @@ function SlideVision() {
     {
       num: "01",
       phase: "Today",
-      agentTitle: "Communications Agent",
-      icon: <Phone size={32} />,
+      agentTitle: "Communications Agents",
+      icon: <ShieldAlert size={22} />,
       headline: "Stop the leak",
       text: "Inbound capture, instant response, appointment booking — the wedge that pays for itself.",
       color: CCC_COLORS.capture,
@@ -2069,8 +2080,8 @@ function SlideVision() {
     {
       num: "02",
       phase: "Tomorrow",
-      agentTitle: "Revenue Operations Agent",
-      icon: <GitMerge size={32} />,
+      agentTitle: "Revenue Operations Agents",
+      icon: <ScanSearch size={22} />,
       headline: "Own the workflow, capture the data",
       text: "Insurance Pre-auth, Billing, Patient recalls — orchestrated by May I across the full patient journey.",
       color: CCC_COLORS.connect,
@@ -2078,8 +2089,8 @@ function SlideVision() {
     {
       num: "03",
       phase: "Future",
-      agentTitle: "Patient Retention Agent",
-      icon: <Rocket size={32} />,
+      agentTitle: "Patient Retention Agents",
+      icon: <Brain size={22} />,
       headline: "Predict and action on the data",
       text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes indispensable infrastructure.",
       color: CCC_COLORS.convert,
@@ -2109,21 +2120,20 @@ function SlideVision() {
         initial="hidden"
         animate="show"
       >
-        {phases.map(({ num, phase, agentTitle, icon, headline, text, color }) => (
+        {phases.map(({ phase, agentTitle, icon, headline, text, color }) => (
           <motion.div key={phase} variants={fadeUp} className="vision-phase">
-            <div className="vision-phase-num" style={{ color }}>
-              {num}
-            </div>
-            <div className="vision-phase-icon" style={{ color }}>
-              {icon}
-            </div>
             <div className="vision-phase-label" style={{ color }}>
               {phase}
+            </div>
+            <div className="vision-phase-headline">
+              <span className="vision-phase-icon" style={{ color }}>
+                {icon}
+              </span>
+              <span>{headline}</span>
             </div>
             <div className="vision-phase-agent" style={{ color }}>
               {agentTitle}
             </div>
-            <div className="vision-phase-headline">{headline}</div>
             <div className="vision-phase-text">{text}</div>
           </motion.div>
         ))}
@@ -2180,17 +2190,17 @@ function SlideAsk() {
         <motion.section variants={fadeUp} className="ask-panel ask-contact-panel">
           <div className="ask-panel-label">Contact</div>
           <div className="ask-contact-list">
-            <span className="ask-contact-item">
-              <UserRound size={28} className="ask-contact-icon" />
-              <span>Chami Rupasinghe</span>
+            <span className="ask-contact-item ask-contact-item-primary">
+              <UserRound size={24} className="ask-contact-icon" strokeWidth={1.7} />
+              <span className="ask-contact-text ask-contact-text-primary">Chami Rupasinghe</span>
             </span>
-            <span className="ask-contact-item">
-              <MailCheck size={28} className="ask-contact-icon" />
-              <span>chamir@mayiguide.com</span>
+            <span className="ask-contact-item ask-contact-item-secondary">
+              <MailCheck size={24} className="ask-contact-icon" strokeWidth={1.7} />
+              <span className="ask-contact-text ask-contact-text-secondary">chamir@mayiguide.com</span>
             </span>
-            <span className="ask-contact-item">
-              <Globe size={28} className="ask-contact-icon" />
-              <span>www.mayiguide.com</span>
+            <span className="ask-contact-item ask-contact-item-secondary">
+              <Globe size={24} className="ask-contact-icon" strokeWidth={1.7} />
+              <span className="ask-contact-text ask-contact-text-secondary">www.mayiguide.com</span>
             </span>
           </div>
         </motion.section>
