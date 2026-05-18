@@ -10,11 +10,12 @@ import {
   ChevronRight, ChevronLeft,
   Rocket,
   Phone, MessageSquare, Globe, Share2,
-  Calendar, FileCheck,
+  FileCheck,
   CheckCircle2,
   ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
   FileSearch, MailCheck, Workflow,
-  PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote, MousePointerClick,
+  PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
+  AudioLines, Printer, CirclePlus, Landmark,
   type LucideIcon,
 } from "lucide-react";
 
@@ -458,6 +459,8 @@ type DetailCardShade = "card-capture" | "card-connect" | "card-convert";
 type DetailStage = {
   label: string;
   eyebrow: string;
+  impact: string;
+  impactQualifier: string;
   percent: string;
   friction: string;
   summary: string;
@@ -474,6 +477,8 @@ type DetailStage = {
 const CAPTURE_DETAIL: DetailStage = {
   label: "Capture",
   eyebrow: "Appendix: Capture",
+  impact: "$1.8M",
+  impactQualifier: "per year missed consults",
   percent: "15%",
   friction: "Front office personnel spend 30% of their time manually capturing patient information and scheduling appointments.",
   summary: "of front-office time automated",
@@ -482,19 +487,19 @@ const CAPTURE_DETAIL: DetailStage = {
   cards: [
     {
       icon: BotMessageSquare,
-      title: "AI Comms",
+      title: "Booked Consults",
       text: "AI answers patient calls and texts, captures demographic and insurance information, negotiates availability, and schedules consultations in the EMR/PMS.",
-      compactText: "Calls, texts, intake, insurance capture, and scheduling.",
+      compactText: "Schedule with captured information from calls, texts, or images.",
     },
     {
       icon: ScanText,
-      title: "AI Object Character Recognition",
+      title: "Engagement with Information",
       text: "AI extracts patient demographic and insurance information from faxes and documents and schedules consultations in the EMR/PMS.",
-      compactText: "Fax and document extraction into the scheduling workflow.",
+      compactText: "Answers questions about the practice or appointment.",
     },
     {
       icon: UserRound,
-      title: "Personalization",
+      title: "Personalized Responses",
       text: "All customer conversations and future intent are captured in the CRM. This data is used to personalize patient engagement at every touchpoint.",
       compactText: "CRM memory that personalizes each patient touchpoint.",
     },
@@ -504,27 +509,29 @@ const CAPTURE_DETAIL: DetailStage = {
 const CONNECT_DETAIL: DetailStage = {
   label: "Connect",
   eyebrow: "Appendix: Connect",
+  impact: "$750K",
+  impactQualifier: "per year lost to inefficiency",
   percent: "10%",
-  friction: "Front office personnel spend 20% of their time manually entering data into payer portals, and emailing or calling payers to verify insurance.",
-  summary: "of front-office time automated",
+  friction: "Back-office personnel spend 20% of their time manually entering data into payer portals, and emailing or calling payers to verify insurance.",
+  summary: "of back-office time automated",
   shade: "card-connect",
   accent: CCC_COLORS.connect,
   cards: [
     {
       icon: FileSearch,
-      title: "AI submits patient data in payer portals",
+      title: "Automated Insurance Pre-Authorization",
       text: "AI navigates payer portals, enters patient data, and triggers insurance pre-authorization automatically.",
       compactText: "Portal submission and pre-auth initiation without staff entry.",
     },
     {
-      icon: MailCheck,
-      title: "AI analyzes emails to reconcile pre-auth",
+      icon: UserRound,
+      title: "Patient Intelligence and Lead Scoring",
       text: "Responses that arrive via email are reconciled, resubmitted, or flagged — without staff involvement.",
-      compactText: "Email reconciliation, resubmission, and escalation automatically.",
+      compactText: "Patient history and spend signals help prioritize calls and outreach.",
     },
     {
       icon: Workflow,
-      title: "Agentic CRM automates pipelines",
+      title: "Business Orchestration",
       text: "Inputs, agentic operations, and outputs are defined for each stage in the CRM and automatically moved to the next stage until complete.",
       compactText: "Stage-based CRM operations move work to completion.",
     },
@@ -534,27 +541,29 @@ const CONNECT_DETAIL: DetailStage = {
 const CONVERT_DETAIL: DetailStage = {
   label: "Convert",
   eyebrow: "Appendix: Convert",
+  impact: "$2.0M",
+  impactQualifier: "per year patient lifetime revenue expansion potential",
   percent: "10%",
-  friction: "Front desk personnel spend 10% of their time making outbound calls for patient recalls, targeted marketing, or billing.",
-  summary: "of front-office time automated",
+  friction: "Back-office personnel spend 10% of their time making outbound calls for patient recalls, targeted marketing, or billing.",
+  summary: "of back-office time automated",
   shade: "card-convert",
   accent: CCC_COLORS.convert,
   cards: [
     {
       icon: PhoneOutgoing,
-      title: "Patient Recall Automation",
+      title: "Lead Generation",
       text: "AI identifies patients due for follow-ups and automatically initiates call or text outreach based on last visit date and procedure history.",
-      compactText: "Follow-up outreach triggered by visit and procedure history.",
-    },
-    {
-      icon: SurgeryIcon,
-      title: "Targeted Marketing",
-      text: "AI identifies patient segments, unused benefits, and timing signals to trigger personalized outreach that drives additional visits and product conversion.",
       compactText: "Personalized outreach campaigns drive visits and conversion.",
     },
     {
+      icon: SurgeryIcon,
+      title: "Patient Recall, Upsell / Cross Sell",
+      text: "AI identifies patient segments, unused benefits, and timing signals to trigger personalized outreach that drives additional visits and product conversion.",
+      compactText: "Follow-up outreach triggered by visit and procedure history.",
+    },
+    {
       icon: Banknote,
-      title: "Intelligent Collections",
+      title: "Revenue Recovery",
       text: "AI agents follow up on outstanding balances through personalized calls and texts. Improves collection rates and reduces days in A/R.",
       compactText: "Personalized collections outreach improves A/R performance.",
     },
@@ -564,9 +573,9 @@ const CONVERT_DETAIL: DetailStage = {
 const CCC_STAGES = [CAPTURE_DETAIL, CONNECT_DETAIL, CONVERT_DETAIL] as const;
 
 const CCC_AGENT_TITLES: Record<(typeof CCC_STAGES)[number]["label"], string> = {
-  Capture: "Communications Agents",
-  Connect: "Revenue Operations Agents",
-  Convert: "Patient Retention Agents",
+  Capture: "Communications Agent Benefits",
+  Connect: "Revenue Operations Agent Benefits",
+  Convert: "Patient Retention Agent Benefits",
 };
 
 type RevenueCycleSolution = {
@@ -627,9 +636,9 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     challenge: "Fragmented intake, missed patient information, and scheduling friction at first contact.",
     accent: CCC_COLORS.capture,
     solutions: [
-      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Comms", "May I Communications Agents", "Answers calls, texts, and books consults"),
-      getRevenueCycleSolution(CAPTURE_DETAIL, "AI Object Character Recognition", "May I Communications Agents", "Extract patient and insurance data from IDs"),
-      getRevenueCycleSolution(CAPTURE_DETAIL, "Personalization", "May I Communications Agents", "Personalizes responses with patient data"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "Booked Consults", "May I Communications Agents", "Answers calls, texts, and books consults"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "Engagement with Information", "May I Communications Agents", "Extract patient and insurance data from IDs"),
+      getRevenueCycleSolution(CAPTURE_DETAIL, "Personalized Responses", "May I Communications Agents", "Personalizes responses with patient data"),
     ],
   },
   {
@@ -646,9 +655,9 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     accent: CCC_COLORS.connect,
     separatorAfter: true,
     solutions: [
-      getRevenueCycleSolution(CONNECT_DETAIL, "AI submits patient data in payer portals", "May I Revenue Operations Agents", "Submits patient data and starts pre-auth"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "AI analyzes emails to reconcile pre-auth", "May I Revenue Operations Agents", "Responds to emails and triggers apps"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Agentic CRM automates pipelines", "May I Revenue Operations Agents", "Moves work through operational queues"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Automated Insurance Pre-Authorization", "May I Revenue Operations Agents", "Submits patient data and starts pre-auth"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Intelligence and Lead Scoring", "May I Revenue Operations Agents", "Responds to emails and triggers apps"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Business Orchestration", "May I Revenue Operations Agents", "Moves work through operational queues"),
     ],
   },
   {
@@ -679,9 +688,9 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     challenge: "Revenue is lost when follow-up, procedure coordination, and collections depend on manual outreach.",
     accent: CCC_COLORS.convert,
     solutions: [
-      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall Automation", "May I Patient Retention Agents", "Runs follow-up outreach for recalls"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Targeted Marketing", "May I Patient Retention Agents", "Targeted Marketing"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Intelligent Collections", "May I Patient Retention Agents", "Follows up on balances and collections"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Lead Generation", "May I Patient Retention Agents", "Runs follow-up outreach for recalls"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall, Upsell / Cross Sell", "May I Patient Retention Agents", "Targeted Marketing"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Revenue Recovery", "May I Patient Retention Agents", "Follows up on balances and collections"),
     ],
   },
 ] as const;
@@ -763,9 +772,12 @@ const ASK_MILESTONES = [
 ] as const;
 
 function renderDetailCards(cards: DetailStage["cards"], shade: DetailCardShade) {
-  return cards.map(({ icon: Icon, title, text }) => (
+  return cards.map(({ title, text }) => (
     <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
-      <div className="detail-card-title"><Icon size={20} />{title}</div>
+      <div className="detail-card-title">
+        <span className="benefit-bullet" aria-hidden="true" />
+        {title}
+      </div>
       <div className="detail-card-text">{text}</div>
     </motion.div>
   ));
@@ -1257,19 +1269,19 @@ function SlideQualify() {
 
 function SlideEngine() {
   const captureOutcomes = [
-    { icon: <Calendar size={16} />, text: "Booked consults" },
-    { icon: <ScanText size={16} />, text: "OCR intake" },
-    { icon: <UserRound size={16} />, text: "Personalization" },
+    { icon: <Phone size={16} />, text: "Voice Agents" },
+    { icon: <Printer size={16} />, text: "Referral Fax Agents" },
+    { icon: <MessageSquare size={16} />, text: "Text Agents" },
   ];
   const connectOutcomes = [
-    { icon: <Globe size={16} />, text: "Payer portal submission" },
-    { icon: <MailCheck size={16} />, text: "Pre-auth reconciliation" },
-    { icon: <Workflow size={16} />, text: "CRM pipelines" },
+    { icon: <Landmark size={16} />, text: "Pre-Auth Portal Action Agents" },
+    { icon: <CirclePlus size={16} />, text: "EMR Action Agents" },
+    { icon: <Workflow size={16} />, text: "CRM Orchestrator Agents" },
   ];
   const convertOutcomes = [
-    { icon: <PhoneOutgoing size={16} />, text: "Patient recalls" },
-    { icon: <FileCheck size={16} />, text: "Targeted marketing" },
-    { icon: <Banknote size={16} />, text: "Collections" },
+    { icon: <PhoneOutgoing size={16} />, text: "Patient Recall Agents" },
+    { icon: <FileCheck size={16} />, text: "Targeted Marketing Agents" },
+    { icon: <Banknote size={16} />, text: "Collections Agents" },
   ];
 
   return (
@@ -1284,9 +1296,9 @@ function SlideEngine() {
         initial="hidden"
         animate="show"
       >
-        May I is the <strong>system of engagement</strong> — deploying
-        agents that sit between patients, systems and the practice, owning
-        the conversion layer while EMR/PMS remains the system of record.
+        May I is the <strong>critical system of engagement</strong> — deploying
+        agents that sit between patients and the practice, while
+        EMR/PMS remains the system of record.
       </motion.p>
       <motion.div
         className="engine-diagram"
@@ -1319,16 +1331,20 @@ function SlideEngine() {
             <img src="/MayILogoTransparentBack.gif" alt="May I" className="engine-core-logo" />
             <div>
               <div className="engine-core-label">May I Engine</div>
-              <div className="engine-core-tagline">System of Engagement</div>
+              <div className="engine-core-tagline">Critical System of Engagement</div>
             </div>
           </div>
           <div className="engine-core-items">
             {[
-              { icon: <BotMessageSquare size={26} />, text: "Agentic Voice + Text + Vision" },
-              { icon: <MousePointerClick size={26} />, text: "Agentic Computer Use" },
-              { icon: <Brain size={26} />, text: "Agentic CRM Orchestrator & Memory" },
-            ].map(({ icon, text }) => (
-              <div key={text} className="engine-core-item">
+              {
+                icon: <Brain size={30} color="var(--mi-copper)" strokeWidth={1.6} />,
+                label: "Agentic Voice, Text, Vision, & Computer Use",
+                text: <>Agentic Voice, Text, Vision,<br />&amp; Computer Use</>,
+              },
+              { icon: <AudioLines size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
+              { icon: <Database size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
+            ].map(({ icon, label, text }) => (
+              <div key={label} className="engine-core-item">
                 {icon}
                 <span>{text}</span>
               </div>
@@ -1377,9 +1393,9 @@ function SlideCaptureDetail() {
       <div className="detail-left">
         <div className="detail-eyebrow">{CAPTURE_DETAIL.eyebrow}</div>
         <div className="detail-friction">
-          Front office personnel spend{" "}
-          <span className="detail-pct">15%</span> of their time manually
-          capturing patient information and scheduling appointments.
+          {CAPTURE_DETAIL.friction.split(CAPTURE_DETAIL.percent)[0]}
+          <span className="detail-pct">{CAPTURE_DETAIL.percent}</span>
+          {CAPTURE_DETAIL.friction.split(CAPTURE_DETAIL.percent)[1]}
         </div>
       </div>
       <motion.div
@@ -1402,10 +1418,9 @@ function SlideConnectDetail() {
       <div className="detail-left">
         <div className="detail-eyebrow">{CONNECT_DETAIL.eyebrow}</div>
         <div className="detail-friction">
-          Front office personnel spend{" "}
-          <span className="detail-pct">10%</span> of their time manually
-          entering data into payer portals, and emailing or calling payers
-          to verify insurance.
+          {CONNECT_DETAIL.friction.split(CONNECT_DETAIL.percent)[0]}
+          <span className="detail-pct">{CONNECT_DETAIL.percent}</span>
+          {CONNECT_DETAIL.friction.split(CONNECT_DETAIL.percent)[1]}
         </div>
       </div>
       <motion.div
@@ -1428,10 +1443,9 @@ function SlideConvertDetail() {
       <div className="detail-left">
         <div className="detail-eyebrow">{CONVERT_DETAIL.eyebrow}</div>
         <div className="detail-friction">
-          Front desk personnel spend{" "}
-          <span className="detail-pct">10%</span> of their time making
-          outbound calls for patient recalls, targeted marketing, or
-          billing.
+          {CONVERT_DETAIL.friction.split(CONVERT_DETAIL.percent)[0]}
+          <span className="detail-pct">{CONVERT_DETAIL.percent}</span>
+          {CONVERT_DETAIL.friction.split(CONVERT_DETAIL.percent)[1]}
         </div>
       </div>
       <motion.div
@@ -1462,7 +1476,7 @@ function SlideCCCOverview() {
           ))}
         </motion.h2>
         <motion.p variants={fadeUp} className="ccc-summary-subtitle">
-          A single operating view of how May I automates intake, payer workflows, and downstream revenue follow-up.
+          35% of front-office and back-office time automated across capture, connect, and convert.
         </motion.p>
       </motion.div>
 
@@ -1476,16 +1490,27 @@ function SlideCCCOverview() {
             >
               {CCC_AGENT_TITLES[stage.label]}
             </div>
+            <div className={`ccc-summary-impact-row ccc-summary-impact-row-${stage.label.toLowerCase()}`}>
+              <div className="ccc-summary-impact-caption">{stage.impactQualifier}</div>
+              <div className="ccc-summary-impact" style={{ color: stage.accent }}>{stage.impact}</div>
+            </div>
             <div className="ccc-summary-metric">
               <div className="ccc-summary-percent" style={{ color: stage.accent }}>{stage.percent}</div>
               <div className="ccc-summary-metric-text">{stage.summary}</div>
             </div>
             <div className="ccc-summary-rows">
-              {stage.cards.map(({ icon: Icon, title, compactText }) => (
+              {stage.cards.map(({ title, compactText }) => (
                 <div key={title} className="ccc-summary-row">
-                  <div className="ccc-summary-row-title-wrap">
-                    <Icon size={16} color={stage.accent} />
+                  <div
+                    className="ccc-summary-row-title-wrap"
+                    tabIndex={0}
+                    aria-label={`${title}: ${compactText}`}
+                  >
+                    <span className="benefit-bullet" aria-hidden="true" />
                     <div className="ccc-summary-row-title">{title}</div>
+                    <div className="ccc-summary-tooltip" role="tooltip">
+                      {compactText}
+                    </div>
                   </div>
                   <div className="ccc-summary-row-text">{compactText}</div>
                 </div>
@@ -1495,10 +1520,6 @@ function SlideCCCOverview() {
         ))}
       </motion.div>
 
-      <motion.div variants={fadeUp} initial="hidden" animate="show" className="ccc-summary-footer">
-        <span className="ccc-summary-footer-total">35%</span>
-        <span className="ccc-summary-footer-text">of front-office time automated across capture, connect, and convert.</span>
-      </motion.div>
     </div>
   );
 }
@@ -1662,6 +1683,14 @@ function SlideEnterpriseGrade() {
         eyebrow="Why Enterprise-Grade Matters"
         title="Open-source AI agents are a healthcare liability."
       />
+      <motion.p
+        className="enterprise-subtitle"
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+      >
+        In healthcare, security isn&apos;t a feature — it&apos;s a license to operate.
+      </motion.p>
       <motion.div className="enterprise-grid" variants={stagger} initial="hidden" animate="show">
         <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-risk">
           <div className="enterprise-panel-label enterprise-panel-label-risk">The OpenClaw Crisis — Feb 2026</div>
@@ -1689,9 +1718,6 @@ function SlideEnterpriseGrade() {
             ))}
           </div>
         </motion.section>
-      </motion.div>
-      <motion.div variants={fadeUp} initial="hidden" animate="show" className="enterprise-footer-note">
-        In healthcare, security isn't a feature — it's a license to operate.
       </motion.div>
     </div>
   );
@@ -1896,10 +1922,20 @@ function SlideMoats() {
 
   return (
     <div className="slide slide-moats">
-      <SlideHeader
-        eyebrow="Revenue Projection"
-        title="The path to $1B is owning the patient conversion layer."
-      />
+      <motion.div
+        className="slide-header"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={fadeUp} className="eyebrow-tag">
+          Revenue Projection
+        </motion.div>
+        <motion.h2 variants={fadeUp} className="slide-title">
+          <span className="vision-title-line">The path to $1 Billion</span>
+          <span className="vision-title-line">is owning the patient engagement layer.</span>
+        </motion.h2>
+      </motion.div>
       <div className="rev-layout">
 
         {/* ── Bar chart ── */}
@@ -2024,7 +2060,7 @@ function SlideVision() {
     {
       num: "01",
       phase: "Today",
-      agentTitle: "Communications Agents",
+      agentTitle: "Communications Agent",
       icon: <Phone size={32} />,
       headline: "Stop the leak",
       text: "Inbound capture, instant response, appointment booking — the wedge that pays for itself.",
@@ -2033,7 +2069,7 @@ function SlideVision() {
     {
       num: "02",
       phase: "Tomorrow",
-      agentTitle: "Revenue Operations Agents",
+      agentTitle: "Revenue Operations Agent",
       icon: <GitMerge size={32} />,
       headline: "Own the workflow, capture the data",
       text: "Insurance Pre-auth, Billing, Patient recalls — orchestrated by May I across the full patient journey.",
@@ -2042,7 +2078,7 @@ function SlideVision() {
     {
       num: "03",
       phase: "Future",
-      agentTitle: "Patient Retention Agents",
+      agentTitle: "Patient Retention Agent",
       icon: <Rocket size={32} />,
       headline: "Predict and action on the data",
       text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes indispensable infrastructure.",
@@ -2062,9 +2098,8 @@ function SlideVision() {
           Vision
         </motion.div>
         <motion.h2 variants={fadeUp} className="vision-title">
-          From front-desk automation
-          <br />
-          to the intelligent operating layer for healthcare.
+          <span className="vision-title-line">From front-desk automation to</span>
+          <span className="vision-title-line">the intelligent operating layer for healthcare.</span>
         </motion.h2>
       </motion.div>
 
@@ -2123,7 +2158,9 @@ function SlideAsk() {
       <motion.div className="ask-header" variants={stagger} initial="hidden" animate="show">
         <motion.div variants={fadeUp} className="eyebrow-tag">The Ask</motion.div>
         <motion.h2 variants={fadeUp} className="ask-title">
-          Join us in building the revenue integrity layer for healthcare.
+          Join us in building
+          <br />
+          the revenue integrity layer for healthcare.
         </motion.h2>
       </motion.div>
 
@@ -2204,7 +2241,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
     { pct: "1.2%", users: "17,959", hl: true  },
     { pct: "0.9%", users: "13,469", hl: false },
   ];
-  const prices = ["$800/mo", "$600/mo", "$400/mo"];
+  const prices = ["$800", "$600", "$400"];
 
   type Sc = { si: number; pi: number; arr: string; val: string;
               isBillion: boolean; isSweet: boolean; isAnnotate: boolean; };
@@ -2367,7 +2404,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
                     strokeWidth={hl ? 1.5 : 0.7} />
                   <text x={PRICEX} y={iy + 4} textAnchor="middle"
                     fill={hl ? "rgba(196,146,71,1)" : "rgba(255,255,255,0.85)"}
-                    fontSize={hl ? 9.5 : 8} fontWeight={hl ? 700 : 500}>{prices[s.pi]}</text>
+                    fontSize={hl ? 10.5 : 9} fontWeight={hl ? 700 : 500}>{prices[s.pi]}</text>
                 </g>
               );
             })}
@@ -2384,7 +2421,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
                     width={ARRHW * 2} height={ARRHH * 2} rx={ARRHH}
                     fill={fill} stroke={stroke} strokeWidth={s.isSweet ? 1.2 : 0.7} />
                   <text x={ARRX} y={iy + 4} textAnchor="middle"
-                    fill={tFill} fontSize={s.isSweet ? 9 : 8}
+                    fill={tFill} fontSize={s.isSweet ? 10 : 9}
                     fontWeight={s.isSweet ? 700 : 500}>{s.arr}</text>
                 </g>
               );
@@ -2403,7 +2440,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
                     fill={fill} stroke={stroke}
                     strokeWidth={s.isSweet ? 1.5 : 0.75} />
                   <text x={VALX} y={iy + 4} textAnchor="middle"
-                    fill={tFill} fontSize={s.isSweet ? 11 : 9.5}
+                    fill={tFill} fontSize={s.isSweet ? 12 : 10.5}
                     fontWeight={s.isBillion ? 700 : 600}>{s.val}</text>
                   {s.isSweet && (
                     <text x={VALX + VALHW + 6} y={iy + 4} textAnchor="start"
