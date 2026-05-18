@@ -800,6 +800,13 @@ function renderDetailFrictionText(friction: string, percent: string) {
   );
 }
 
+function getStageGroupLabel(stageId: RevenueCycleStage["id"]) {
+  if (stageId === "intake") return "Capture";
+  if (stageId === "preauth") return "Connect";
+  if (stageId === "recall") return "Convert";
+  return "";
+}
+
 // ─── Slide 0: Founder ───────────────────────────────────────────────────────────
 
 function SlideFounder() {
@@ -907,7 +914,7 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
           <span className="headline-accent"> for Healthcare.</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="hero-sub">
-          May I deploys agentic employees to capture demand, run operations, and drive patient retention.
+          <strong>May I deploys agentic employees</strong> to capture demand, run operations, and drive patient retention.
         </motion.p>
       </motion.div>
 
@@ -921,8 +928,8 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
         >
           <div className="hero-card">
             <div className="hero-card-label">Revenue Integrity Engine</div>
-            <div className="flow-rows">
-              <div className="flow-row">
+            <div className="flow-rows flow-rows-demand">
+              <div className="flow-row flow-row-demand">
                 <span className="flow-key">Demand in</span>
                 <span className="flow-val">
                   {"Calls · Texts · "}
@@ -945,12 +952,15 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
                 <span className="flow-key">Revenue out</span>
                 <span className="flow-val hero-ccc-row">
                   {[
-                    { label: "Capture", color: CCC_COLORS.capture },
-                    { label: "Connect", color: CCC_COLORS.connect },
-                    { label: "Convert", color: CCC_COLORS.convert },
-                  ].map(({ label, color }, i) => (
+                    { label: "Capture", role: <>Comms<br />Agents</>, color: CCC_COLORS.capture, align: "right" },
+                    { label: "Connect", role: <>Revenue<br />Operations<br />Agents</>, color: CCC_COLORS.connect },
+                    { label: "Convert", role: <>Patient<br />Retention<br />Agents</>, color: CCC_COLORS.convert },
+                  ].map(({ label, role, color, align }, i) => (
                     <>
-                      <span key={label} className="hero-ccc-label" style={{ color }}>{label}</span>
+                      <span key={label} className={`hero-ccc-label-group${align === "right" ? " hero-ccc-label-group-right" : ""}`}>
+                        <span className="hero-ccc-label" style={{ color }}>{label}</span>
+                        <span className="hero-ccc-role">{role}</span>
+                      </span>
                       {i < 2 && <ArrowRight key={`arr-${i}`} size={14} className="hero-ccc-arrow" />}
                     </>
                   ))}
@@ -966,14 +976,19 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
           initial="hidden"
           animate="show"
         >
-          <div className="hero-metrics-grid" aria-label="Live customer usage stats">
-            {LIVE_USAGE_METRICS.map((metric) => (
-              <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
-                <div className="hero-metric-value">{metric.heroValue}</div>
-                <div className="hero-metric-label">{metric.heroLabel}</div>
-              </motion.article>
-            ))}
-          </div>
+          <motion.div variants={fadeUp} className="hero-metrics-panel">
+            <div className="hero-metrics-heading">
+              LIVE MAY I COMMUNICATIONS AGENTS ANSWER INCOMING CALLS AND BOOK CONSULTS
+            </div>
+            <div className="hero-metrics-grid" aria-label="Live customer usage stats">
+              {LIVE_USAGE_METRICS.map((metric) => (
+                <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
+                  <div className="hero-metric-value">{metric.heroValue}</div>
+                  <div className="hero-metric-label">{metric.heroLabel}</div>
+                </motion.article>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
       </div>
 
@@ -1106,6 +1121,9 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                           className="problem-solutions-logo"
                         />
                         <div className="problem-solutions-label-text">
+                          <span className="problem-solutions-label-stage" style={{ color: accent }}>
+                            {getStageGroupLabel(id)}
+                          </span>
                           <span className="problem-solutions-label-brand">May I</span>
                           <span className="problem-solutions-label-role">
                             {solutions[0].employeeType.replace(/^May I\s+/, "")}
@@ -2071,6 +2089,7 @@ function SlideVision() {
     {
       num: "01",
       phase: "Today",
+      stageLabel: "Capture",
       agentTitle: "Communications Agents",
       icon: <ShieldAlert size={22} />,
       headline: "Stop the leak",
@@ -2080,6 +2099,7 @@ function SlideVision() {
     {
       num: "02",
       phase: "Tomorrow",
+      stageLabel: "Connect",
       agentTitle: "Revenue Operations Agents",
       icon: <ScanSearch size={22} />,
       headline: "Own the workflow, capture the data",
@@ -2089,6 +2109,7 @@ function SlideVision() {
     {
       num: "03",
       phase: "Future",
+      stageLabel: "Convert",
       agentTitle: "Patient Retention Agents",
       icon: <Brain size={22} />,
       headline: "Predict and action on the data",
@@ -2120,7 +2141,7 @@ function SlideVision() {
         initial="hidden"
         animate="show"
       >
-        {phases.map(({ phase, agentTitle, icon, headline, text, color }) => (
+        {phases.map(({ phase, stageLabel, agentTitle, icon, headline, text, color }) => (
           <motion.div key={phase} variants={fadeUp} className="vision-phase">
             <div className="vision-phase-label" style={{ color }}>
               {phase}
@@ -2130,6 +2151,9 @@ function SlideVision() {
                 {icon}
               </span>
               <span>{headline}</span>
+            </div>
+            <div className="vision-phase-stage" style={{ color }}>
+              {stageLabel}
             </div>
             <div className="vision-phase-agent" style={{ color }}>
               {agentTitle}
@@ -2176,6 +2200,7 @@ function SlideAsk() {
 
       <motion.div className="ask-grid" variants={stagger} initial="hidden" animate="show">
         <motion.section variants={fadeUp} className="ask-panel">
+          <div className="ask-raise-statement">Raising $5M in this round.</div>
           <div className="ask-panel-label">Milestones This Capital Unlocks</div>
           <div className="ask-milestone-list">
             {ASK_MILESTONES.map((item) => (
