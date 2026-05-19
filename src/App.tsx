@@ -1931,11 +1931,11 @@ function SlideMoats() {
   const arrValues = rows.map((row) => row.arrValue);
   const xLabels = rows.map((_, index) => `Y${index + 1}`);
 
-  const W = 420, H = 280;
-  const PAD = { l: 52, r: 16, t: 18, b: 34 };
+  const W = 860, H = 280;
+  const PAD = { l: 56, r: 20, t: 2, b: 10 };
   const CW  = W - PAD.l - PAD.r;
   const CH  = H - PAD.t - PAD.b;
-  const MAX = 140;
+  const MAX = 130;
   const BAR_SLOT = CW / rows.length;
   const BAR_W    = BAR_SLOT * 0.58;
   const BAR_OFF  = (BAR_SLOT - BAR_W) / 2;
@@ -1949,6 +1949,55 @@ function SlideMoats() {
     .map((v, i) => `${i === 0 ? "M" : "L"} ${barCX(i).toFixed(1)},${toY(v).toFixed(1)}`)
     .join(" ");
 
+  const platformMaturityMatrix = [
+    {
+      label: "Capture",
+      color: CCC_COLORS.capture,
+      phases: [
+        ["Voice Agents", "Early Personalization", "Engagement With Data"],
+        ["Referral Fax Agents"],
+        ["Advanced Personalization", "Automated Quality Loop", "A/B testing"],
+      ],
+    },
+    {
+      label: "Connect",
+      color: CCC_COLORS.connect,
+      phases: [
+        ["Early Lead Scoring"],
+        ["Advanced Lead Scoring", "Pre-Auth Portal Action Agents"],
+        ["CRM Orchestration Agent", "EMR Action Agent"],
+      ],
+    },
+    {
+      label: "Convert",
+      color: CCC_COLORS.convert,
+      phases: [
+        [],
+        ["Patient Recall Agents"],
+        ["Top of the funnel marketing", "Targeted Marketing Agents", "Collections Agents"],
+      ],
+    },
+  ];
+
+  const projectionMatrix = [
+    {
+      label: "Providers",
+      values: rows.map((row) => row.providerCount.toLocaleString("en-US")),
+    },
+    {
+      label: "Share",
+      values: rows.map((row) => row.share),
+    },
+    {
+      label: "ARR",
+      values: rows.map((row) => row.arr),
+    },
+    {
+      label: "Growth",
+      values: rows.map((row) => row.growth),
+    },
+  ];
+
   return (
     <div className="slide slide-moats">
       <motion.div
@@ -1961,7 +2010,7 @@ function SlideMoats() {
           Revenue Projection
         </motion.div>
         <motion.h2 variants={fadeUp} className="slide-title">
-          <span className="vision-title-line">The path to $1 Billion</span>
+          <span className="vision-title-line">The path to growth</span>
           <span className="vision-title-line">is owning the patient engagement layer.</span>
         </motion.h2>
       </motion.div>
@@ -2046,31 +2095,90 @@ function SlideMoats() {
 
         {/* ── Table ── */}
         <motion.div
+          className="rev-maturity-wrap"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+        >
+          <div className="platform-maturity">
+            <div className="platform-maturity-title">Platform Maturity</div>
+            <table className="platform-maturity-table">
+              <colgroup>
+                <col className="platform-maturity-col-stage" />
+                <col className="platform-maturity-col-phase" />
+                <col className="platform-maturity-col-phase" />
+                <col className="platform-maturity-col-phase" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>Today</th>
+                  <th>Tomorrow</th>
+                  <th>Future</th>
+                </tr>
+              </thead>
+              <tbody>
+                {platformMaturityMatrix.map(({ label, color, phases }) => (
+                  <tr key={label}>
+                    <th className="platform-maturity-rowhead-cell" style={{ color }}>
+                      <div className="platform-maturity-rowhead">
+                        <span>{label}</span>
+                      </div>
+                    </th>
+                    {phases.map((items, index) => (
+                      <td key={`${label}-${index}`}>
+                        <div className="platform-maturity-cell-items">
+                          {items.length > 0 ? (
+                            items.map((item) => (
+                              <div key={item} className="platform-maturity-cell-item">{item}</div>
+                            ))
+                          ) : (
+                            <div className="platform-maturity-cell-item platform-maturity-cell-item-empty">—</div>
+                          )}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+
+        <motion.div
           className="rev-table-wrap"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
         >
-          <table className="rev-table">
+          <table className="rev-table rev-table-matrix">
             <thead>
               <tr>
-                <th>Year</th>
-                <th>Providers</th>
-                <th>Share</th>
-                <th>ARR</th>
-                <th>Valuation (8×)</th>
-                <th>Growth</th>
+                <th>Metric</th>
+                {rows.map(({ year }) => (
+                  <th key={year}>{year}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ year, providerCount, share, arr, val, growth, milestone }) => (
-                <tr key={year} className={milestone ? "rev-row-milestone" : ""}>
-                  <td className="rev-year">{year}</td>
-                  <td className="rev-num">{providerCount.toLocaleString("en-US")}</td>
-                  <td className="rev-share">{share}</td>
-                  <td className="rev-arr">{arr}</td>
-                  <td className="rev-val">{val}</td>
-                  <td className="rev-growth">{growth}</td>
+              {projectionMatrix.map(({ label, values }) => (
+                <tr key={label}>
+                  <td className="rev-metric-label">{label}</td>
+                  {values.map((value, index) => (
+                    <td
+                      key={`${label}-${rows[index].year}`}
+                      className={
+                        [
+                          label === "ARR" ? "rev-arr" : "",
+                          label === "Growth" ? "rev-growth" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")
+                      }
+                    >
+                      {value}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
@@ -2522,6 +2630,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
               <ArrowRight size={14} />
             </motion.button>
           </motion.div>
+
         </motion.div>
       </div>
     </div>
