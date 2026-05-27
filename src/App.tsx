@@ -432,7 +432,7 @@ function renderSlide(
   options: { isExportMode: boolean; problemBuilt: boolean },
 ) {
   if (slideId === "founder") return <SlideFounder />;
-  if (slideId === "hero") return <SlideHero goTo={goTo} />;
+  if (slideId === "hero") return <SlideHero goTo={goTo} isExportMode={options.isExportMode} />;
   if (slideId === "problem") return <SlideProblem isBuilt={options.problemBuilt || options.isExportMode} />;
   if (slideId === "loss") return <SlideLoss />;
   if (slideId === "qualify") return <SlideQualify />;
@@ -866,7 +866,7 @@ function SlideFounder() {
 
 // ─── Slide 1: Hero ────────────────────────────────────────────────────────────
 
-function SlideHero({ goTo }: { goTo: (i: number) => void }) {
+function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExportMode: boolean }) {
   const isMobile = useIsMobile();
   const visibleSlides: readonly SlideId[] = isMobile
     ? SLIDES.filter((slide): slide is Exclude<SlideId, "appendix" | "demo"> => slide !== "appendix" && slide !== "demo")
@@ -887,7 +887,9 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
     { num: "16", label: "The Ask",                slideId: "ask" },
     { num: "17", label: "Appendix",               slideId: "appendix" },
   ];
-  const agenda = isMobile ? agendaAll.filter((a) => a.label !== "Live Demo") : agendaAll;
+  const agenda = (isMobile || isExportMode)
+    ? agendaAll.filter((a) => a.label !== "Live Demo")
+    : agendaAll;
   const agendaRef = useRef<HTMLDivElement>(null);
   const goToSlide = useCallback((slideId: SlideId) => {
     const slideIndex = visibleSlides.indexOf(slideId);

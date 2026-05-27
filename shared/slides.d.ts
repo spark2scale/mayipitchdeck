@@ -21,3 +21,5 @@ export declare const SLIDES: readonly [
 ];
 
 export type SlideId = (typeof SLIDES)[number];
+
+export declare const PDF_EXPORT_SLIDES: readonly SlideId[];

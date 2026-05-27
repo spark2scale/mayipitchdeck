@@ -19,3 +19,5 @@ export const SLIDES = [
   "connect-detail",
   "convert-detail",
 ];
+
+export const PDF_EXPORT_SLIDES = SLIDES.filter((slide) => slide !== "demo");

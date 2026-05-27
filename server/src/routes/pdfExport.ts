@@ -1,7 +1,7 @@
 import { Router, Request } from "express";
 import { PDFDocument } from "pdf-lib";
 import { chromium, type Browser } from "playwright";
-import { SLIDES, type SlideId } from "../../../shared/slides.js";
+import { PDF_EXPORT_SLIDES, type SlideId } from "../../../shared/slides.js";
 
 const pdfExportRouter = Router();
 
@@ -76,7 +76,7 @@ pdfExportRouter.get("/pdf", async (req, res, next) => {
     await page.emulateMedia({ media: "screen" });
     const mergedPdf = await PDFDocument.create();
 
-    for (const slideId of SLIDES) {
+    for (const slideId of PDF_EXPORT_SLIDES) {
       const slideUrl = buildSlideExportUrl(exportUrl, slideId);
       await page.goto(slideUrl, { waitUntil: "networkidle", timeout: 30000 });
       await page.waitForFunction(
