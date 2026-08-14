@@ -319,13 +319,13 @@ export default function App() {
         <header className="deck-header">
           <button className="header-logo" onClick={() => goToSlideIndex(0)} aria-label="Go to slide 1">
             <img
-              src="/MayILogoTransparentBack.gif"
+              src="/may_i_vectorized.svg"
               alt="May I"
               className="logo-img"
             />
             <div>
               <div className="logo-name">May I</div>
-              <div className="logo-sub">Investor Deck</div>
+              <div className="logo-sub">Customer Deck</div>
             </div>
           </button>
 
@@ -884,7 +884,7 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
     { num: "13", label: "Investor Case",          slideId: "path" },
     { num: "14", label: "Revenue Projections",    slideId: "moats" },
     { num: "15", label: "Vision",                 slideId: "vision" },
-    { num: "16", label: "The Ask",                slideId: "ask" },
+    { num: "16", label: "Next Steps",            slideId: "ask" },
     { num: "17", label: "Appendix",               slideId: "appendix" },
   ];
   const agenda = (isMobile || isExportMode)
@@ -942,7 +942,7 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
             </div>
             <div className="hero-engine-box">
               <div className="hero-engine-box-header">
-                <img src="/MayILogoTransparentBack.gif" alt="May I" className="hero-engine-logo" />
+                <img src="/may_i_vectorized.svg" alt="May I" className="hero-engine-logo" />
                 <div>
                   <div className="hero-engine-box-label">May I Engine</div>
                   <div className="hero-engine-box-tagline">System of Engagement</div>
@@ -1118,7 +1118,7 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                     <div className="problem-solution-card" style={{ borderTopColor: accent }}>
                       <div className="problem-solutions-label" style={{ color: accent }}>
                         <img
-                          src="/MayILogoTransparentBack.gif"
+                          src="/may_i_vectorized.svg"
                           alt="May I"
                           className="problem-solutions-logo"
                         />
@@ -1254,24 +1254,6 @@ function SlideLoss() {
           <span className="loss-summary-caption">per practice per year revenue opportunity</span>
         </motion.div>
 
-        <motion.div
-          className="loss-market"
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-        >
-          <span className="loss-market-value loss-market-value-stat">$353</span>
-          <span className="loss-market-value">Billion</span>
-          <span className="loss-market-caption">2026 Business Process Operations market</span>
-          <a
-            className="loss-card-source-link"
-            href="https://www.fortunebusinessinsights.com/business-process-outsourcing-market-111583"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Source: Fortune Business Insights
-          </a>
-        </motion.div>
       </div>
     </div>
   );
@@ -1365,7 +1347,7 @@ function SlideEngine() {
           <div className="engine-side-label engine-side-label-inputs">Inputs</div>
           <div className="engine-core">
           <div className="engine-core-header">
-            <img src="/MayILogoTransparentBack.gif" alt="May I" className="engine-core-logo" />
+            <img src="/may_i_vectorized.svg" alt="May I" className="engine-core-logo" />
             <div>
               <div className="engine-core-label">May I Engine</div>
               <div className="engine-core-tagline">Critical System of Engagement</div>
@@ -2297,48 +2279,64 @@ function SlideVision() {
 }
 
 function SlideAsk() {
+  const customerNextSteps = [
+    "Multi-lingual AI Comms Agent",
+    "AI Booking Intake App",
+    "Appointment Reminders",
+  ];
+
   return (
     <div className="slide slide-ask">
       <motion.div className="ask-header" variants={stagger} initial="hidden" animate="show">
-        <motion.div variants={fadeUp} className="eyebrow-tag">The Ask</motion.div>
+        <motion.div variants={fadeUp} className="eyebrow-tag">Next Steps</motion.div>
         <motion.h2 variants={fadeUp} className="ask-title">
-          Join us in building
+          Start with one workflow.
           <br />
-          the revenue integrity layer for healthcare.
+          Prove the ROI. Expand from there.
         </motion.h2>
       </motion.div>
 
       <motion.div className="ask-grid" variants={stagger} initial="hidden" animate="show">
-        <motion.section variants={fadeUp} className="ask-panel">
-          <div className="ask-raise-statement">Raising $5M in this round.</div>
-          <div className="ask-panel-label">Milestones This Capital Unlocks</div>
-          <div className="ask-milestone-list">
-            {ASK_MILESTONES.map((item) => (
-              <div key={item} className="ask-milestone-item">
-                <ArrowRight size={16} className="ask-milestone-icon" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </motion.section>
+        <motion.section variants={fadeUp} className="ask-panel ask-panel-primary">
+          <div className="ask-panel-main">
+            <div className="ask-panel-brand">
+              <img
+                src="/may_i_vectorized.svg"
+                alt="May I"
+                className="ask-panel-logo"
+              />
+            </div>
 
-        <motion.section variants={fadeUp} className="ask-panel ask-contact-panel">
-          <div className="ask-panel-label">Contact</div>
-          <div className="ask-contact-list">
-            <span className="ask-contact-item ask-contact-item-primary">
-              <UserRound size={24} className="ask-contact-icon" strokeWidth={1.7} />
-              <span className="ask-contact-text ask-contact-text-primary">Chami Rupasinghe</span>
-            </span>
-            <span className="ask-contact-item ask-contact-item-secondary">
-              <MailCheck size={24} className="ask-contact-icon" strokeWidth={1.7} />
-              <span className="ask-contact-text ask-contact-text-secondary">chamir@mayiguide.com</span>
-            </span>
-            <span className="ask-contact-item ask-contact-item-secondary">
-              <Globe size={24} className="ask-contact-icon" strokeWidth={1.7} />
-              <span className="ask-contact-text ask-contact-text-secondary">www.mayiguide.com</span>
-            </span>
+            <div className="ask-panel-content">
+              <div className="ask-panel-label">Recommended First Deployment</div>
+              <div className="ask-milestone-list">
+                {customerNextSteps.map((item) => (
+                  <div key={item} className="ask-milestone-item">
+                    <ArrowRight size={16} className="ask-milestone-icon" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </motion.section>
+      </motion.div>
+
+      <motion.div variants={fadeUp} className="ask-contact-footer">
+        <div className="ask-contact-list">
+          <span className="ask-contact-item ask-contact-item-primary">
+            <UserRound size={18} className="ask-contact-icon" strokeWidth={1.8} />
+            <span className="ask-contact-text ask-contact-text-primary">Chami Rupasinghe</span>
+          </span>
+          <span className="ask-contact-item ask-contact-item-secondary">
+            <MailCheck size={18} className="ask-contact-icon" strokeWidth={1.8} />
+            <span className="ask-contact-text ask-contact-text-secondary">chamir@mayiguide.com</span>
+          </span>
+          <span className="ask-contact-item ask-contact-item-secondary">
+            <Globe size={18} className="ask-contact-icon" strokeWidth={1.8} />
+            <span className="ask-contact-text ask-contact-text-secondary">www.mayiguide.com</span>
+          </span>
+        </div>
       </motion.div>
     </div>
   );
