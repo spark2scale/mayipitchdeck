@@ -435,6 +435,7 @@ function renderSlide(
   if (slideId === "hero") return <SlideHero goTo={goTo} isExportMode={options.isExportMode} />;
   if (slideId === "problem") return <SlideProblem isBuilt={options.problemBuilt || options.isExportMode} />;
   if (slideId === "loss") return <SlideLoss />;
+  if (slideId === "voice-agent") return <SlideVoiceAgent />;
   if (slideId === "qualify") return <SlideQualify />;
   if (slideId === "engine") return <SlideEngine />;
   if (slideId === "capture-detail") return <SlideCaptureDetail />;
@@ -877,19 +878,14 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
     : SLIDES;
   const agendaAll: ReadonlyArray<{ num: string; label: string; slideId: SlideId }> = [
     { num: "2",  label: "The Problem",            slideId: "problem" },
-    { num: "4",  label: "Product Workflow",       slideId: "qualify" },
-    { num: "5",  label: "Live Demo",              slideId: "demo" },
-    { num: "6",  label: "The May I System",       slideId: "engine" },
-    // { num: "7",  label: "Business Impact",        slideId: "roi" },
-    { num: "9",  label: "Traction",               slideId: "traction" },
-    { num: "10", label: "Founder & CEO",          slideId: "founder" },
-    { num: "11", label: "Enterprise Security",    slideId: "enterprise-grade" },
-    { num: "12", label: "Competitive Landscape",  slideId: "why-wins" },
-    { num: "13", label: "Investor Case",          slideId: "path" },
-    { num: "14", label: "Revenue Projections",    slideId: "moats" },
-    { num: "15", label: "Vision",                 slideId: "vision" },
-    { num: "16", label: "Next Steps",            slideId: "ask" },
-    { num: "17", label: "Appendix",               slideId: "appendix" },
+    { num: "4",  label: "Voice Agent Demo",       slideId: "voice-agent" },
+    { num: "5",  label: "Product Workflow",       slideId: "qualify" },
+    { num: "6",  label: "Live Demo",              slideId: "demo" },
+    { num: "7",  label: "The May I System",       slideId: "engine" },
+    { num: "8",  label: "Traction",               slideId: "traction" },
+    { num: "9",  label: "Founder & CEO",          slideId: "founder" },
+    { num: "10", label: "Vision",                 slideId: "vision" },
+    { num: "11", label: "Next Steps",             slideId: "ask" },
   ];
   const agenda = (isMobile || isExportMode)
     ? agendaAll.filter((a) => a.label !== "Live Demo")
@@ -1263,7 +1259,81 @@ function SlideLoss() {
   );
 }
 
-// ─── Slide 4: Engine overview ─────────────────────────────────────────────────
+function SlideVoiceAgent() {
+  const capabilities = [
+    "Customizable multi-lingual agent",
+    "Intelligent responses specific to Envision Eye Group",
+    "Patient intake and scheduling",
+    "Personalized greeting for returning patients",
+    "Patient schedule lookup with two-factor authentication",
+    "Call routing",
+    "Route to booking app",
+  ];
+
+  const exampleQuestions = [
+    "Tell me about Dr. Laiyin Ma.",
+    "What services are offered at the practice?",
+    "Is EVO ICL right for me?",
+    "Do I have an upcoming appointment? (birthdate: 4-12-1988)",
+    "I'd like to schedule an appointment.",
+  ];
+
+  return (
+    <div className="slide slide-voice-agent">
+      <SlideHeader
+        eyebrow="Voice Agent Demo"
+        title={<>Multi-lingual Voice Agent for<br /><span style={{ whiteSpace: "nowrap" }}>Envision Eye Group</span></>}
+      />
+
+      <div className="voice-agent-layout">
+        <motion.section
+          className="voice-agent-panel"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
+          <div className="voice-agent-call-panel hero-engine-box">
+            <div className="hero-engine-box-header">
+              <img src="/may_i_vectorized.svg" alt="May I" className="hero-engine-logo" />
+              <div>
+                <div className="hero-engine-box-label">Call</div>
+                <div className="voice-agent-call-value">386-202-9994</div>
+              </div>
+            </div>
+          </div>
+          <div className="voice-agent-panel-label">Voice Agent Features</div>
+          <div className="voice-agent-list">
+            {capabilities.map((item, index) => (
+              <div key={item} className="voice-agent-list-item">
+                <span className="voice-agent-list-index">{index + 1}</span>
+                <span className="voice-agent-list-text">{item}</span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section
+          className="voice-agent-panel"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
+          <div className="voice-agent-panel-label">Sample Questions To Ask The Agent</div>
+          <div className="voice-agent-question-list">
+            {exampleQuestions.map((item) => (
+              <div key={item} className="voice-agent-question-card">
+                <MessageSquare size={18} className="voice-agent-question-icon" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      </div>
+    </div>
+  );
+}
+
+// ─── Slide 5: Engine overview ─────────────────────────────────────────────────
 
 function SlideQualify() {
   return (

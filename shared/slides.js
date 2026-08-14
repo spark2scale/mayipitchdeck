@@ -2,6 +2,7 @@ export const SLIDES = [
   "hero",
   "problem",
   "loss",
+  "voice-agent",
   "qualify",
   "demo",
   "engine",
