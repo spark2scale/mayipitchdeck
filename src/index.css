@@ -465,7 +465,7 @@ strong { color: var(--mi-text); font-weight: 600; }
 .hero-metrics-grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   height: 100%;
 }
@@ -3605,10 +3605,20 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .ask-contact-item-primary .ask-contact-text {
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(18px, 1.8vw, 22px);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.01em;
   text-transform: none;
+}
+
+.ask-contact-first {
+  color: var(--mi-text);
+}
+
+.ask-contact-last {
+  color: var(--mi-copper);
+  font-style: italic;
 }
 
 .ask-contact-item-secondary .ask-contact-text {

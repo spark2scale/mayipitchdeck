@@ -701,6 +701,10 @@ const LIVE_USAGE_METRICS = [
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
+const HERO_USAGE_METRICS = LIVE_USAGE_METRICS.filter(
+  ({ heroLabel }) => heroLabel !== "practices live" && heroLabel !== "providers"
+);
+
 const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.map(({ value, tractionLabel }) => ({
   value,
   label: tractionLabel,
@@ -983,7 +987,7 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
               LIVE MAY I COMMUNICATIONS AGENTS ANSWER INCOMING CALLS AND BOOK CONSULTS
             </div>
             <div className="hero-metrics-grid" aria-label="Live customer usage stats">
-              {LIVE_USAGE_METRICS.map((metric) => (
+              {HERO_USAGE_METRICS.map((metric) => (
                 <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
                   <div className="hero-metric-value">{metric.heroValue}</div>
                   <div className="hero-metric-label">{metric.heroLabel}</div>
@@ -1626,15 +1630,6 @@ function SlideTraction() {
       <motion.div className="traction-layout" variants={stagger} initial="hidden" animate="show">
         <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
           <div className="traction-panel-label">Live customer usage</div>
-
-          <div className="traction-summary-grid">
-            {TRACTION_PRIMARY_METRICS.slice(0, 2).map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-primary">
-                <div className="traction-stat-value">{metric.value}</div>
-                <div className="traction-stat-label">{metric.label}</div>
-              </div>
-            ))}
-          </div>
 
           <div className="traction-featured-stack">
             {TRACTION_PRIMARY_METRICS.slice(2).map((metric) => (
@@ -2326,7 +2321,10 @@ function SlideAsk() {
         <div className="ask-contact-list">
           <span className="ask-contact-item ask-contact-item-primary">
             <UserRound size={18} className="ask-contact-icon" strokeWidth={1.8} />
-            <span className="ask-contact-text ask-contact-text-primary">Chami Rupasinghe</span>
+            <span className="ask-contact-text ask-contact-text-primary">
+              <span className="ask-contact-first">Chami</span>{" "}
+              <span className="ask-contact-last">Rupasinghe</span>
+            </span>
           </span>
           <span className="ask-contact-item ask-contact-item-secondary">
             <MailCheck size={18} className="ask-contact-icon" strokeWidth={1.8} />
