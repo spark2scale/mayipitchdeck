@@ -2,11 +2,13 @@ export const SLIDES = [
   "hero",
   "problem",
   "loss",
-  "voice-agent",
-  "qualify",
-  "demo",
+  "everyday-benefits",
   "engine",
-  "ccc-overview",
+  "voice-agent",
+  "qualify-experience",
+  "qualify",
+  "confirm",
+  "demo",
   "traction",
   "founder",
   "vision",
@@ -16,4 +18,6 @@ export const SLIDES = [
   "convert-detail",
 ];
 
-export const PDF_EXPORT_SLIDES = SLIDES.filter((slide) => slide !== "demo");
+export const PDF_EXPORT_SLIDES = SLIDES.filter(
+  (slide) => !["demo", "capture-detail", "connect-detail", "convert-detail"].includes(slide)
+);

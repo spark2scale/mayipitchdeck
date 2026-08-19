@@ -1196,6 +1196,84 @@ strong { color: var(--mi-text); font-weight: 600; }
   margin-bottom: 8px;
 }
 
+/* ─── Slide: Everyday Benefits ───────────────────────────────────────────── */
+
+.slide-everyday-benefits {
+  justify-content: center;
+}
+
+.everyday-benefits-intro {
+  max-width: 710px;
+  margin: -8px 0 42px;
+  font-size: clamp(17px, 1.45vw, 21px);
+  line-height: 1.45;
+  color: var(--mi-muted);
+}
+
+.everyday-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid rgba(196, 146, 71, 0.38);
+  border-bottom: 1px solid rgba(196, 146, 71, 0.38);
+}
+
+.everyday-benefit {
+  min-height: 330px;
+  padding: 30px 38px 26px;
+  display: flex;
+  flex-direction: column;
+}
+
+.everyday-benefit + .everyday-benefit {
+  border-left: 1px solid rgba(196, 146, 71, 0.28);
+}
+
+.everyday-benefit-icon {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border: 1px solid rgba(196, 146, 71, 0.62);
+  border-radius: 50%;
+  color: var(--mi-copper);
+  background: rgba(144, 99, 35, 0.1);
+}
+
+.everyday-benefit-label {
+  font-size: 11px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  color: var(--mi-copper);
+}
+
+.everyday-benefit h3 {
+  margin: 13px 0 14px;
+  font-size: clamp(21px, 1.72vw, 27px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.everyday-benefit p {
+  margin: 0;
+  color: var(--mi-muted);
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.55;
+}
+
+.everyday-benefit-outcome {
+  margin-top: auto;
+  padding-top: 22px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mi-text);
+}
+
 /* ─── Slide: Voice Agent ─────────────────────────────────────────────────── */
 
 .slide-voice-agent {
