@@ -9,6 +9,7 @@ export const SLIDES = [
   "qualify",
   "confirm",
   "demo",
+  "fmla-demo",
   "traction",
   "founder",
   "vision",

@@ -6176,6 +6176,61 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
   z-index: 50;
 }
 
+/* ─── FMLA Form Intelligence Demo ───────────────────────────────────────── */
+
+.fmla-slide {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 18px 28px 16px;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.fmla-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; flex-shrink: 0; }
+.fmla-title { margin: 4px 0 0; font-size: clamp(18px, 2.2vw, 26px); }
+.fmla-safe-note { display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; padding: 6px 9px; border: 1px solid rgba(196, 146, 71, .35); border-radius: 99px; color: var(--mi-copper); font-size: 10px; font-weight: 700; white-space: nowrap; }
+.fmla-main { display: grid; grid-template-columns: minmax(155px, .83fr) minmax(420px, 2.1fr) minmax(175px, .95fr); gap: 12px; flex: 1; min-height: 0; }
+.fmla-case-panel, .fmla-ai-panel, .fmla-document-panel { border: 1px solid var(--mi-border); border-radius: 10px; background: linear-gradient(145deg, rgba(0, 36, 24, .92), rgba(0, 24, 16, .96)); min-height: 0; overflow: hidden; }
+.fmla-case-panel, .fmla-ai-panel { padding: 15px 13px; display: flex; flex-direction: column; }
+.fmla-panel-label { display: flex; align-items: center; gap: 6px; color: var(--mi-copper); font-size: 10px; font-weight: 800; letter-spacing: .075em; text-transform: uppercase; }
+.fmla-case-subtitle { color: var(--mi-muted); font-size: 11px; line-height: 1.35; margin: 7px 0 13px; }
+.fmla-case-card { border: 1px solid rgba(72, 120, 97, .45); border-radius: 7px; overflow: hidden; }
+.fmla-case-row { display: flex; flex-direction: column; gap: 3px; padding: 9px 10px; border-bottom: 1px solid rgba(72, 120, 97, .25); }
+.fmla-case-row:last-child { border: 0; }
+.fmla-case-row span { color: var(--mi-muted); font-size: 9px; letter-spacing: .05em; text-transform: uppercase; }
+.fmla-case-row strong { color: var(--mi-text); font-size: 11px; font-weight: 650; line-height: 1.25; }
+.fmla-case-footer { display: flex; gap: 6px; align-items: center; margin-top: auto; padding-top: 12px; color: #8ed4a9; font-size: 10px; line-height: 1.3; }
+.fmla-document-panel { display: flex; flex-direction: column; }
+.fmla-document-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 11px; border-bottom: 1px solid var(--mi-border); }
+.fmla-form-tabs { display: flex; gap: 5px; min-width: 0; }
+.fmla-form-tab { border: 1px solid transparent; background: transparent; color: var(--mi-muted); border-radius: 6px; padding: 5px 8px; text-align: left; font: inherit; font-size: 10px; cursor: pointer; line-height: 1.15; }
+.fmla-form-tab small { display: block; color: inherit; opacity: .72; font-size: 8.5px; margin-top: 2px; }
+.fmla-form-tab--active { color: var(--mi-text); border-color: rgba(196, 146, 71, .55); background: rgba(196, 146, 71, .09); }
+.fmla-run-btn { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 6px; padding: 8px 10px; color: #fff; background: linear-gradient(135deg, var(--mi-copper), var(--mi-primary)); font: inherit; font-size: 10px; font-weight: 750; white-space: nowrap; cursor: pointer; }
+.fmla-run-btn:disabled, .fmla-form-tab:disabled { cursor: wait; opacity: .65; }
+.fmla-page-stage { position: relative; flex: 1; min-height: 0; overflow: auto; background: #123329; display: flex; justify-content: center; align-items: flex-start; padding: 12px; }
+.fmla-page-canvas { position: relative; width: min(100%, 530px); line-height: 0; box-shadow: 0 6px 22px rgba(0,0,0,.35); }
+.fmla-page-canvas img { width: 100%; height: auto; display: block; }
+.fmla-overlay { position: absolute; display: flex; align-items: center; overflow: hidden; padding: 1px 3px; border: 1px solid rgba(1, 103, 57, .9); border-radius: 2px; background: rgba(219, 255, 229, .94); color: #063b20; font-family: Inter, Arial, sans-serif; font-size: clamp(5px, .83vw, 9px); line-height: 1.1; font-weight: 700; white-space: nowrap; box-shadow: 0 0 0 1px rgba(255,255,255,.5); }
+.fmla-stage-message { position: absolute; z-index: 2; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 30px; color: var(--mi-muted); font-size: 12px; text-align: center; background: rgba(0, 24, 16, .65); }
+.fmla-stage-message--error { color: #f0b4a4; }
+.fmla-stage-message button { display: inline-flex; align-items: center; gap: 5px; color: var(--mi-text); background: rgba(196,146,71,.16); border: 1px solid rgba(196,146,71,.45); border-radius: 5px; padding: 6px 8px; font: inherit; font-size: 10px; cursor: pointer; }
+.fmla-page-footer { display: flex; align-items: center; justify-content: space-between; padding: 7px 11px; border-top: 1px solid var(--mi-border); color: var(--mi-muted); font-size: 10px; }
+.fmla-page-footer div { display: flex; gap: 3px; }
+.fmla-page-footer button { display: grid; place-items: center; width: 24px; height: 22px; color: var(--mi-text); background: rgba(0, 74, 46, .35); border: 1px solid rgba(72,120,97,.45); border-radius: 4px; cursor: pointer; }
+.fmla-page-footer button:disabled { opacity: .35; cursor: default; }
+.fmla-status { display: flex; align-items: center; gap: 7px; margin: 12px 0 11px; padding: 8px 9px; border-radius: 6px; background: rgba(0, 74, 46, .25); color: var(--mi-muted); font-size: 10px; line-height: 1.25; }
+.fmla-status span { flex: 0 0 7px; height: 7px; border-radius: 50%; background: #a6a6a6; }
+.fmla-status--complete { color: #a4d9b5; background: rgba(55, 152, 94, .14); }.fmla-status--complete span { background: #74cd94; }.fmla-status--analyzing span { background: var(--mi-copper); animation: fmlaPulse 1s infinite alternate; }.fmla-status--error { color: #f3b0a1; }.fmla-status--error span { background: #e47862; }
+@keyframes fmlaPulse { to { transform: scale(1.65); opacity: .35; } }
+.fmla-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }.fmla-metrics div { padding: 8px; border: 1px solid rgba(72,120,97,.4); border-radius: 6px; }.fmla-metrics strong { display: block; color: var(--mi-text); font-size: 17px; }.fmla-metrics span { color: var(--mi-muted); font-size: 8.5px; text-transform: uppercase; letter-spacing: .04em; }
+.fmla-section-heading { display: flex; align-items: center; gap: 5px; color: var(--mi-copper); font-size: 9px; letter-spacing: .065em; text-transform: uppercase; font-weight: 800; }.fmla-activity p { margin: 7px 0; color: var(--mi-muted); font-size: 10px; line-height: 1.4; }.fmla-review { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(72,120,97,.35); }.fmla-review-item { padding: 6px 0; color: #d6b982; font-size: 9.5px; line-height: 1.3; border-bottom: 1px solid rgba(72,120,97,.18); }
+.fmla-spin { animation: fmlaSpin 1s linear infinite; } @keyframes fmlaSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) { .fmla-main { grid-template-columns: 1fr; overflow-y: auto; }.fmla-case-panel, .fmla-ai-panel { display: none; } }
+
 @keyframes demoRipple {
   0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
