@@ -4,6 +4,7 @@ export const SLIDES = [
   "loss",
   "qualify",
   "demo",
+  "fmla-demo",
   "engine",
   "ccc-overview",
   "traction",

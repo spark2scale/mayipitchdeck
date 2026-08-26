@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import { computerUseRouter } from "./routes/computerUse.js";
+import { fmlaRouter } from "./routes/fmla.js";
 import { pdfExportRouter } from "./routes/pdfExport.js";
 
 const app = express();
@@ -20,11 +21,12 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use(express.json({ limit: "20mb" })); // screenshots can be large
+app.use(express.json({ limit: "20mb" })); // screenshots / rendered demo pages can be large
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => res.json({ ok: true, ts: Date.now() }));
 app.use("/api/computer-use", computerUseRouter);
+app.use("/api/fmla", fmlaRouter);
 app.use("/api/export", pdfExportRouter);
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {

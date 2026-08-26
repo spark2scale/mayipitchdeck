@@ -4,6 +4,7 @@ export declare const SLIDES: readonly [
   "loss",
   "qualify",
   "demo",
+  "fmla-demo",
   "engine",
   "ccc-overview",
   "traction",

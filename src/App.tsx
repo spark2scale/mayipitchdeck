@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import SlideDemo from "./components/demo/SlideDemo";
+import FmlaDemo from "./components/demo/FmlaDemo";
 import { motion, AnimatePresence } from "framer-motion";
 import { SLIDES, type SlideId } from "../shared/slides.js";
 import {
@@ -84,7 +85,7 @@ export default function App() {
 
     return SLIDES.find((candidate) => candidate === slide) ?? null;
   }, [searchParams]);
-  const slides = isMobile && !isPdfExport ? SLIDES.filter((s) => s !== "appendix" && s !== "demo") : SLIDES;
+  const slides = isMobile && !isPdfExport ? SLIDES.filter((s) => s !== "appendix" && s !== "demo" && s !== "fmla-demo") : SLIDES;
   const navSlides = useMemo(() => {
     const askIndex = slides.indexOf("ask");
     return askIndex >= 0 ? slides.slice(0, askIndex + 1) : slides;
@@ -449,6 +450,7 @@ function renderSlide(
   if (slideId === "path") return <SlidePath goTo={goTo} />;
   if (slideId === "ask") return <SlideAsk />;
   if (slideId === "demo") return <SlideDemo isExportMode={options.isExportMode} />;
+  if (slideId === "fmla-demo") return <FmlaDemo isExportMode={options.isExportMode} />;
   if (slideId === "appendix") return <SlideAppendix />;
   return null;
 }
