@@ -1,3 +1,5 @@
+import type { SelectionMark } from "./fmlaLayout.js";
+
 export const DEMO_CASE_ID = "demo-fmla-001";
 
 export const AUTO_FILL_VALUES = {
@@ -14,6 +16,8 @@ export const AUTO_FILL_VALUES = {
   leave_start_date: "09/16/2026",
   leave_end_date: "10/28/2026",
   condition_duration: "6 weeks",
+  planned_treatment_dates: "09/18/2026; 09/25/2026; 10/09/2026",
+  planned_treatment_duration: "6 weeks incl. post-operative recovery",
 } as const;
 
 export type SupportedField = keyof typeof AUTO_FILL_VALUES;
@@ -37,8 +41,28 @@ export interface FieldOverlay {
   evidenceLabel: string;
 }
 
+export const CHECKBOX_DECISIONS = {
+  leave_type_fmla: "FMLA leave requested",
+  own_serious_health_condition: "Own serious health condition",
+  no_intermittent_leave: "No intermittent or reduced leave",
+  incapacity_plus_treatment: "Incapacity plus treatment",
+  planned_treatment_will_have: "Will have planned medical treatment",
+} as const;
+
+export type SupportedCheckboxDecision = keyof typeof CHECKBOX_DECISIONS;
+
+export interface CheckboxOverlay extends NormalizedCandidate {
+  decisionId: SupportedCheckboxDecision;
+  page: number;
+  confidence: number;
+  checked: true;
+  evidenceLabel: string;
+  selectionMarkId: string;
+}
+
 const FORM_IDS = new Set(["blank-fmla-1", "fmla-2"]);
 const FIELD_IDS = new Set<SupportedField>(Object.keys(AUTO_FILL_VALUES) as SupportedField[]);
+const CHECKBOX_IDS = new Set<SupportedCheckboxDecision>(Object.keys(CHECKBOX_DECISIONS) as SupportedCheckboxDecision[]);
 const MAX_PAGES = 8;
 const MAX_IMAGE_CHARS = 2_500_000;
 const MAX_PDF_CHARS = 3_000_000;
@@ -71,6 +95,16 @@ const FIELD_LABELS: Record<SupportedField, readonly string[]> = {
   leave_start_date: ["date you desire to begin leave", "begin leave", "leave start", "condition started"],
   leave_end_date: ["date of anticipated return to work", "return to work", "leave end"],
   condition_duration: ["how long the condition lasted or will last", "condition lasted or will last", "duration of condition"],
+  planned_treatment_dates: ["planned medical treatment", "following date"],
+  planned_treatment_duration: ["duration of the treatment", "duration of treatment"],
+};
+
+const CHECKBOX_LABELS: Record<SupportedCheckboxDecision, readonly string[]> = {
+  leave_type_fmla: ["fmla"],
+  own_serious_health_condition: ["because of my own serious health condition", "own serious health condition"],
+  no_intermittent_leave: ["no"],
+  incapacity_plus_treatment: ["incapacity plus treatment"],
+  planned_treatment_will_have: ["will have"],
 };
 
 export function isKnownFormId(value: unknown): value is "blank-fmla-1" | "fmla-2" {
@@ -121,7 +155,7 @@ function cleanText(value: string) {
 
 function findEvidence(text: string, page: number, layout: LayoutEvidence[]) {
   const wanted = cleanText(text);
-  if (wanted.length < 3) return null;
+  if (wanted.length < 2) return null;
   const exact = layout.filter((item) => item.page === page && cleanText(item.text) === wanted);
   if (exact.length === 1) return exact[0];
   if (exact.length > 1) return null;
@@ -141,6 +175,15 @@ function isExpectedEvidence(field: SupportedField, evidence: LayoutEvidence) {
     if (label === "name") return text === label;
     return text.includes(label) || label.includes(text);
   });
+}
+
+function isExpectedCheckboxEvidence(decisionId: SupportedCheckboxDecision, evidence: LayoutEvidence) {
+  const text = cleanText(evidence.text);
+  return CHECKBOX_LABELS[decisionId].some((label) => label.length < 3 ? text === label : text.includes(label) || label.includes(text));
+}
+
+function hasExpectedCheckboxEvidence(decisionId: SupportedCheckboxDecision, layout: LayoutEvidence[]) {
+  return layout.some((item) => isExpectedCheckboxEvidence(decisionId, item));
 }
 
 function hasExpectedEvidence(field: SupportedField, layout: LayoutEvidence[]) {
@@ -175,6 +218,69 @@ function regionBelowLabel(label: LayoutEvidence, layout: LayoutEvidence[]): Norm
 
 export function answerRegion(label: LayoutEvidence, relation: PlacementRelation, layout: LayoutEvidence[]) {
   return relation === "below_label" ? regionBelowLabel(label, layout) : regionRightOfLabel(label, layout);
+}
+
+function isSelectionMarkNearEvidence(mark: SelectionMark, evidence: LayoutEvidence) {
+  if (mark.page !== evidence.page) return false;
+  const markCenterY = mark.topPct + mark.heightPct / 2;
+  const evidenceCenterY = evidence.topPct + evidence.heightPct / 2;
+  // A printed checkbox sits on the same prompt line. This intentionally
+  // rejects a visually nearby checkbox belonging to another question.
+  const horizontalGap = evidence.leftPct - (mark.leftPct + mark.widthPct);
+  return Math.abs(markCenterY - evidenceCenterY) <= Math.max(4.5, evidence.heightPct * 2.5) && horizontalGap >= -0.5 && horizontalGap <= 8;
+}
+
+/** Accepts only approved synthetic decisions with a verified prompt and checkbox. */
+export function normalizeCheckboxMapping(value: unknown, layout: LayoutEvidence[], selectionMarks: SelectionMark[]): { checkboxes: CheckboxOverlay[]; reviewItems: string[]; notPresentCheckboxes: SupportedCheckboxDecision[] } {
+  if (!value || typeof value !== "object" || !Array.isArray((value as { checkboxes?: unknown }).checkboxes)) {
+    return { checkboxes: [], reviewItems: ["AI returned an invalid checkbox mapping response."], notPresentCheckboxes: [] };
+  }
+  const raw = value as { checkboxes: unknown[] };
+  const selectedDecisions = new Set<SupportedCheckboxDecision>();
+  const selectedMarks = new Set<string>();
+  const checkboxes: CheckboxOverlay[] = [];
+  const reviewItems: string[] = [];
+
+  for (const candidate of raw.checkboxes) {
+    if (!candidate || typeof candidate !== "object") continue;
+    const item = candidate as Record<string, unknown>;
+    const decisionId = item.decisionId;
+    const page = asNumber(item.page);
+    const confidence = asNumber(item.confidence);
+    const evidenceLabel = typeof item.evidenceLabel === "string" ? item.evidenceLabel : "";
+    const selectionMarkId = typeof item.selectionMarkId === "string" ? item.selectionMarkId : "";
+    if (typeof decisionId !== "string" || !CHECKBOX_IDS.has(decisionId as SupportedCheckboxDecision) || selectedDecisions.has(decisionId as SupportedCheckboxDecision)) continue;
+    if (page === null || confidence === null || confidence < 0.7 || confidence > 1) { reviewItems.push(`${decisionId}: insufficient checkbox confidence.`); continue; }
+    const evidence = findEvidence(evidenceLabel, page, layout);
+    const mark = selectionMarks.find((entry) => entry.id === selectionMarkId && entry.page === page);
+    if (!evidence || !isExpectedCheckboxEvidence(decisionId as SupportedCheckboxDecision, evidence) || !mark || selectedMarks.has(mark.id) || !isSelectionMarkNearEvidence(mark, evidence)) {
+      reviewItems.push(`${decisionId}: missing verified checkbox evidence.`);
+      continue;
+    }
+    selectedDecisions.add(decisionId as SupportedCheckboxDecision);
+    selectedMarks.add(mark.id);
+    checkboxes.push({
+      decisionId: decisionId as SupportedCheckboxDecision,
+      page,
+      leftPct: mark.leftPct,
+      topPct: mark.topPct,
+      widthPct: mark.widthPct,
+      heightPct: mark.heightPct,
+      confidence,
+      checked: true,
+      evidenceLabel: evidence.text,
+      selectionMarkId: mark.id,
+    });
+  }
+
+  const notPresentCheckboxes = (Object.keys(CHECKBOX_DECISIONS) as SupportedCheckboxDecision[])
+    .filter((decisionId) => !selectedDecisions.has(decisionId) && !hasExpectedCheckboxEvidence(decisionId, layout));
+  for (const decisionId of (Object.keys(CHECKBOX_DECISIONS) as SupportedCheckboxDecision[])) {
+    if (!selectedDecisions.has(decisionId) && !notPresentCheckboxes.includes(decisionId) && !reviewItems.some((item) => item.startsWith(`${decisionId}:`))) {
+      reviewItems.push(`${decisionId}: matching checkbox prompt found but not selected by AI.`);
+    }
+  }
+  return { checkboxes, reviewItems, notPresentCheckboxes };
 }
 
 /** Accept only verified labels; the server derives the final answer rectangle. */
@@ -225,7 +331,7 @@ export function normalizeMapping(value: unknown, layout: LayoutEvidence[]): { ov
 }
 
 export const REVIEW_ITEMS = [
-  "Medical facts narrative and treatment plan",
+  "Medical facts narrative beyond the attested treatment plan",
   "Intermittent leave frequency or reduced schedule",
   "Work restrictions, prognosis, certification, and signature",
 ];
