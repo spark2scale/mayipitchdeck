@@ -41,8 +41,12 @@ const CASE_ROWS = [
   ["Patient", "Alex Morgan"],
   ["DOB", "03/14/1986"],
   ["Provider", "Dr. Sarah Okonkwo, MD"],
+  ["Practice", "Austin Ophthalmology Associates"],
+  ["Practice e-mail", "care@austinophthalmology.demo"],
+  ["Practice fax", "(512) 555-0167"],
   ["Diagnosis", "Lumbar disc degeneration (M51.16)"],
   ["Requested leave", "09/16/2026 - 10/28/2026"],
+  ["Estimated duration", "6 weeks (derived from leave window)"],
 ];
 
 const STATIC_OVERLAYS: Overlay[] = [
@@ -179,7 +183,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
           <div className="fmla-case-card">
             {CASE_ROWS.map(([label, value]) => <div className="fmla-case-row" key={label}><span>{label}</span><strong>{value}</strong></div>)}
           </div>
-          <div className="fmla-case-footer"><CheckCircle2 size={14} /> 9 values approved for auto-fill</div>
+          <div className="fmla-case-footer"><CheckCircle2 size={14} /> 13 demo values approved for auto-fill</div>
         </section>
 
         <section className="fmla-document-panel">
@@ -200,7 +204,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
             {activePage && <div className="fmla-page-canvas">
               <img src={activePage.image} alt={`${activeForm.name}, page ${activePage.page}`} />
               <AnimatePresence>{overlays.filter((overlay) => overlay.page === activePage.page).map((overlay) => (
-                <motion.div key={overlay.field} className="fmla-overlay" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.28 }} style={{ left: `${overlay.leftPct}%`, top: `${overlay.topPct}%`, width: `${overlay.widthPct}%`, minHeight: `${overlay.heightPct}%` }} title={`${overlay.evidenceLabel}: ${Math.round(overlay.confidence * 100)}% confidence`}>
+                <motion.div key={`${overlay.field}-${overlay.page}-${overlay.evidenceLabel}`} className="fmla-overlay" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.28 }} style={{ left: `${overlay.leftPct}%`, top: `${overlay.topPct}%`, width: `${overlay.widthPct}%`, minHeight: `${overlay.heightPct}%` }} title={`${overlay.evidenceLabel}: ${Math.round(overlay.confidence * 100)}% confidence`}>
                   {overlay.value}
                 </motion.div>
               ))}</AnimatePresence>

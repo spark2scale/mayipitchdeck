@@ -3,13 +3,17 @@ export const DEMO_CASE_ID = "demo-fmla-001";
 export const AUTO_FILL_VALUES = {
   patient_name: "Alex Morgan",
   patient_dob: "03/14/1986",
-  patient_phone: "(512) 555-0184",
-  patient_address: "214 Cedar Lane, Austin, TX 78704",
   provider_name: "Dr. Sarah Okonkwo, MD",
+  practice_name: "Austin Ophthalmology Associates",
+  practice_address: "820 W 7th St, Austin, TX 78701",
+  practice_phone: "(512) 555-0166",
+  practice_fax: "(512) 555-0167",
+  practice_email: "care@austinophthalmology.demo",
   provider_npi: "1679834021",
   diagnosis: "Lumbar disc degeneration (M51.16)",
   leave_start_date: "09/16/2026",
   leave_end_date: "10/28/2026",
+  condition_duration: "6 weeks",
 } as const;
 
 export type SupportedField = keyof typeof AUTO_FILL_VALUES;
@@ -56,13 +60,17 @@ export type PlacementRelation = "right_of_label" | "below_label";
 const FIELD_LABELS: Record<SupportedField, readonly string[]> = {
   patient_name: ["employee name", "patient name", "patient s name", "name"],
   patient_dob: ["date of birth", "birth date", "dob"],
-  patient_phone: ["telephone", "home phone", "phone"],
-  patient_address: ["address", "street address"],
   provider_name: ["health care provider s name", "health care provider name", "provider name"],
+  practice_name: ["type of practice", "medical specialty", "practice name"],
+  practice_address: ["health care provider s business address", "provider business address", "business address"],
+  practice_phone: ["telephone", "provider telephone"],
+  practice_fax: ["fax"],
+  practice_email: ["e mail", "email"],
   provider_npi: ["npi", "national provider identifier"],
   diagnosis: ["diagnosis", "medical facts", "medical condition"],
   leave_start_date: ["date you desire to begin leave", "begin leave", "leave start", "condition started"],
   leave_end_date: ["date of anticipated return to work", "return to work", "leave end"],
+  condition_duration: ["how long the condition lasted or will last", "condition lasted or will last", "duration of condition"],
 };
 
 export function isKnownFormId(value: unknown): value is "blank-fmla-1" | "fmla-2" {
@@ -173,7 +181,8 @@ export function answerRegion(label: LayoutEvidence, relation: PlacementRelation,
 export function normalizeMapping(value: unknown, layout: LayoutEvidence[]): { overlays: FieldOverlay[]; reviewItems: string[]; notPresentFields: SupportedField[] } {
   if (!value || typeof value !== "object" || !Array.isArray((value as { overlays?: unknown }).overlays)) return { overlays: [], reviewItems: ["AI returned an invalid mapping response."], notPresentFields: [] };
   const raw = value as { overlays: unknown[] };
-  const seen = new Set<SupportedField>();
+  const populatedFields = new Set<SupportedField>();
+  const seenPlacements = new Set<string>();
   const safe: FieldOverlay[] = [];
   const reviewItems: string[] = [];
 
@@ -186,13 +195,16 @@ export function normalizeMapping(value: unknown, layout: LayoutEvidence[]): { ov
     const evidenceLabel = typeof rawCandidate.evidenceLabel === "string" ? rawCandidate.evidenceLabel : "";
     const relation = rawCandidate.placement === "below_label" ? "below_label" : rawCandidate.placement === "right_of_label" ? "right_of_label" : null;
 
-    if (typeof field !== "string" || !FIELD_IDS.has(field as SupportedField) || seen.has(field as SupportedField)) continue;
+    if (typeof field !== "string" || !FIELD_IDS.has(field as SupportedField)) continue;
     if (pageNumber === null || !relation || confidence === null || confidence < 0.7 || confidence > 1) { reviewItems.push(`${field}: insufficient placement confidence.`); continue; }
     const evidence = findEvidence(evidenceLabel, pageNumber, layout);
     if (!evidence || !isExpectedEvidence(field as SupportedField, evidence)) { reviewItems.push(`${field}: missing verified label evidence.`); continue; }
+    const placementKey = `${field}:${pageNumber}:${cleanText(evidence.text)}`;
+    if (seenPlacements.has(placementKey)) continue;
     const region = answerRegion(evidence, relation, layout);
 
-    seen.add(field as SupportedField);
+    seenPlacements.add(placementKey);
+    populatedFields.add(field as SupportedField);
     safe.push({
       field: field as SupportedField,
       page: pageNumber as number,
@@ -203,9 +215,9 @@ export function normalizeMapping(value: unknown, layout: LayoutEvidence[]): { ov
     });
   }
 
-  const notPresentFields = (Object.keys(AUTO_FILL_VALUES) as SupportedField[]).filter((field) => !seen.has(field) && !hasExpectedEvidence(field, layout));
+  const notPresentFields = (Object.keys(AUTO_FILL_VALUES) as SupportedField[]).filter((field) => !populatedFields.has(field) && !hasExpectedEvidence(field, layout));
   for (const field of (Object.keys(AUTO_FILL_VALUES) as SupportedField[])) {
-    if (!seen.has(field) && !notPresentFields.includes(field) && !reviewItems.some((item) => item.startsWith(`${field}:`))) {
+    if (!populatedFields.has(field) && !notPresentFields.includes(field) && !reviewItems.some((item) => item.startsWith(`${field}:`))) {
       reviewItems.push(`${field}: matching label found but not selected by AI.`);
     }
   }
