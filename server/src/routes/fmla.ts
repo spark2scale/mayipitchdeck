@@ -7,7 +7,9 @@ import {
   isKnownFormId,
   normalizeMapping,
   parsePageImages,
+  parseTemplatePdf,
 } from "./fmlaMapping.js";
+import { compactLayout, extractLayout } from "./fmlaLayout.js";
 
 export const fmlaRouter = Router();
 
@@ -21,25 +23,30 @@ function makeClient() {
 }
 
 fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
-  const { formId, caseId, pages } = req.body as { formId?: unknown; caseId?: unknown; pages?: unknown };
+  const { formId, caseId, pages, templatePdf } = req.body as { formId?: unknown; caseId?: unknown; pages?: unknown; templatePdf?: unknown };
   if (!isKnownFormId(formId) || caseId !== DEMO_CASE_ID) {
     res.status(400).json({ error: "Only registered demo forms and the synthetic demo case are supported." });
     return;
   }
   const pageImages = parsePageImages(pages);
-  if (!pageImages) {
-    res.status(400).json({ error: "Invalid rendered PDF pages." });
+  const pdfBytes = parseTemplatePdf(templatePdf);
+  if (!pageImages || !pdfBytes) {
+    res.status(400).json({ error: "Invalid rendered PDF pages or template PDF." });
     return;
   }
 
   try {
+    const layout = await extractLayout(pdfBytes);
+    if (!layout.tokens.length) throw new Error("No text or OCR layout could be extracted from this template.");
     const { client, deployment } = makeClient();
     const prompt = [
       "You map blank FMLA medical-certification forms to a safe, synthetic demo case.",
       "Identify only the visible answer regions for the allowed fields below. Do not infer any clinical narrative, prognosis, restriction, signature, or intermittent leave information.",
       `Allowed fields and values: ${JSON.stringify(AUTO_FILL_VALUES)}.`,
-      "Return JSON only: {\"overlays\":[{\"field\":string,\"page\":number,\"x\":number,\"y\":number,\"width\":number,\"height\":number,\"confidence\":number}] }.",
-      "Coordinates must be pixel coordinates in the supplied rendered page. Omit fields you cannot locate confidently.",
+      "The supplied layout manifest contains authoritative page-relative coordinates for printed labels. Use it as evidence; do not select an unrelated blank line.",
+      "Return JSON only: {\"anchors\":[{\"text\":string,\"page\":number,\"leftPct\":number,\"topPct\":number,\"widthPct\":number,\"heightPct\":number}],\"overlays\":[{\"field\":string,\"page\":number,\"evidenceLabel\":string,\"leftPct\":number,\"topPct\":number,\"widthPct\":number,\"heightPct\":number,\"confidence\":number}] }.",
+      "Use percentages from 0 to 100 in the coordinate system you see. Include at least three distinctive printed label anchors per page where you propose an overlay. Omit fields you cannot locate confidently.",
+      `Layout manifest: ${JSON.stringify(compactLayout(layout.tokens))}`,
     ].join("\n");
     const content: Array<Record<string, unknown>> = [{ type: "input_text", text: prompt }];
     for (const page of pageImages) {
@@ -57,8 +64,14 @@ fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
     const rawText = String(response.output_text ?? "").replace(/^```json\s*|\s*```$/g, "").trim();
     let raw: unknown;
     try { raw = JSON.parse(rawText); } catch { raw = null; }
-    const overlays = normalizeMapping(raw, pageImages);
-    res.json({ overlays, reviewItems: REVIEW_ITEMS, analyzedPages: pageImages.length });
+    const mapped = normalizeMapping(raw, layout.tokens);
+    res.json({
+      overlays: mapped.overlays,
+      reviewItems: [...REVIEW_ITEMS, ...mapped.reviewItems],
+      analyzedPages: pageImages.length,
+      layoutSource: layout.source,
+      calibration: mapped.calibration,
+    });
   } catch (error) {
     console.error("[/api/fmla/map]", error);
     res.status(502).json({ error: "FMLA mapping analysis is unavailable. Please retry or review manually." });

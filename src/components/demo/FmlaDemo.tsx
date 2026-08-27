@@ -18,12 +18,18 @@ interface RenderedPage {
 interface Overlay {
   field: string;
   page: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  leftPct: number;
+  topPct: number;
+  widthPct: number;
+  heightPct: number;
   confidence: number;
   value: string;
+  evidenceLabel: string;
+}
+
+interface RenderedDocument {
+  pages: RenderedPage[];
+  templatePdf: string;
 }
 
 const FORMS: Array<{ id: FormId; name: string; file: string; description: string }> = [
@@ -40,15 +46,23 @@ const CASE_ROWS = [
 ];
 
 const STATIC_OVERLAYS: Overlay[] = [
-  { field: "patient_name", page: 1, x: 270, y: 348, width: 210, height: 24, confidence: 0.98, value: "Alex Morgan" },
-  { field: "patient_dob", page: 1, x: 625, y: 348, width: 116, height: 24, confidence: 0.97, value: "03/14/1986" },
-  { field: "provider_name", page: 1, x: 190, y: 600, width: 245, height: 24, confidence: 0.95, value: "Dr. Sarah Okonkwo, MD" },
+  { field: "patient_name", page: 1, leftPct: 28, topPct: 25, widthPct: 23, heightPct: 1.5, confidence: 0.98, value: "Alex Morgan", evidenceLabel: "Patient's Name" },
+  { field: "patient_dob", page: 1, leftPct: 64, topPct: 25, widthPct: 13, heightPct: 1.5, confidence: 0.97, value: "03/14/1986", evidenceLabel: "Date of birth" },
+  { field: "provider_name", page: 1, leftPct: 20, topPct: 43, widthPct: 27, heightPct: 1.5, confidence: 0.95, value: "Dr. Sarah Okonkwo, MD", evidenceLabel: "Provider name" },
 ];
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
 
-async function renderPdf(file: string): Promise<RenderedPage[]> {
-  const pdfDocument = await pdfjsLib.getDocument({ url: file }).promise;
+function toBase64(bytes: Uint8Array) {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+  return btoa(binary);
+}
+
+async function renderPdf(file: string): Promise<RenderedDocument> {
+  const templateBytes = new Uint8Array(await (await fetch(file)).arrayBuffer());
+  const pdfDocument = await pdfjsLib.getDocument({ data: templateBytes }).promise;
   const pages: RenderedPage[] = [];
   for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
     try {
@@ -76,12 +90,13 @@ async function renderPdf(file: string): Promise<RenderedPage[]> {
     }
   }
   if (!pages.length) throw new Error("No pages could be rendered from the selected PDF.");
-  return pages;
+  return { pages, templatePdf: toBase64(templateBytes) };
 }
 
 export default function FmlaDemo({ isExportMode = false }: { isExportMode?: boolean }) {
   const [formId, setFormId] = useState<FormId>(isExportMode ? "fmla-2" : "blank-fmla-1");
   const [pages, setPages] = useState<RenderedPage[]>([]);
+  const [templatePdf, setTemplatePdf] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [status, setStatus] = useState<Status>("loading");
   const [overlays, setOverlays] = useState<Overlay[]>(isExportMode ? STATIC_OVERLAYS : []);
@@ -94,6 +109,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
     let cancelled = false;
     setStatus("loading");
     setPages([]);
+    setTemplatePdf("");
     setPageIndex(0);
     setError("");
     setReviewItems([]);
@@ -101,7 +117,8 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
     void renderPdf(activeForm.file)
       .then((rendered) => {
         if (cancelled) return;
-        setPages(rendered);
+        setPages(rendered.pages);
+        setTemplatePdf(rendered.templatePdf);
         setStatus(isExportMode ? "complete" : "ready");
         if (isExportMode) setReviewItems(["3 clinical decisions routed to clinician review"]);
       })
@@ -115,7 +132,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
   }, [activeForm.file, isExportMode]);
 
   const analyze = useCallback(async () => {
-    if (!pages.length || status === "analyzing") return;
+    if (!pages.length || !templatePdf || status === "analyzing") return;
     setStatus("analyzing");
     setError("");
     setOverlays([]);
@@ -124,7 +141,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
       const response = await fetch(`${API_BASE}/api/fmla/map`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formId, caseId: "demo-fmla-001", pages }),
+        body: JSON.stringify({ formId, caseId: "demo-fmla-001", pages, templatePdf }),
       });
       const data = await response.json() as { overlays?: Overlay[]; reviewItems?: string[]; error?: string };
       if (!response.ok) throw new Error(data.error ?? "Analysis unavailable");
@@ -135,7 +152,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
       setError(cause instanceof Error ? cause.message : "Analysis unavailable. Please retry or review manually.");
       setStatus("error");
     }
-  }, [formId, pages, status]);
+  }, [formId, pages, status, templatePdf]);
 
   const selectForm = (nextForm: FormId) => {
     if (nextForm !== formId && status !== "analyzing") setFormId(nextForm);
@@ -176,7 +193,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
             {activePage && <div className="fmla-page-canvas">
               <img src={activePage.image} alt={`${activeForm.name}, page ${activePage.page}`} />
               <AnimatePresence>{overlays.filter((overlay) => overlay.page === activePage.page).map((overlay) => (
-                <motion.div key={overlay.field} className="fmla-overlay" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.28 }} style={{ left: `${(overlay.x / activePage.width) * 100}%`, top: `${(overlay.y / activePage.height) * 100}%`, width: `${(overlay.width / activePage.width) * 100}%`, minHeight: `${(overlay.height / activePage.height) * 100}%` }} title={`${overlay.field}: ${Math.round(overlay.confidence * 100)}% confidence`}>
+                <motion.div key={overlay.field} className="fmla-overlay" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.28 }} style={{ left: `${overlay.leftPct}%`, top: `${overlay.topPct}%`, width: `${overlay.widthPct}%`, minHeight: `${overlay.heightPct}%` }} title={`${overlay.evidenceLabel}: ${Math.round(overlay.confidence * 100)}% confidence`}>
                   {overlay.value}
                 </motion.div>
               ))}</AnimatePresence>
