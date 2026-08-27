@@ -10,6 +10,7 @@ import {
   normalizeMapping,
   parsePageImages,
   parseTemplatePdf,
+  registeredCheckboxFallback,
 } from "./fmlaMapping.js";
 import { compactLayout, compactSelectionMarks, extractLayout } from "./fmlaLayout.js";
 
@@ -73,12 +74,15 @@ fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
     try { raw = JSON.parse(rawText); } catch { raw = null; }
     const mapped = normalizeMapping(raw, layout.tokens);
     const mappedCheckboxes = normalizeCheckboxMapping(raw, layout.tokens, layout.selectionMarks);
+    const registeredCheckboxes = registeredCheckboxFallback(formId, layout.tokens, mappedCheckboxes.checkboxes);
+    const checkboxes = [...mappedCheckboxes.checkboxes, ...registeredCheckboxes];
+    const completedCheckboxes = new Set(checkboxes.map((checkbox) => checkbox.decisionId));
     res.json({
       overlays: mapped.overlays,
-      checkboxes: mappedCheckboxes.checkboxes,
-      reviewItems: [...REVIEW_ITEMS, ...mapped.reviewItems, ...mappedCheckboxes.reviewItems],
+      checkboxes,
+      reviewItems: [...REVIEW_ITEMS, ...mapped.reviewItems, ...mappedCheckboxes.reviewItems.filter((item) => ![...completedCheckboxes].some((decisionId) => item.startsWith(`${decisionId}:`)))],
       notPresentFields: mapped.notPresentFields,
-      notPresentCheckboxes: mappedCheckboxes.notPresentCheckboxes,
+      notPresentCheckboxes: mappedCheckboxes.notPresentCheckboxes.filter((decisionId) => !completedCheckboxes.has(decisionId)),
       analyzedPages: pageImages.length,
       layoutSource: layout.source,
       mappingMode: "verified-label-geometry",
