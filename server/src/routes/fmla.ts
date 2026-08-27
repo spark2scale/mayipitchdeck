@@ -43,9 +43,10 @@ fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
       "You map blank FMLA medical-certification forms to a safe, synthetic demo case.",
       "Identify only the visible answer regions for the allowed fields below. Do not infer any clinical narrative, prognosis, restriction, signature, or intermittent leave information.",
       `Allowed fields and values: ${JSON.stringify(AUTO_FILL_VALUES)}.`,
+      "For this synthetic case, Alex Morgan is both the patient and the employee. Employee Name and Patient's Name are both eligible labels for patient_name.",
       "The supplied layout manifest contains authoritative page-relative coordinates for printed labels. Use it as evidence; do not select an unrelated blank line.",
-      "Return JSON only: {\"anchors\":[{\"text\":string,\"page\":number,\"leftPct\":number,\"topPct\":number,\"widthPct\":number,\"heightPct\":number}],\"overlays\":[{\"field\":string,\"page\":number,\"evidenceLabel\":string,\"leftPct\":number,\"topPct\":number,\"widthPct\":number,\"heightPct\":number,\"confidence\":number}] }.",
-      "Use percentages from 0 to 100 in the coordinate system you see. Include at least three distinctive printed label anchors per page where you propose an overlay. Omit fields you cannot locate confidently.",
+      "Return JSON only: {\"overlays\":[{\"field\":string,\"page\":number,\"evidenceLabel\":string,\"placement\":\"right_of_label\"|\"below_label\",\"confidence\":number}] }.",
+      "Use an evidenceLabel copied from the layout manifest. Choose right_of_label when the blank answer space follows the label on the same line, otherwise below_label. Do not return pixel coordinates or calibration anchors. Omit fields you cannot locate confidently.",
       `Layout manifest: ${JSON.stringify(compactLayout(layout.tokens))}`,
     ].join("\n");
     const content: Array<Record<string, unknown>> = [{ type: "input_text", text: prompt }];
@@ -68,9 +69,10 @@ fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
     res.json({
       overlays: mapped.overlays,
       reviewItems: [...REVIEW_ITEMS, ...mapped.reviewItems],
+      notPresentFields: mapped.notPresentFields,
       analyzedPages: pageImages.length,
       layoutSource: layout.source,
-      calibration: mapped.calibration,
+      mappingMode: "verified-label-geometry",
     });
   } catch (error) {
     console.error("[/api/fmla/map]", error);

@@ -39,11 +39,6 @@ const MAX_PAGES = 8;
 const MAX_IMAGE_CHARS = 2_500_000;
 const MAX_PDF_CHARS = 3_000_000;
 
-export interface ModelAnchor extends NormalizedCandidate {
-  page: number;
-  text: string;
-}
-
 export interface NormalizedCandidate {
   leftPct: number;
   topPct: number;
@@ -56,15 +51,19 @@ export interface LayoutEvidence extends NormalizedCandidate {
   text: string;
 }
 
-export interface PageCalibration {
-  page: number;
-  anchorCount: number;
-  confidence: number;
-  scaleX: number;
-  scaleY: number;
-  offsetX: number;
-  offsetY: number;
-}
+export type PlacementRelation = "right_of_label" | "below_label";
+
+const FIELD_LABELS: Record<SupportedField, readonly string[]> = {
+  patient_name: ["employee name", "patient name", "patient s name", "name"],
+  patient_dob: ["date of birth", "birth date", "dob"],
+  patient_phone: ["telephone", "home phone", "phone"],
+  patient_address: ["address", "street address"],
+  provider_name: ["health care provider s name", "health care provider name", "provider name"],
+  provider_npi: ["npi", "national provider identifier"],
+  diagnosis: ["diagnosis", "medical facts", "medical condition"],
+  leave_start_date: ["date you desire to begin leave", "begin leave", "leave start", "condition started"],
+  leave_end_date: ["date of anticipated return to work", "return to work", "leave end"],
+};
 
 export function isKnownFormId(value: unknown): value is "blank-fmla-1" | "fmla-2" {
   return typeof value === "string" && FORM_IDS.has(value);
@@ -112,75 +111,68 @@ function cleanText(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
-function parseCandidate(value: unknown): NormalizedCandidate | null {
-  if (!value || typeof value !== "object") return null;
-  const raw = value as Record<string, unknown>;
-  const leftPct = asNumber(raw.leftPct);
-  const topPct = asNumber(raw.topPct);
-  const widthPct = asNumber(raw.widthPct);
-  const heightPct = asNumber(raw.heightPct);
-  if (leftPct === null || topPct === null || widthPct === null || heightPct === null) return null;
-  if (leftPct < 0 || topPct < 0 || widthPct < 0.5 || heightPct < 0.5 || leftPct + widthPct > 100 || topPct + heightPct > 100) return null;
-  return { leftPct, topPct, widthPct, heightPct };
-}
-
 function findEvidence(text: string, page: number, layout: LayoutEvidence[]) {
   const wanted = cleanText(text);
   if (wanted.length < 3) return null;
-  return layout.find((item) => item.page === page && (cleanText(item.text).includes(wanted) || wanted.includes(cleanText(item.text))));
+  const exact = layout.filter((item) => item.page === page && cleanText(item.text) === wanted);
+  if (exact.length === 1) return exact[0];
+  if (exact.length > 1) return null;
+  const partial = layout.filter((item) => {
+    const candidate = cleanText(item.text);
+    return item.page === page && candidate.length >= 3 && (candidate.includes(wanted) || wanted.includes(candidate));
+  });
+  return partial.length === 1 ? partial[0] : null;
 }
 
-/** Fits per-axis affine correction from model-observed label anchors to layout geometry. */
-export function calibratePages(anchors: unknown, layout: LayoutEvidence[]): Map<number, PageCalibration> {
-  const grouped = new Map<number, Array<{ model: ModelAnchor; actual: LayoutEvidence }>>();
-  if (!Array.isArray(anchors)) return new Map();
-  for (const item of anchors) {
-    if (!item || typeof item !== "object") continue;
-    const raw = item as Record<string, unknown>;
-    const page = asNumber(raw.page);
-    const rect = parseCandidate(raw);
-    if (page === null || typeof raw.text !== "string" || !rect) continue;
-    const actual = findEvidence(raw.text, page, layout);
-    if (!actual) continue;
-    const list = grouped.get(page) ?? [];
-    list.push({ model: { page, text: raw.text, ...rect }, actual });
-    grouped.set(page, list);
-  }
-  const result = new Map<number, PageCalibration>();
-  for (const [page, pairs] of grouped) {
-    if (pairs.length < 3) continue;
-    const solve = (modelValues: number[], actualValues: number[]) => {
-      const meanModel = modelValues.reduce((sum, value) => sum + value, 0) / modelValues.length;
-      const meanActual = actualValues.reduce((sum, value) => sum + value, 0) / actualValues.length;
-      const variance = modelValues.reduce((sum, value) => sum + (value - meanModel) ** 2, 0);
-      const covariance = modelValues.reduce((sum, value, index) => sum + (value - meanModel) * (actualValues[index] - meanActual), 0);
-      const scale = variance ? covariance / variance : 1;
-      return { scale, offset: meanActual - scale * meanModel };
-    };
-    const modelX = pairs.map(({ model }) => model.leftPct + model.widthPct / 2);
-    const modelY = pairs.map(({ model }) => model.topPct + model.heightPct / 2);
-    const actualX = pairs.map(({ actual }) => actual.leftPct + actual.widthPct / 2);
-    const actualY = pairs.map(({ actual }) => actual.topPct + actual.heightPct / 2);
-    const x = solve(modelX, actualX);
-    const y = solve(modelY, actualY);
-    const errors = pairs.map(({ model, actual }) => Math.hypot(
-      x.scale * (model.leftPct + model.widthPct / 2) + x.offset - (actual.leftPct + actual.widthPct / 2),
-      y.scale * (model.topPct + model.heightPct / 2) + y.offset - (actual.topPct + actual.heightPct / 2),
-    ));
-    const meanError = errors.reduce((sum, value) => sum + value, 0) / errors.length;
-    const confidence = Math.max(0, Math.min(1, 1 - meanError / 8));
-    if (confidence >= 0.7 && x.scale > 0.5 && x.scale < 1.8 && y.scale > 0.5 && y.scale < 1.8) {
-      result.set(page, { page, anchorCount: pairs.length, confidence, scaleX: x.scale, scaleY: y.scale, offsetX: x.offset, offsetY: y.offset });
-    }
-  }
-  return result;
+function isExpectedEvidence(field: SupportedField, evidence: LayoutEvidence) {
+  const text = cleanText(evidence.text);
+  return FIELD_LABELS[field].some((label) => {
+    // "Name" is an intentional fallback for the scanned employer form, but
+    // must be the complete printed label rather than matching every name-like
+    // label on a page.
+    if (label === "name") return text === label;
+    return text.includes(label) || label.includes(text);
+  });
 }
 
-/** Reject candidates without evidence label matching or a reliable calibration. */
-export function normalizeMapping(value: unknown, layout: LayoutEvidence[]): { overlays: FieldOverlay[]; reviewItems: string[]; calibration: PageCalibration[] } {
-  if (!value || typeof value !== "object" || !Array.isArray((value as { overlays?: unknown }).overlays)) return { overlays: [], reviewItems: ["AI returned an invalid mapping response."], calibration: [] };
-  const raw = value as { overlays: unknown[]; anchors?: unknown };
-  const calibrations = calibratePages(raw.anchors, layout);
+function hasExpectedEvidence(field: SupportedField, layout: LayoutEvidence[]) {
+  return layout.some((item) => isExpectedEvidence(field, item));
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function regionRightOfLabel(label: LayoutEvidence, layout: LayoutEvidence[]): NormalizedCandidate {
+  const labelRight = label.leftPct + label.widthPct;
+  const labelCenter = label.topPct + label.heightPct / 2;
+  const neighbor = layout
+    .filter((item) => item.page === label.page && item.leftPct > labelRight && Math.abs(item.topPct + item.heightPct / 2 - labelCenter) < Math.max(2.2, label.heightPct * 2))
+    .sort((a, b) => a.leftPct - b.leftPct)[0];
+  const leftPct = clamp(labelRight + 0.8, 0, 94);
+  const rightPct = clamp((neighbor?.leftPct ?? 96) - 0.7, leftPct + 6, 96);
+  return { leftPct, topPct: clamp(label.topPct - 0.25, 0, 98), widthPct: rightPct - leftPct, heightPct: clamp(Math.max(1.6, label.heightPct * 1.45), 1.6, 3.2) };
+}
+
+function regionBelowLabel(label: LayoutEvidence, layout: LayoutEvidence[]): NormalizedCandidate {
+  const labelBottom = label.topPct + label.heightPct;
+  const next = layout
+    .filter((item) => item.page === label.page && item.topPct > labelBottom && item.leftPct < label.leftPct + Math.max(35, label.widthPct * 2) && item.leftPct + item.widthPct > label.leftPct)
+    .sort((a, b) => a.topPct - b.topPct)[0];
+  const leftPct = clamp(label.leftPct, 1, 88);
+  const topPct = clamp(labelBottom + 0.8, 0, 96);
+  const bottomPct = clamp((next?.topPct ?? topPct + 4) - 0.6, topPct + 1.6, 98);
+  return { leftPct, topPct, widthPct: clamp(Math.max(20, Math.min(70, 96 - leftPct)), 8, 78), heightPct: bottomPct - topPct };
+}
+
+export function answerRegion(label: LayoutEvidence, relation: PlacementRelation, layout: LayoutEvidence[]) {
+  return relation === "below_label" ? regionBelowLabel(label, layout) : regionRightOfLabel(label, layout);
+}
+
+/** Accept only verified labels; the server derives the final answer rectangle. */
+export function normalizeMapping(value: unknown, layout: LayoutEvidence[]): { overlays: FieldOverlay[]; reviewItems: string[]; notPresentFields: SupportedField[] } {
+  if (!value || typeof value !== "object" || !Array.isArray((value as { overlays?: unknown }).overlays)) return { overlays: [], reviewItems: ["AI returned an invalid mapping response."], notPresentFields: [] };
+  const raw = value as { overlays: unknown[] };
   const seen = new Set<SupportedField>();
   const safe: FieldOverlay[] = [];
   const reviewItems: string[] = [];
@@ -191,35 +183,33 @@ export function normalizeMapping(value: unknown, layout: LayoutEvidence[]): { ov
     const field = rawCandidate.field;
     const pageNumber = asNumber(rawCandidate.page);
     const confidence = asNumber(rawCandidate.confidence);
-    const rect = parseCandidate(rawCandidate);
     const evidenceLabel = typeof rawCandidate.evidenceLabel === "string" ? rawCandidate.evidenceLabel : "";
+    const relation = rawCandidate.placement === "below_label" ? "below_label" : rawCandidate.placement === "right_of_label" ? "right_of_label" : null;
 
     if (typeof field !== "string" || !FIELD_IDS.has(field as SupportedField) || seen.has(field as SupportedField)) continue;
-    if (pageNumber === null || !rect || confidence === null || confidence < 0.7 || confidence > 1) { reviewItems.push(`${field}: insufficient placement confidence.`); continue; }
-    const calibration = calibrations.get(pageNumber);
+    if (pageNumber === null || !relation || confidence === null || confidence < 0.7 || confidence > 1) { reviewItems.push(`${field}: insufficient placement confidence.`); continue; }
     const evidence = findEvidence(evidenceLabel, pageNumber, layout);
-    if (!calibration || !evidence) { reviewItems.push(`${field}: missing calibrated label evidence.`); continue; }
-    const leftPct = calibration.scaleX * rect.leftPct + calibration.offsetX;
-    const topPct = calibration.scaleY * rect.topPct + calibration.offsetY;
-    const widthPct = calibration.scaleX * rect.widthPct;
-    const heightPct = calibration.scaleY * rect.heightPct;
-    if (leftPct < 0 || topPct < 0 || widthPct < 0.5 || heightPct < 0.5 || leftPct + widthPct > 100 || topPct + heightPct > 100) { reviewItems.push(`${field}: calibrated region is outside the page.`); continue; }
+    if (!evidence || !isExpectedEvidence(field as SupportedField, evidence)) { reviewItems.push(`${field}: missing verified label evidence.`); continue; }
+    const region = answerRegion(evidence, relation, layout);
 
     seen.add(field as SupportedField);
     safe.push({
       field: field as SupportedField,
       page: pageNumber as number,
-      leftPct,
-      topPct,
-      widthPct,
-      heightPct,
+      ...region,
       confidence,
       value: AUTO_FILL_VALUES[field as SupportedField],
       evidenceLabel: evidence.text,
     });
   }
 
-  return { overlays: safe, reviewItems, calibration: [...calibrations.values()] };
+  const notPresentFields = (Object.keys(AUTO_FILL_VALUES) as SupportedField[]).filter((field) => !seen.has(field) && !hasExpectedEvidence(field, layout));
+  for (const field of (Object.keys(AUTO_FILL_VALUES) as SupportedField[])) {
+    if (!seen.has(field) && !notPresentFields.includes(field) && !reviewItems.some((item) => item.startsWith(`${field}:`))) {
+      reviewItems.push(`${field}: matching label found but not selected by AI.`);
+    }
+  }
+  return { overlays: safe, reviewItems, notPresentFields };
 }
 
 export const REVIEW_ITEMS = [
