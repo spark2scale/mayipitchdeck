@@ -30,6 +30,8 @@ test("normalizes only allowlisted overlays inside page bounds", () => {
 test("requires three matching anchors and a valid PDF header", () => {
   const layout = [{ page: 1, text: "Name", leftPct: 10, topPct: 10, widthPct: 5, heightPct: 2 }];
   assert.equal(calibratePages([{ page: 1, text: "Name", leftPct: 10, topPct: 10, widthPct: 5, heightPct: 2 }], layout).size, 0);
-  assert.ok(parseTemplatePdf(Buffer.from(`%PDF${" ".repeat(120)}`).toString("base64")));
+  const parsedPdf = parseTemplatePdf(Buffer.from(`%PDF${" ".repeat(120)}`).toString("base64"));
+  assert.ok(parsedPdf);
+  assert.equal(Buffer.isBuffer(parsedPdf), false);
   assert.equal(parseTemplatePdf("not-a-pdf"), null);
 });

@@ -99,7 +99,9 @@ export function parsePageImages(value: unknown): PageImage[] | null {
 export function parseTemplatePdf(value: unknown): Uint8Array | null {
   if (typeof value !== "string" || value.length < 100 || value.length > MAX_PDF_CHARS || !/^[A-Za-z0-9+/=]+$/.test(value)) return null;
   const bytes = Buffer.from(value, "base64");
-  return bytes.subarray(0, 4).toString("ascii") === "%PDF" ? bytes : null;
+  // PDF.js rejects Node's Buffer subclass even though it is a Uint8Array.
+  // Copy it into a plain Uint8Array before passing it to getDocument().
+  return bytes.subarray(0, 4).toString("ascii") === "%PDF" ? new Uint8Array(bytes) : null;
 }
 
 function asNumber(value: unknown) {
