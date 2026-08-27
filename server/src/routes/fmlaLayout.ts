@@ -1,4 +1,16 @@
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+// v3's legacy Node build supports Railway's Node 18 runtime without DOMMatrix.
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js") as {
+  getDocument(input: { data: Uint8Array }): { promise: Promise<{
+    numPages: number;
+    getPage(page: number): Promise<{
+      getViewport(options: { scale: number }): { width: number; height: number };
+      getTextContent(): Promise<{ items: unknown[] }>;
+    }>;
+  }> };
+};
 
 export interface NormalizedRect {
   leftPct: number;
