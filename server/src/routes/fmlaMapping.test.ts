@@ -61,12 +61,12 @@ test("maps approved checkbox decisions only to nearby verified selection marks",
     { id: "p3-m3", page: 3, leftPct: 30, topPct: 70.2, widthPct: 1.4, heightPct: 1.4, confidence: 0.98 },
   ];
   const result = normalizeCheckboxMapping({ checkboxes: [
+    { decisionId: "incapacity_plus_treatment", page: 3, evidenceLabel: "will have", selectionMarkId: "p3-m3", confidence: 0.97 },
     { decisionId: "incapacity_plus_treatment", page: 3, evidenceLabel: "Incapacity plus Treatment", selectionMarkId: "p3-m1", confidence: 0.97 },
     { decisionId: "planned_treatment_will_have", page: 3, evidenceLabel: "will have", selectionMarkId: "p3-m2", confidence: 0.97 },
-    { decisionId: "leave_type_fmla", page: 3, evidenceLabel: "will have", selectionMarkId: "p3-m3", confidence: 0.97 },
   ] }, layout, marks);
   assert.deepEqual(result.checkboxes.map((checkbox) => checkbox.decisionId), ["incapacity_plus_treatment", "planned_treatment_will_have"]);
-  assert.ok(result.reviewItems.some((item) => item.includes("leave_type_fmla")));
+  assert.ok(result.reviewItems.some((item) => item.includes("incapacity_plus_treatment")));
 });
 
 test("rejects checkbox marks that are on another prompt line", () => {

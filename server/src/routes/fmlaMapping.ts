@@ -42,9 +42,6 @@ export interface FieldOverlay {
 }
 
 export const CHECKBOX_DECISIONS = {
-  leave_type_fmla: "FMLA leave requested",
-  own_serious_health_condition: "Own serious health condition",
-  no_intermittent_leave: "No intermittent or reduced leave",
   incapacity_plus_treatment: "Incapacity plus treatment",
   planned_treatment_will_have: "Will have planned medical treatment",
 } as const;
@@ -60,7 +57,7 @@ export interface CheckboxOverlay extends NormalizedCandidate {
   selectionMarkId: string;
 }
 
-type DemoFormId = "blank-fmla-1" | "fmla-2";
+type DemoFormId = "fmla-2";
 
 interface RegisteredCheckbox {
   decisionId: SupportedCheckboxDecision;
@@ -76,18 +73,13 @@ interface RegisteredCheckbox {
 // normalized regions are a verification-only fallback for the two bundled
 // templates, never for an uploaded or unregistered form.
 const REGISTERED_CHECKBOXES: Record<DemoFormId, readonly RegisteredCheckbox[]> = {
-  "blank-fmla-1": [
-    { decisionId: "leave_type_fmla", page: 1, evidenceLabel: "FMLA", leftPct: 33.55, topPct: 41.1, widthPct: 1.45, heightPct: 1.45 },
-    { decisionId: "own_serious_health_condition", page: 1, evidenceLabel: "Because of my own serious health condition", leftPct: 10.25, topPct: 61.3, widthPct: 1.45, heightPct: 1.45 },
-    { decisionId: "no_intermittent_leave", page: 1, evidenceLabel: "Are you requesting family leave on an intermittent or reduced leave schedule", leftPct: 32.8, topPct: 69.9, widthPct: 1.45, heightPct: 1.45 },
-  ],
   "fmla-2": [
     { decisionId: "incapacity_plus_treatment", page: 3, evidenceLabel: "Incapacity plus Treatment", leftPct: 5.1, topPct: 13.25, widthPct: 1.45, heightPct: 1.45 },
     { decisionId: "planned_treatment_will_have", page: 3, evidenceLabel: "will have", leftPct: 35.45, topPct: 63.15, widthPct: 1.45, heightPct: 1.45 },
   ],
 };
 
-const FORM_IDS = new Set(["blank-fmla-1", "fmla-2"]);
+const FORM_IDS = new Set(["fmla-2"]);
 const FIELD_IDS = new Set<SupportedField>(Object.keys(AUTO_FILL_VALUES) as SupportedField[]);
 const CHECKBOX_IDS = new Set<SupportedCheckboxDecision>(Object.keys(CHECKBOX_DECISIONS) as SupportedCheckboxDecision[]);
 const MAX_PAGES = 8;
@@ -127,14 +119,11 @@ const FIELD_LABELS: Record<SupportedField, readonly string[]> = {
 };
 
 const CHECKBOX_LABELS: Record<SupportedCheckboxDecision, readonly string[]> = {
-  leave_type_fmla: ["fmla"],
-  own_serious_health_condition: ["because of my own serious health condition", "own serious health condition"],
-  no_intermittent_leave: ["no"],
   incapacity_plus_treatment: ["incapacity plus treatment"],
   planned_treatment_will_have: ["will have"],
 };
 
-export function isKnownFormId(value: unknown): value is "blank-fmla-1" | "fmla-2" {
+export function isKnownFormId(value: unknown): value is "fmla-2" {
   return typeof value === "string" && FORM_IDS.has(value);
 }
 

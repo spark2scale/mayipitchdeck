@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, BrainCircuit, CheckCircle2, ChevronLeft, ChevronRight, FileText, LoaderCircle, RefreshCw, Sparkles } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
-type FormId = "blank-fmla-1" | "fmla-2";
 type Status = "loading" | "ready" | "analyzing" | "complete" | "error";
 
 interface RenderedPage {
@@ -45,10 +44,7 @@ interface RenderedDocument {
   templatePdf: string;
 }
 
-const FORMS: Array<{ id: FormId; name: string; file: string; description: string }> = [
-  { id: "blank-fmla-1", name: "Employer Form A", file: "/populatepdfdemo/blankFMLA1.pdf", description: "3-page medical certification" },
-  { id: "fmla-2", name: "Employer Form B", file: "/populatepdfdemo/FMLA2.pdf", description: "4-page leave certification" },
-];
+const FORM = { id: "fmla-2", name: "FMLA medical certification", file: "/populatepdfdemo/FMLA2.pdf", description: "4-page leave certification" } as const;
 
 const CASE_ROWS = [
   ["Patient", "Alex Morgan"],
@@ -122,7 +118,6 @@ async function renderPdf(file: string): Promise<RenderedDocument> {
 }
 
 export default function FmlaDemo({ isExportMode = false }: { isExportMode?: boolean }) {
-  const [formId, setFormId] = useState<FormId>(isExportMode ? "fmla-2" : "blank-fmla-1");
   const [pages, setPages] = useState<RenderedPage[]>([]);
   const [templatePdf, setTemplatePdf] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
@@ -133,7 +128,6 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
   const [notPresentFields, setNotPresentFields] = useState<string[]>([]);
   const [notPresentCheckboxes, setNotPresentCheckboxes] = useState<string[]>([]);
   const [error, setError] = useState("");
-  const activeForm = useMemo(() => FORMS.find((form) => form.id === formId)!, [formId]);
   const activePage = pages[pageIndex];
 
   useEffect(() => {
@@ -148,7 +142,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
     setNotPresentCheckboxes([]);
     setOverlays(isExportMode ? STATIC_OVERLAYS : []);
     setCheckboxes(isExportMode ? STATIC_CHECKBOXES : []);
-    void renderPdf(activeForm.file)
+    void renderPdf(FORM.file)
       .then((rendered) => {
         if (cancelled) return;
         setPages(rendered.pages);
@@ -163,7 +157,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
         }
       });
     return () => { cancelled = true; };
-  }, [activeForm.file, isExportMode]);
+  }, [isExportMode]);
 
   const analyze = useCallback(async () => {
     if (!pages.length || !templatePdf || status === "analyzing") return;
@@ -178,7 +172,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
       const response = await fetch(`${API_BASE}/api/fmla/map`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formId, caseId: "demo-fmla-001", pages, templatePdf }),
+        body: JSON.stringify({ formId: FORM.id, caseId: "demo-fmla-001", pages, templatePdf }),
       });
       const data = await response.json() as { overlays?: Overlay[]; checkboxes?: CheckboxOverlay[]; reviewItems?: string[]; notPresentFields?: string[]; notPresentCheckboxes?: string[]; error?: string };
       if (!response.ok) throw new Error(data.error ?? "Analysis unavailable");
@@ -192,11 +186,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
       setError(cause instanceof Error ? cause.message : "Analysis unavailable. Please retry or review manually.");
       setStatus("error");
     }
-  }, [formId, pages, status, templatePdf]);
-
-  const selectForm = (nextForm: FormId) => {
-    if (nextForm !== formId && status !== "analyzing") setFormId(nextForm);
-  };
+  }, [pages, status, templatePdf]);
 
   return (
     <div className="slide fmla-slide">
@@ -212,16 +202,12 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
           <div className="fmla-case-card">
             {CASE_ROWS.map(([label, value]) => <div className="fmla-case-row" key={label}><span>{label}</span><strong>{value}</strong></div>)}
           </div>
-          <div className="fmla-case-footer"><CheckCircle2 size={14} /> 15 values + 5 checkbox decisions approved</div>
+          <div className="fmla-case-footer"><CheckCircle2 size={14} /> 15 values + 2 checkbox decisions approved</div>
         </section>
 
         <section className="fmla-document-panel">
           <div className="fmla-document-toolbar">
-            <div className="fmla-form-tabs" role="tablist" aria-label="FMLA form template">
-              {FORMS.map((form) => <button key={form.id} type="button" className={form.id === formId ? "fmla-form-tab fmla-form-tab--active" : "fmla-form-tab"} onClick={() => selectForm(form.id)} disabled={status === "analyzing"}>
-                {form.name}<small>{form.description}</small>
-              </button>)}
-            </div>
+            <div className="fmla-form-tabs"><div className="fmla-form-tab fmla-form-tab--active">{FORM.name}<small>{FORM.description}</small></div></div>
             {!isExportMode && <button className="fmla-run-btn" type="button" onClick={analyze} disabled={status === "loading" || status === "analyzing"}>
               {status === "analyzing" ? <LoaderCircle size={15} className="fmla-spin" /> : <BrainCircuit size={15} />}
               {status === "complete" ? "Run again" : "Analyze & populate"}
@@ -231,7 +217,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
             {status === "loading" && <div className="fmla-stage-message"><LoaderCircle className="fmla-spin" /> Rendering employer form…</div>}
             {status === "error" && <div className="fmla-stage-message fmla-stage-message--error"><AlertTriangle /> {error}<button type="button" onClick={analyze}><RefreshCw size={13} /> Retry</button></div>}
             {activePage && <div className="fmla-page-canvas">
-              <img src={activePage.image} alt={`${activeForm.name}, page ${activePage.page}`} />
+              <img src={activePage.image} alt={`${FORM.name}, page ${activePage.page}`} />
               <AnimatePresence>{overlays.filter((overlay) => overlay.page === activePage.page).map((overlay) => (
                 <motion.div key={`${overlay.field}-${overlay.page}-${overlay.evidenceLabel}`} className="fmla-overlay" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.28 }} style={{ left: `${overlay.leftPct}%`, top: `${overlay.topPct}%`, width: `${overlay.widthPct}%`, minHeight: `${overlay.heightPct}%` }} title={`${overlay.evidenceLabel}: ${Math.round(overlay.confidence * 100)}% confidence`}>
                   {overlay.value}
@@ -254,7 +240,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
           <div className="fmla-panel-label"><BrainCircuit size={15} /> AI mapping status</div>
           <div className={`fmla-status fmla-status--${status}`}><span />{status === "ready" ? "Ready to analyze this layout" : status === "analyzing" ? "Reading form prompts and layout…" : status === "complete" ? "Mapped and populated safely" : status === "error" ? "Manual review required" : "Preparing form pages…"}</div>
           <div className="fmla-metrics"><div><strong>{overlays.length}</strong><span>text fields</span></div><div><strong>{checkboxes.length}</strong><span>boxes checked</span></div><div><strong>{overlays.length + checkboxes.length ? `${Math.round([...overlays, ...checkboxes].reduce((sum, item) => sum + item.confidence, 0) / (overlays.length + checkboxes.length) * 100)}%` : "-"}</strong><span>avg. confidence</span></div></div>
-          <div className="fmla-activity"><div className="fmla-section-heading">Activity</div><p>{status === "complete" ? `Recognized ${activeForm.name} independently of its layout.` : "AI will locate labels, answer areas, and page coordinates from the selected template."}</p><p>{status === "complete" && (notPresentFields.length || notPresentCheckboxes.length) ? `${notPresentFields.length} values and ${notPresentCheckboxes.length} approved decisions are not requested by this form.` : "Only approved canonical values and decisions may be written."}</p></div>
+          <div className="fmla-activity"><div className="fmla-section-heading">Activity</div><p>{status === "complete" ? `Recognized ${FORM.name} independently of its layout.` : "AI will locate labels, answer areas, and page coordinates from the selected template."}</p><p>{status === "complete" && (notPresentFields.length || notPresentCheckboxes.length) ? `${notPresentFields.length} values and ${notPresentCheckboxes.length} approved decisions are not requested by this form.` : "Only approved canonical values and decisions may be written."}</p></div>
           <div className="fmla-review"><div className="fmla-section-heading"><AlertTriangle size={13} /> Clinician review queue</div>{(reviewItems.length ? reviewItems : ["Medical narrative, restrictions, and certification remain protected."]).map((item) => <div className="fmla-review-item" key={item}>{item}</div>)}</div>
         </section>
       </div>

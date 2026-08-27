@@ -48,7 +48,7 @@ fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
       `Allowed fields and values: ${JSON.stringify(AUTO_FILL_VALUES)}.`,
       `Approved checkbox decisions: ${JSON.stringify(CHECKBOX_DECISIONS)}.`,
       "For this synthetic case, Alex Morgan is both the patient and the employee. Employee Name and Patient's Name are both eligible labels for patient_name. Return every applicable occurrence, including repeated employee-name headers on later pages.",
-      "The fixed clinician-attested plan is: FMLA for the patient's own serious health condition; no intermittent/reduced leave; planned retinal repair on 09/18/2026 with postoperative follow-ups on 09/25/2026 and 10/09/2026; six-week recovery; no external referral. Only return checkbox decisions explicitly approved by that plan.",
+      "The fixed clinician-attested plan is: planned retinal repair on 09/18/2026 with postoperative follow-ups on 09/25/2026 and 10/09/2026; six-week recovery; no external referral. Only return checkbox decisions explicitly approved by that plan.",
       "condition_duration is a transparent synthetic estimate derived from the requested leave window, not a clinical prognosis. Practice contact values apply only to provider/practice fields.",
       "The supplied layout manifest contains authoritative page-relative coordinates for printed labels. Use it as evidence; do not select an unrelated blank line.",
       "Return JSON only: {\"overlays\":[{\"field\":string,\"page\":number,\"evidenceLabel\":string,\"placement\":\"right_of_label\"|\"below_label\",\"confidence\":number}],\"checkboxes\":[{\"decisionId\":string,\"page\":number,\"evidenceLabel\":string,\"selectionMarkId\":string,\"confidence\":number}] }.",
