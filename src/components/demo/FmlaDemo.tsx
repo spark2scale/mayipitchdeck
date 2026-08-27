@@ -44,7 +44,7 @@ const CASE_ROWS = [
   ["Practice", "Austin Ophthalmology Associates"],
   ["Practice e-mail", "care@austinophthalmology.demo"],
   ["Practice fax", "(512) 555-0167"],
-  ["Diagnosis", "Lumbar disc degeneration (M51.16)"],
+  ["Diagnosis", "Retinal detachment, left eye (H33.22)"],
   ["Requested leave", "09/16/2026 - 10/28/2026"],
   ["Estimated duration", "6 weeks (derived from leave window)"],
 ];
