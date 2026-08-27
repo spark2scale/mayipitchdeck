@@ -104,6 +104,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
   const [status, setStatus] = useState<Status>("loading");
   const [overlays, setOverlays] = useState<Overlay[]>(isExportMode ? STATIC_OVERLAYS : []);
   const [reviewItems, setReviewItems] = useState<string[]>([]);
+  const [notPresentFields, setNotPresentFields] = useState<string[]>([]);
   const [error, setError] = useState("");
   const activeForm = useMemo(() => FORMS.find((form) => form.id === formId)!, [formId]);
   const activePage = pages[pageIndex];
@@ -116,6 +117,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
     setPageIndex(0);
     setError("");
     setReviewItems([]);
+    setNotPresentFields([]);
     setOverlays(isExportMode ? STATIC_OVERLAYS : []);
     void renderPdf(activeForm.file)
       .then((rendered) => {
@@ -140,16 +142,18 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
     setError("");
     setOverlays([]);
     setReviewItems([]);
+    setNotPresentFields([]);
     try {
       const response = await fetch(`${API_BASE}/api/fmla/map`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formId, caseId: "demo-fmla-001", pages, templatePdf }),
       });
-      const data = await response.json() as { overlays?: Overlay[]; reviewItems?: string[]; error?: string };
+      const data = await response.json() as { overlays?: Overlay[]; reviewItems?: string[]; notPresentFields?: string[]; error?: string };
       if (!response.ok) throw new Error(data.error ?? "Analysis unavailable");
       setOverlays(Array.isArray(data.overlays) ? data.overlays : []);
       setReviewItems(Array.isArray(data.reviewItems) ? data.reviewItems : []);
+      setNotPresentFields(Array.isArray(data.notPresentFields) ? data.notPresentFields : []);
       setStatus("complete");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Analysis unavailable. Please retry or review manually.");
@@ -171,7 +175,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
       <div className="fmla-main">
         <section className="fmla-case-panel">
           <div className="fmla-panel-label"><FileText size={15} /> Canonical FMLA case</div>
-          <div className="fmla-case-subtitle">One EMR record. Any employer layout.</div>
+          <div className="fmla-case-subtitle">One EMR record. Patient and employee are the same demo person.</div>
           <div className="fmla-case-card">
             {CASE_ROWS.map(([label, value]) => <div className="fmla-case-row" key={label}><span>{label}</span><strong>{value}</strong></div>)}
           </div>
@@ -212,7 +216,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
           <div className="fmla-panel-label"><BrainCircuit size={15} /> AI mapping status</div>
           <div className={`fmla-status fmla-status--${status}`}><span />{status === "ready" ? "Ready to analyze this layout" : status === "analyzing" ? "Reading form prompts and layout…" : status === "complete" ? "Mapped and populated safely" : status === "error" ? "Manual review required" : "Preparing form pages…"}</div>
           <div className="fmla-metrics"><div><strong>{overlays.length}</strong><span>fields populated</span></div><div><strong>{overlays.length ? `${Math.round(overlays.reduce((sum, item) => sum + item.confidence, 0) / overlays.length * 100)}%` : "-"}</strong><span>avg. confidence</span></div></div>
-          <div className="fmla-activity"><div className="fmla-section-heading">Activity</div><p>{status === "complete" ? `Recognized ${activeForm.name} independently of its layout.` : "AI will locate labels, answer areas, and page coordinates from the selected template."}</p><p>Only approved canonical values may be written.</p></div>
+          <div className="fmla-activity"><div className="fmla-section-heading">Activity</div><p>{status === "complete" ? `Recognized ${activeForm.name} independently of its layout.` : "AI will locate labels, answer areas, and page coordinates from the selected template."}</p><p>{status === "complete" && notPresentFields.length ? `${notPresentFields.length} approved values are not requested by this form.` : "Only approved canonical values may be written."}</p></div>
           <div className="fmla-review"><div className="fmla-section-heading"><AlertTriangle size={13} /> Clinician review queue</div>{(reviewItems.length ? reviewItems : ["Medical narrative, restrictions, and certification remain protected."]).map((item) => <div className="fmla-review-item" key={item}>{item}</div>)}</div>
         </section>
       </div>
