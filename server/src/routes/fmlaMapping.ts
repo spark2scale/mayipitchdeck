@@ -10,7 +10,7 @@ export const AUTO_FILL_VALUES = {
   practice_fax: "(512) 555-0167",
   practice_email: "care@austinophthalmology.demo",
   provider_npi: "1679834021",
-  diagnosis: "Lumbar disc degeneration (M51.16)",
+  diagnosis: "Retinal detachment, left eye (H33.22)",
   leave_start_date: "09/16/2026",
   leave_end_date: "10/28/2026",
   condition_duration: "6 weeks",
