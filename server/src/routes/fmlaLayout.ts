@@ -24,15 +24,24 @@ export interface LayoutToken extends NormalizedRect {
   text: string;
 }
 
+export interface SelectionMark extends NormalizedRect {
+  id: string;
+  page: number;
+  confidence: number;
+}
+
 export interface LayoutResult {
   source: "native-pdf" | "document-intelligence";
   tokens: LayoutToken[];
+  selectionMarks: SelectionMark[];
 }
 
 type TextItemLike = { str?: string; transform?: number[]; width?: number; height?: number };
 type DiLine = { content?: string; polygon?: number[] };
-type DiPage = { width?: number; height?: number; lines?: DiLine[] };
+type DiSelectionMark = { state?: string; confidence?: number; polygon?: number[] };
+type DiPage = { width?: number; height?: number; lines?: DiLine[]; selectionMarks?: DiSelectionMark[] };
 type DiResult = { status?: string; analyzeResult?: { pages?: DiPage[] } };
+interface DocumentIntelligenceLayout { tokens: LayoutToken[]; selectionMarks: SelectionMark[]; }
 
 const DI_API_VERSION = "2024-11-30";
 
@@ -91,8 +100,8 @@ async function waitForResult(operationUrl: string, key: string): Promise<DiResul
   throw new Error("Document Intelligence analysis timed out.");
 }
 
-/** Reads scanned templates with word/line polygons in page-relative coordinates. */
-export async function extractDocumentIntelligenceLayout(pdfBytes: Uint8Array): Promise<LayoutToken[]> {
+/** Reads OCR lines and printed checkbox geometry from the layout model. */
+export async function extractDocumentIntelligenceLayout(pdfBytes: Uint8Array): Promise<DocumentIntelligenceLayout> {
   const endpoint = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT?.replace(/\/$/, "");
   const key = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
   if (!endpoint || !key) throw new Error("Azure Document Intelligence is not configured for scanned form layout.");
@@ -107,6 +116,7 @@ export async function extractDocumentIntelligenceLayout(pdfBytes: Uint8Array): P
   if (!operationUrl) throw new Error("Document Intelligence did not return an operation location.");
   const result = await waitForResult(operationUrl, key);
   const tokens: LayoutToken[] = [];
+  const selectionMarks: SelectionMark[] = [];
   for (const [index, page] of (result.analyzeResult?.pages ?? []).entries()) {
     if (!page.width || !page.height) continue;
     for (const line of page.lines ?? []) {
@@ -114,18 +124,33 @@ export async function extractDocumentIntelligenceLayout(pdfBytes: Uint8Array): P
       const rect = line.polygon ? polygonRect(line.polygon, page.width, page.height) : null;
       if (content && rect) tokens.push({ page: index + 1, text: content, ...rect });
     }
+    for (const [markIndex, mark] of (page.selectionMarks ?? []).entries()) {
+      const rect = mark.polygon ? polygonRect(mark.polygon, page.width, page.height) : null;
+      const confidence = mark.confidence ?? 0;
+      if (!rect || confidence < 0.7) continue;
+      selectionMarks.push({ id: `p${index + 1}-m${markIndex + 1}`, page: index + 1, confidence, ...rect });
+    }
   }
-  return tokens;
+  return { tokens, selectionMarks };
 }
 
-export async function extractLayout(pdfBytes: Uint8Array): Promise<LayoutResult> {
+/** Uses native text when available and DI selection marks for print-only boxes. */
+export async function extractLayout(pdfBytes: Uint8Array, requireSelectionMarks = false): Promise<LayoutResult> {
   const nativeTokens = await extractNativePdfLayout(pdfBytes);
-  if (nativeTokens.length) return { source: "native-pdf", tokens: nativeTokens };
-  return { source: "document-intelligence", tokens: await extractDocumentIntelligenceLayout(pdfBytes) };
+  if (nativeTokens.length && !requireSelectionMarks) return { source: "native-pdf", tokens: nativeTokens, selectionMarks: [] };
+  const documentIntelligence = await extractDocumentIntelligenceLayout(pdfBytes);
+  if (nativeTokens.length) return { source: "native-pdf", tokens: nativeTokens, selectionMarks: documentIntelligence.selectionMarks };
+  return { source: "document-intelligence", tokens: documentIntelligence.tokens, selectionMarks: documentIntelligence.selectionMarks };
 }
 
 export function compactLayout(tokens: LayoutToken[]) {
   return tokens.map(({ page, text, leftPct, topPct, widthPct, heightPct }) => ({
     page, text, leftPct: Number(leftPct.toFixed(2)), topPct: Number(topPct.toFixed(2)), widthPct: Number(widthPct.toFixed(2)), heightPct: Number(heightPct.toFixed(2)),
+  }));
+}
+
+export function compactSelectionMarks(selectionMarks: SelectionMark[]) {
+  return selectionMarks.map(({ id, page, leftPct, topPct, widthPct, heightPct }) => ({
+    id, page, leftPct: Number(leftPct.toFixed(2)), topPct: Number(topPct.toFixed(2)), widthPct: Number(widthPct.toFixed(2)), heightPct: Number(heightPct.toFixed(2)),
   }));
 }

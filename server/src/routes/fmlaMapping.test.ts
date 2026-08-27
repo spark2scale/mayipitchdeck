@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AUTO_FILL_VALUES, answerRegion, normalizeMapping, parsePageImages, parseTemplatePdf } from "./fmlaMapping.js";
+import { AUTO_FILL_VALUES, answerRegion, normalizeCheckboxMapping, normalizeMapping, parsePageImages, parseTemplatePdf } from "./fmlaMapping.js";
 
 const pages = [{ page: 1, width: 1000, height: 1400, image: `data:image/jpeg;base64,${"a".repeat(32)}` }];
 
@@ -47,6 +47,36 @@ test("maps practice contacts and the leave-window duration only to verified labe
     AUTO_FILL_VALUES.practice_email,
     AUTO_FILL_VALUES.condition_duration,
   ]);
+});
+
+test("maps approved checkbox decisions only to nearby verified selection marks", () => {
+  const layout = [
+    { page: 3, text: "Incapacity plus Treatment", leftPct: 8, topPct: 13, widthPct: 20, heightPct: 2 },
+    { page: 3, text: "will have", leftPct: 38, topPct: 63, widthPct: 7, heightPct: 2 },
+    { page: 3, text: "Due to the condition, the patient", leftPct: 5, topPct: 70, widthPct: 25, heightPct: 2 },
+  ];
+  const marks = [
+    { id: "p3-m1", page: 3, leftPct: 5, topPct: 13.2, widthPct: 1.4, heightPct: 1.4, confidence: 0.98 },
+    { id: "p3-m2", page: 3, leftPct: 35, topPct: 63.2, widthPct: 1.4, heightPct: 1.4, confidence: 0.98 },
+    { id: "p3-m3", page: 3, leftPct: 30, topPct: 70.2, widthPct: 1.4, heightPct: 1.4, confidence: 0.98 },
+  ];
+  const result = normalizeCheckboxMapping({ checkboxes: [
+    { decisionId: "incapacity_plus_treatment", page: 3, evidenceLabel: "Incapacity plus Treatment", selectionMarkId: "p3-m1", confidence: 0.97 },
+    { decisionId: "planned_treatment_will_have", page: 3, evidenceLabel: "will have", selectionMarkId: "p3-m2", confidence: 0.97 },
+    { decisionId: "leave_type_fmla", page: 3, evidenceLabel: "will have", selectionMarkId: "p3-m3", confidence: 0.97 },
+  ] }, layout, marks);
+  assert.deepEqual(result.checkboxes.map((checkbox) => checkbox.decisionId), ["incapacity_plus_treatment", "planned_treatment_will_have"]);
+  assert.ok(result.reviewItems.some((item) => item.includes("leave_type_fmla")));
+});
+
+test("rejects checkbox marks that are on another prompt line", () => {
+  const result = normalizeCheckboxMapping({ checkboxes: [
+    { decisionId: "planned_treatment_will_have", page: 3, evidenceLabel: "will have", selectionMarkId: "p3-m1", confidence: 0.96 },
+  ] }, [{ page: 3, text: "will have", leftPct: 38, topPct: 63, widthPct: 7, heightPct: 2 }], [
+    { id: "p3-m1", page: 3, leftPct: 35, topPct: 75, widthPct: 1.4, heightPct: 1.4, confidence: 0.98 },
+  ]);
+  assert.equal(result.checkboxes.length, 0);
+  assert.ok(result.reviewItems.some((item) => item.includes("planned_treatment_will_have")));
 });
 
 test("bounds right and below answer regions and validates PDF headers", () => {

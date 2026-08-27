@@ -27,6 +27,19 @@ interface Overlay {
   evidenceLabel: string;
 }
 
+interface CheckboxOverlay {
+  decisionId: string;
+  page: number;
+  leftPct: number;
+  topPct: number;
+  widthPct: number;
+  heightPct: number;
+  confidence: number;
+  checked: true;
+  evidenceLabel: string;
+  selectionMarkId: string;
+}
+
 interface RenderedDocument {
   pages: RenderedPage[];
   templatePdf: string;
@@ -47,12 +60,20 @@ const CASE_ROWS = [
   ["Diagnosis", "Retinal detachment, left eye (H33.22)"],
   ["Requested leave", "09/16/2026 - 10/28/2026"],
   ["Estimated duration", "6 weeks (derived from leave window)"],
+  ["Attested treatment plan", "Retinal repair 09/18; follow-ups 09/25 & 10/09; no referral"],
 ];
 
 const STATIC_OVERLAYS: Overlay[] = [
   { field: "patient_name", page: 1, leftPct: 28, topPct: 25, widthPct: 23, heightPct: 1.5, confidence: 0.98, value: "Alex Morgan", evidenceLabel: "Patient's Name" },
   { field: "patient_dob", page: 1, leftPct: 64, topPct: 25, widthPct: 13, heightPct: 1.5, confidence: 0.97, value: "03/14/1986", evidenceLabel: "Date of birth" },
   { field: "provider_name", page: 1, leftPct: 20, topPct: 43, widthPct: 27, heightPct: 1.5, confidence: 0.95, value: "Dr. Sarah Okonkwo, MD", evidenceLabel: "Provider name" },
+  { field: "planned_treatment_dates", page: 3, leftPct: 45, topPct: 65.2, widthPct: 48, heightPct: 1.5, confidence: 0.97, value: "09/18/2026; 09/25/2026; 10/09/2026", evidenceLabel: "following date(s)" },
+  { field: "planned_treatment_duration", page: 3, leftPct: 4, topPct: 80.5, widthPct: 89, heightPct: 1.5, confidence: 0.96, value: "6 weeks incl. post-operative recovery", evidenceLabel: "duration of the treatment(s)" },
+];
+
+const STATIC_CHECKBOXES: CheckboxOverlay[] = [
+  { decisionId: "incapacity_plus_treatment", page: 3, leftPct: 5.1, topPct: 13.25, widthPct: 1.45, heightPct: 1.45, confidence: 0.96, checked: true, evidenceLabel: "Incapacity plus Treatment", selectionMarkId: "export-p3-m1" },
+  { decisionId: "planned_treatment_will_have", page: 3, leftPct: 35.45, topPct: 63.15, widthPct: 1.45, heightPct: 1.45, confidence: 0.98, checked: true, evidenceLabel: "will have", selectionMarkId: "export-p3-m2" },
 ];
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
@@ -107,8 +128,10 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
   const [pageIndex, setPageIndex] = useState(0);
   const [status, setStatus] = useState<Status>("loading");
   const [overlays, setOverlays] = useState<Overlay[]>(isExportMode ? STATIC_OVERLAYS : []);
+  const [checkboxes, setCheckboxes] = useState<CheckboxOverlay[]>(isExportMode ? STATIC_CHECKBOXES : []);
   const [reviewItems, setReviewItems] = useState<string[]>([]);
   const [notPresentFields, setNotPresentFields] = useState<string[]>([]);
+  const [notPresentCheckboxes, setNotPresentCheckboxes] = useState<string[]>([]);
   const [error, setError] = useState("");
   const activeForm = useMemo(() => FORMS.find((form) => form.id === formId)!, [formId]);
   const activePage = pages[pageIndex];
@@ -122,14 +145,16 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
     setError("");
     setReviewItems([]);
     setNotPresentFields([]);
+    setNotPresentCheckboxes([]);
     setOverlays(isExportMode ? STATIC_OVERLAYS : []);
+    setCheckboxes(isExportMode ? STATIC_CHECKBOXES : []);
     void renderPdf(activeForm.file)
       .then((rendered) => {
         if (cancelled) return;
         setPages(rendered.pages);
         setTemplatePdf(rendered.templatePdf);
         setStatus(isExportMode ? "complete" : "ready");
-        if (isExportMode) setReviewItems(["3 clinical decisions routed to clinician review"]);
+        if (isExportMode) setReviewItems(["Unattested medical narrative and certification remain in clinician review"]);
       })
       .catch(() => {
         if (!cancelled) {
@@ -145,19 +170,23 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
     setStatus("analyzing");
     setError("");
     setOverlays([]);
+    setCheckboxes([]);
     setReviewItems([]);
     setNotPresentFields([]);
+    setNotPresentCheckboxes([]);
     try {
       const response = await fetch(`${API_BASE}/api/fmla/map`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formId, caseId: "demo-fmla-001", pages, templatePdf }),
       });
-      const data = await response.json() as { overlays?: Overlay[]; reviewItems?: string[]; notPresentFields?: string[]; error?: string };
+      const data = await response.json() as { overlays?: Overlay[]; checkboxes?: CheckboxOverlay[]; reviewItems?: string[]; notPresentFields?: string[]; notPresentCheckboxes?: string[]; error?: string };
       if (!response.ok) throw new Error(data.error ?? "Analysis unavailable");
       setOverlays(Array.isArray(data.overlays) ? data.overlays : []);
+      setCheckboxes(Array.isArray(data.checkboxes) ? data.checkboxes : []);
       setReviewItems(Array.isArray(data.reviewItems) ? data.reviewItems : []);
       setNotPresentFields(Array.isArray(data.notPresentFields) ? data.notPresentFields : []);
+      setNotPresentCheckboxes(Array.isArray(data.notPresentCheckboxes) ? data.notPresentCheckboxes : []);
       setStatus("complete");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Analysis unavailable. Please retry or review manually.");
@@ -183,7 +212,7 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
           <div className="fmla-case-card">
             {CASE_ROWS.map(([label, value]) => <div className="fmla-case-row" key={label}><span>{label}</span><strong>{value}</strong></div>)}
           </div>
-          <div className="fmla-case-footer"><CheckCircle2 size={14} /> 13 demo values approved for auto-fill</div>
+          <div className="fmla-case-footer"><CheckCircle2 size={14} /> 15 values + 5 checkbox decisions approved</div>
         </section>
 
         <section className="fmla-document-panel">
@@ -208,6 +237,11 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
                   {overlay.value}
                 </motion.div>
               ))}</AnimatePresence>
+              <AnimatePresence>{checkboxes.filter((checkbox) => checkbox.page === activePage.page).map((checkbox) => (
+                <motion.div key={`${checkbox.decisionId}-${checkbox.page}-${checkbox.selectionMarkId}`} className="fmla-checkbox-overlay" initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.22 }} style={{ left: `${checkbox.leftPct}%`, top: `${checkbox.topPct}%`, width: `${checkbox.widthPct}%`, height: `${checkbox.heightPct}%` }} title={`${checkbox.evidenceLabel}: ${Math.round(checkbox.confidence * 100)}% confidence`}>
+                  ✓
+                </motion.div>
+              ))}</AnimatePresence>
             </div>}
           </div>
           <div className="fmla-page-footer">
@@ -219,8 +253,8 @@ export default function FmlaDemo({ isExportMode = false }: { isExportMode?: bool
         <section className="fmla-ai-panel">
           <div className="fmla-panel-label"><BrainCircuit size={15} /> AI mapping status</div>
           <div className={`fmla-status fmla-status--${status}`}><span />{status === "ready" ? "Ready to analyze this layout" : status === "analyzing" ? "Reading form prompts and layout…" : status === "complete" ? "Mapped and populated safely" : status === "error" ? "Manual review required" : "Preparing form pages…"}</div>
-          <div className="fmla-metrics"><div><strong>{overlays.length}</strong><span>fields populated</span></div><div><strong>{overlays.length ? `${Math.round(overlays.reduce((sum, item) => sum + item.confidence, 0) / overlays.length * 100)}%` : "-"}</strong><span>avg. confidence</span></div></div>
-          <div className="fmla-activity"><div className="fmla-section-heading">Activity</div><p>{status === "complete" ? `Recognized ${activeForm.name} independently of its layout.` : "AI will locate labels, answer areas, and page coordinates from the selected template."}</p><p>{status === "complete" && notPresentFields.length ? `${notPresentFields.length} approved values are not requested by this form.` : "Only approved canonical values may be written."}</p></div>
+          <div className="fmla-metrics"><div><strong>{overlays.length}</strong><span>text fields</span></div><div><strong>{checkboxes.length}</strong><span>boxes checked</span></div><div><strong>{overlays.length + checkboxes.length ? `${Math.round([...overlays, ...checkboxes].reduce((sum, item) => sum + item.confidence, 0) / (overlays.length + checkboxes.length) * 100)}%` : "-"}</strong><span>avg. confidence</span></div></div>
+          <div className="fmla-activity"><div className="fmla-section-heading">Activity</div><p>{status === "complete" ? `Recognized ${activeForm.name} independently of its layout.` : "AI will locate labels, answer areas, and page coordinates from the selected template."}</p><p>{status === "complete" && (notPresentFields.length || notPresentCheckboxes.length) ? `${notPresentFields.length} values and ${notPresentCheckboxes.length} approved decisions are not requested by this form.` : "Only approved canonical values and decisions may be written."}</p></div>
           <div className="fmla-review"><div className="fmla-section-heading"><AlertTriangle size={13} /> Clinician review queue</div>{(reviewItems.length ? reviewItems : ["Medical narrative, restrictions, and certification remain protected."]).map((item) => <div className="fmla-review-item" key={item}>{item}</div>)}</div>
         </section>
       </div>

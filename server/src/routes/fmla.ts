@@ -2,14 +2,16 @@ import { Router, type Request, type Response } from "express";
 import { AzureOpenAI } from "openai";
 import {
   AUTO_FILL_VALUES,
+  CHECKBOX_DECISIONS,
   DEMO_CASE_ID,
   REVIEW_ITEMS,
   isKnownFormId,
+  normalizeCheckboxMapping,
   normalizeMapping,
   parsePageImages,
   parseTemplatePdf,
 } from "./fmlaMapping.js";
-import { compactLayout, extractLayout } from "./fmlaLayout.js";
+import { compactLayout, compactSelectionMarks, extractLayout } from "./fmlaLayout.js";
 
 export const fmlaRouter = Router();
 
@@ -36,19 +38,22 @@ fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const layout = await extractLayout(pdfBytes);
+    const layout = await extractLayout(pdfBytes, true);
     if (!layout.tokens.length) throw new Error("No text or OCR layout could be extracted from this template.");
     const { client, deployment } = makeClient();
     const prompt = [
       "You map blank FMLA medical-certification forms to a safe, synthetic demo case.",
-      "Identify only the visible answer regions for the allowed fields below. Do not infer any clinical narrative, prognosis, restriction, signature, or intermittent leave information.",
+      "Identify only the visible answer regions for the allowed text fields and checkbox decisions below. Do not infer any clinical facts beyond the fixed synthetic treatment plan.",
       `Allowed fields and values: ${JSON.stringify(AUTO_FILL_VALUES)}.`,
+      `Approved checkbox decisions: ${JSON.stringify(CHECKBOX_DECISIONS)}.`,
       "For this synthetic case, Alex Morgan is both the patient and the employee. Employee Name and Patient's Name are both eligible labels for patient_name. Return every applicable occurrence, including repeated employee-name headers on later pages.",
+      "The fixed clinician-attested plan is: FMLA for the patient's own serious health condition; no intermittent/reduced leave; planned retinal repair on 09/18/2026 with postoperative follow-ups on 09/25/2026 and 10/09/2026; six-week recovery; no external referral. Only return checkbox decisions explicitly approved by that plan.",
       "condition_duration is a transparent synthetic estimate derived from the requested leave window, not a clinical prognosis. Practice contact values apply only to provider/practice fields.",
       "The supplied layout manifest contains authoritative page-relative coordinates for printed labels. Use it as evidence; do not select an unrelated blank line.",
-      "Return JSON only: {\"overlays\":[{\"field\":string,\"page\":number,\"evidenceLabel\":string,\"placement\":\"right_of_label\"|\"below_label\",\"confidence\":number}] }.",
-      "Use an evidenceLabel copied from the layout manifest. Choose right_of_label when the blank answer space follows the label on the same line, otherwise below_label. Do not return pixel coordinates or calibration anchors. Omit fields you cannot locate confidently.",
+      "Return JSON only: {\"overlays\":[{\"field\":string,\"page\":number,\"evidenceLabel\":string,\"placement\":\"right_of_label\"|\"below_label\",\"confidence\":number}],\"checkboxes\":[{\"decisionId\":string,\"page\":number,\"evidenceLabel\":string,\"selectionMarkId\":string,\"confidence\":number}] }.",
+      "For a checkbox, use an evidenceLabel copied from the layout manifest and selectionMarkId copied from the detected selection-mark manifest. Do not return pixel coordinates, create decisions, or select referral options. Omit anything you cannot locate confidently.",
       `Layout manifest: ${JSON.stringify(compactLayout(layout.tokens))}`,
+      `Selection-mark manifest: ${JSON.stringify(compactSelectionMarks(layout.selectionMarks))}`,
     ].join("\n");
     const content: Array<Record<string, unknown>> = [{ type: "input_text", text: prompt }];
     for (const page of pageImages) {
@@ -67,10 +72,13 @@ fmlaRouter.post("/map", async (req: Request, res: Response): Promise<void> => {
     let raw: unknown;
     try { raw = JSON.parse(rawText); } catch { raw = null; }
     const mapped = normalizeMapping(raw, layout.tokens);
+    const mappedCheckboxes = normalizeCheckboxMapping(raw, layout.tokens, layout.selectionMarks);
     res.json({
       overlays: mapped.overlays,
-      reviewItems: [...REVIEW_ITEMS, ...mapped.reviewItems],
+      checkboxes: mappedCheckboxes.checkboxes,
+      reviewItems: [...REVIEW_ITEMS, ...mapped.reviewItems, ...mappedCheckboxes.reviewItems],
       notPresentFields: mapped.notPresentFields,
+      notPresentCheckboxes: mappedCheckboxes.notPresentCheckboxes,
       analyzedPages: pageImages.length,
       layoutSource: layout.source,
       mappingMode: "verified-label-geometry",
