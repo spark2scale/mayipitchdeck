@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AUTO_FILL_VALUES, answerRegion, normalizeCheckboxMapping, normalizeMapping, parsePageImages, parseTemplatePdf } from "./fmlaMapping.js";
+import { AUTO_FILL_VALUES, answerRegion, normalizeCheckboxMapping, normalizeMapping, parsePageImages, parseTemplatePdf, registeredCheckboxFallback } from "./fmlaMapping.js";
 
 const pages = [{ page: 1, width: 1000, height: 1400, image: `data:image/jpeg;base64,${"a".repeat(32)}` }];
 
@@ -77,6 +77,15 @@ test("rejects checkbox marks that are on another prompt line", () => {
   ]);
   assert.equal(result.checkboxes.length, 0);
   assert.ok(result.reviewItems.some((item) => item.includes("planned_treatment_will_have")));
+});
+
+test("uses the fixed-template checkbox registry only when detected marks are unavailable", () => {
+  const checkboxes = registeredCheckboxFallback("fmla-2", [
+    { page: 3, text: "Incapacity plus Treatment", leftPct: 8, topPct: 13, widthPct: 20, heightPct: 2 },
+    { page: 3, text: "will have", leftPct: 38, topPct: 63, widthPct: 7, heightPct: 2 },
+  ], []);
+  assert.deepEqual(checkboxes.map((checkbox) => checkbox.decisionId), ["incapacity_plus_treatment", "planned_treatment_will_have"]);
+  assert.ok(checkboxes.every((checkbox) => checkbox.selectionMarkId.startsWith("registry-fmla-2-")));
 });
 
 test("bounds right and below answer regions and validates PDF headers", () => {
