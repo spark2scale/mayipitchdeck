@@ -62,7 +62,10 @@ function toBase64(bytes: Uint8Array) {
 
 async function renderPdf(file: string): Promise<RenderedDocument> {
   const templateBytes = new Uint8Array(await (await fetch(file)).arrayBuffer());
-  const pdfDocument = await pdfjsLib.getDocument({ data: templateBytes }).promise;
+  // PDF.js transfers its input buffer to the worker. Preserve the original
+  // base64 for the mapping API before handing a copy to PDF.js.
+  const templatePdf = toBase64(templateBytes);
+  const pdfDocument = await pdfjsLib.getDocument({ data: templateBytes.slice() }).promise;
   const pages: RenderedPage[] = [];
   for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
     try {
@@ -90,7 +93,7 @@ async function renderPdf(file: string): Promise<RenderedDocument> {
     }
   }
   if (!pages.length) throw new Error("No pages could be rendered from the selected PDF.");
-  return { pages, templatePdf: toBase64(templateBytes) };
+  return { pages, templatePdf };
 }
 
 export default function FmlaDemo({ isExportMode = false }: { isExportMode?: boolean }) {
