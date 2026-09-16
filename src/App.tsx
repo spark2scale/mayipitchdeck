@@ -14,7 +14,7 @@ import {
   ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
   FileSearch, MailCheck, Workflow, ScanSearch,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
-  AudioLines, Printer, CirclePlus, Landmark,
+  AudioLines, Printer, CirclePlus, Landmark, ShieldCheck, BadgeDollarSign, HeartHandshake,
   type LucideIcon,
 } from "lucide-react";
 
@@ -435,6 +435,7 @@ function renderSlide(
   if (slideId === "hero") return <SlideHero goTo={goTo} isExportMode={options.isExportMode} />;
   if (slideId === "problem") return <SlideProblem isBuilt={options.problemBuilt || options.isExportMode} />;
   if (slideId === "loss") return <SlideLoss />;
+  if (slideId === "everyday-benefits") return <SlideEverydayBenefits />;
   if (slideId === "voice-agent") return <SlideVoiceAgent />;
   if (slideId === "qualify-experience") return <SlideQualifyExperience />;
   if (slideId === "qualify") return <SlideQualify />;
@@ -443,7 +444,6 @@ function renderSlide(
   if (slideId === "capture-detail") return <SlideCaptureDetail />;
   if (slideId === "connect-detail") return <SlideConnectDetail />;
   if (slideId === "convert-detail") return <SlideConvertDetail />;
-  if (slideId === "ccc-overview") return <SlideCCCOverview />;
   if (slideId === "traction") return <SlideTraction />;
   if (slideId === "enterprise-grade") return <SlideEnterpriseGrade />;
   if (slideId === "why-wins") return <SlideWhyWins />;
@@ -570,14 +570,6 @@ const CONVERT_DETAIL: DetailStage = {
       compactText: "Personalized collections outreach improves A/R performance.",
     },
   ],
-};
-
-const CCC_STAGES = [CAPTURE_DETAIL, CONNECT_DETAIL, CONVERT_DETAIL] as const;
-
-const CCC_AGENT_TITLES: Record<(typeof CCC_STAGES)[number]["label"], string> = {
-  Capture: "Communications Agent Benefits",
-  Connect: "Revenue Operations Agent Benefits",
-  Convert: "Patient Retention Agent Benefits",
 };
 
 type RevenueCycleSolution = {
@@ -1280,6 +1272,60 @@ function SlideLoss() {
   );
 }
 
+function SlideEverydayBenefits() {
+  const benefits = [
+    {
+      icon: ShieldCheck,
+      label: "Peace of Mind",
+      headline: "Your front desk stays on, so providers can switch off.",
+      copy: "Know every patient is supported, even after hours—without staffing gaps, turnover, or constant front-desk fire drills.",
+      outcome: "Confidence that the practice is covered.",
+    },
+    {
+      icon: BadgeDollarSign,
+      label: "Get Paid Faster",
+      headline: "Fewer gaps between care and payment.",
+      copy: "Automated intake, follow-up, and payment workflows keep revenue from slipping through the cracks.",
+      outcome: "More predictable cash flow.",
+    },
+    {
+      icon: HeartHandshake,
+      label: "Higher Patient Satisfaction",
+      headline: "Every patient gets an immediate, helpful response.",
+      copy: "Personalized, context-aware conversations make scheduling and getting answers effortless.",
+      outcome: "A practice patients want to return to.",
+    },
+  ];
+
+  return (
+    <div className="slide slide-everyday-benefits">
+      <SlideHeader
+        eyebrow="Beyond ROI"
+        title="Benefits you feel every day"
+      />
+      <p className="everyday-benefits-intro">
+        Measurable ROI is only the beginning. May I makes the practice easier to run—and better to experience.
+      </p>
+      <motion.div
+        className="everyday-benefits-grid"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        {benefits.map(({ icon: Icon, label, headline, copy, outcome }) => (
+          <motion.section key={label} className="everyday-benefit" variants={fadeUp}>
+            <div className="everyday-benefit-icon"><Icon size={30} strokeWidth={1.6} /></div>
+            <div className="everyday-benefit-label">{label}</div>
+            <h3>{headline}</h3>
+            <p>{copy}</p>
+            <div className="everyday-benefit-outcome">{outcome}</div>
+          </motion.section>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
 function SlideVoiceAgent() {
   const capabilities = [
     "Customizable multi-lingual agent",
@@ -1610,70 +1656,6 @@ function SlideConvertDetail() {
       >
         {renderDetailCards(CONVERT_DETAIL.cards, CONVERT_DETAIL.shade)}
       </motion.div>
-    </div>
-  );
-}
-
-function SlideCCCOverview() {
-  return (
-    <div className="slide slide-ccc-summary">
-      <motion.div className="ccc-summary-header" variants={stagger} initial="hidden" animate="show">
-        <motion.div variants={fadeUp} className="detail-eyebrow ccc-summary-eyebrow">
-          The May I System
-        </motion.div>
-        <motion.h2 variants={fadeUp} className="ccc-summary-title">
-          {CCC_STAGES.map((stage, index) => (
-            <span key={stage.label} className="ccc-summary-title-segment">
-              <span className="ccc-summary-title-word" style={{ color: stage.accent }}>{stage.label}</span>
-              {index < CCC_STAGES.length - 1 ? <span className="ccc-summary-title-arrow">→</span> : null}
-            </span>
-          ))}
-        </motion.h2>
-        <motion.p variants={fadeUp} className="ccc-summary-subtitle">
-          Per practice, May I Agents open a $4.6M annual opportunity while saving 35% of front-office and back-office costs.
-        </motion.p>
-      </motion.div>
-
-      <motion.div className="ccc-summary-grid" variants={stagger} initial="hidden" animate="show">
-        {CCC_STAGES.map((stage) => (
-          <motion.section key={stage.label} variants={fadeUp} className={`ccc-summary-panel ${stage.shade}`}>
-            <div className="ccc-summary-panel-label" style={{ color: stage.accent }}>{stage.label}</div>
-            <div
-              className={`ccc-summary-agent-tile ccc-summary-agent-tile-${stage.label.toLowerCase()}`}
-              style={{ color: stage.accent }}
-            >
-              {CCC_AGENT_TITLES[stage.label]}
-            </div>
-            <div className={`ccc-summary-impact-row ccc-summary-impact-row-${stage.label.toLowerCase()}`}>
-              <div className="ccc-summary-impact-caption">{stage.impactQualifier}</div>
-              <div className="ccc-summary-impact" style={{ color: stage.accent }}>{stage.impact}</div>
-            </div>
-            <div className="ccc-summary-metric">
-              <div className="ccc-summary-percent" style={{ color: stage.accent }}>{stage.percent}</div>
-              <div className="ccc-summary-metric-text">{stage.summary}</div>
-            </div>
-            <div className="ccc-summary-rows">
-              {stage.cards.map(({ title, compactText }) => (
-                <div key={title} className="ccc-summary-row">
-                  <div
-                    className="ccc-summary-row-title-wrap"
-                    tabIndex={0}
-                    aria-label={`${title}: ${compactText}`}
-                  >
-                    <span className="benefit-bullet" aria-hidden="true" />
-                    <div className="ccc-summary-row-title">{title}</div>
-                    <div className="ccc-summary-tooltip" role="tooltip">
-                      {compactText}
-                    </div>
-                  </div>
-                  <div className="ccc-summary-row-text">{compactText}</div>
-                </div>
-              ))}
-            </div>
-          </motion.section>
-        ))}
-      </motion.div>
-
     </div>
   );
 }
