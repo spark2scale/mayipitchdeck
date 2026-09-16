@@ -5,6 +5,7 @@ export declare const SLIDES: readonly [
   "everyday-benefits",
   "engine",
   "voice-agent",
+  "case-modal",
   "qualify-experience",
   "qualify",
   "confirm",

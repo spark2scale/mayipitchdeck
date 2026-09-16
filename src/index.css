@@ -3040,6 +3040,12 @@ strong { color: var(--mi-text); font-weight: 600; }
   opacity: 0.98;
 }
 
+.traction-customer-logo-generic {
+  width: 54px;
+  height: 54px;
+  color: rgba(196, 146, 71, 0.75);
+}
+
 .traction-customer-name {
   margin-bottom: 8px;
   font-size: 20px;

@@ -438,6 +438,7 @@ function renderSlide(
   if (slideId === "loss") return <SlideLoss />;
   if (slideId === "everyday-benefits") return <SlideEverydayBenefits />;
   if (slideId === "voice-agent") return <SlideVoiceAgent />;
+  if (slideId === "case-modal") return <SlideCaseModal />;
   if (slideId === "qualify") return <SlideQualify />;
   if (slideId === "qualify-experience") return <SlideQualifyExperience />;
   if (slideId === "confirm") return <SlideConfirm />;
@@ -674,7 +675,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   {
     id: "recall",
     stage: "Patient Recall / Collections",
-    persona: "Back-office",
+    persona: "Front-office",
     metricTitle: "Patient Churn",
     metricValue: "25%",
     metricLabel: "switched providers because they were unhappy",
@@ -714,10 +715,10 @@ const TRACTION_SECONDARY_METRICS = [
 
 const TRACTION_CUSTOMERS = [
   {
-    name: "Austin Face and Body",
-    logoSrc: "/afbLogoBrown.png",
-    logoAlt: "Austin Face and Body logo",
-    logoClassName: "traction-customer-logo-light",
+    name: "Plastic Surgery Practice",
+    logoSrc: undefined,
+    logoAlt: "",
+    logoClassName: undefined,
     profile: "7-provider plastic surgery practice in Austin, Texas",
     impact: "Validates May I in a premium, high-intent specialty where missed calls directly translate into missed consult revenue.",
   },
@@ -905,10 +906,10 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
         </motion.div>
         <motion.h1 variants={fadeUp} className="hero-headline">
           The AI Revenue Integrity Engine
-          <span className="headline-accent"> for Healthcare.</span>
+          <span className="headline-accent"> for Healthcare & Veterinary Care.</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="hero-sub">
-          <strong>May I deploys agentic employees</strong> to capture demand, run operations, and drive patient retention.
+          <strong>May I deploys agentic employees</strong> to capture demand, run operations, and drive client retention.
         </motion.p>
       </motion.div>
 
@@ -948,7 +949,7 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
                   {[
                     { label: "Capture", role: <>Comms<br />Agents</>, color: CCC_COLORS.capture, align: "right" },
                     { label: "Connect", role: <>Revenue<br />Operations<br />Agents</>, color: CCC_COLORS.connect },
-                    { label: "Convert", role: <>Patient<br />Retention<br />Agents</>, color: CCC_COLORS.convert },
+                    { label: "Convert", role: <>Client<br />Retention<br />Agents</>, color: CCC_COLORS.convert },
                   ].map(({ label, role, color, align }, i) => (
                     <>
                       <span key={label} className={`hero-ccc-label-group${align === "right" ? " hero-ccc-label-group-right" : ""}`}>
@@ -972,7 +973,7 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
         >
           <motion.div variants={fadeUp} className="hero-metrics-panel">
             <div className="hero-metrics-heading">
-              LIVE MAY I COMMUNICATIONS AGENTS ANSWER INCOMING CALLS AND BOOK CONSULTS
+              LIVE MAY I COMMUNICATIONS AGENTS ANSWER INCOMING CALLS AND BOOK APPOINTMENTS
             </div>
             <div className="hero-metrics-grid" aria-label="Live customer usage stats">
               {HERO_USAGE_METRICS.map((metric) => (
@@ -1259,22 +1260,22 @@ function SlideEverydayBenefits() {
       icon: ShieldCheck,
       label: "Peace of Mind",
       headline: "Your front desk stays on, so you can switch off.",
-      copy: "Know every patient is supported, even after hours—without staffing gaps, turnover, or constant front-desk fire drills.",
+      copy: "Every client is supported, even after hours—without staffing gaps, turnover, or front-desk fire drills.",
       outcome: "Confidence that the practice is covered.",
     },
     {
       icon: BadgeDollarSign,
       label: "Get Paid Faster",
       headline: "Fewer gaps between care and payment.",
-      copy: "Automated intake, follow-up, and payment workflows keep revenue from slipping through the cracks.",
+      copy: "Automated payment workflows keep revenue from slipping through the cracks.",
       outcome: "More predictable cash flow.",
     },
     {
       icon: HeartHandshake,
-      label: "Higher Patient Satisfaction",
-      headline: "Every patient gets an immediate, helpful response.",
+      label: "Higher Client Satisfaction",
+      headline: "Every client gets an immediate, helpful response.",
       copy: "Personalized, context-aware conversations make scheduling and getting answers effortless.",
-      outcome: "A practice patients want to return to.",
+      outcome: "A practice clients want to return to.",
     },
   ];
 
@@ -1310,8 +1311,8 @@ function SlideEverydayBenefits() {
 function SlideVoiceAgent() {
   const capabilities = [
     "Customizable multi-lingual agent",
-    "Intelligent responses specific to Envision Eye Group",
-    "Patient intake and scheduling",
+    "Intelligent responses specific to PetVet365 Leander",
+    "Patient intake and scheduling - Integrated with PIMS",
     "Personalized greeting for returning patients",
     "Patient schedule lookup with two-factor authentication",
     "Call routing",
@@ -1319,10 +1320,10 @@ function SlideVoiceAgent() {
   ];
 
   const exampleQuestions = [
-    "Tell me about Dr. Laiyin Ma.",
+    "Tell me about Dr. Jennifer Moon.",
     "What services are offered at the practice?",
-    "Is EVO ICL right for me?",
-    "Do I have an upcoming appointment? (birthdate: 4-12-1988)",
+    "Tell me more about your dental care service",
+    "Do I have an upcoming appointment?",
     "I'd like to schedule an appointment.",
   ];
 
@@ -1330,7 +1331,7 @@ function SlideVoiceAgent() {
     <div className="slide slide-voice-agent">
       <SlideHeader
         eyebrow="Capture - Voice Agent Demo"
-        title={<>Multi-lingual Voice Agent for<br /><span style={{ whiteSpace: "nowrap" }}>Envision Eye Group</span></>}
+        title={<>Voice Agent for<br /><span style={{ whiteSpace: "nowrap" }}>PetVet365 Leander</span></>}
       />
 
       <div className="voice-agent-layout">
@@ -1345,7 +1346,7 @@ function SlideVoiceAgent() {
               <img src="/may_i_vectorized.svg" alt="May I" className="hero-engine-logo" />
               <div>
                 <div className="hero-engine-box-label">Call</div>
-                <div className="voice-agent-call-value">386-202-9994</div>
+                <div className="voice-agent-call-value">737-259-6388</div>
               </div>
             </div>
           </div>
@@ -1420,8 +1421,31 @@ function SlideConfirm() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/confirm_screenshot.png"
+          src="/Vet Confirm.png"
           alt="May I confirmation calendar showing appointment status and automated reminder controls"
+          className="qualify-image"
+        />
+      </motion.figure>
+    </div>
+  );
+}
+
+function SlideCaseModal() {
+  return (
+    <div className="slide slide-qualify">
+      <SlideHeader
+        eyebrow="Capture - PATIENT INTELLIGENCE"
+        title="AI Watches Over Your Text Lines 24/7/365—and Updates Your PIMS"
+      />
+      <motion.figure
+        className="qualify-figure"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
+        <img
+          src="/Vet Case Modal.png"
+          alt="May I case workspace showing case timeline, intent, and AI-suggested actions"
           className="qualify-image"
         />
       </motion.figure>
@@ -1434,7 +1458,7 @@ function SlideQualifyExperience() {
     <div className="slide slide-qualify">
       <SlideHeader
         eyebrow="Capture - PATIENT INTELLIGENCE"
-        title="Empower Your Staff with Patient Intelligence for Every Call and Text"
+        title="AI Voice and Text integrated with your PIMS Organizes Work—Your Team Elevates the Patient Experience"
       />
       <motion.figure
         className="qualify-figure"
@@ -1443,7 +1467,7 @@ function SlideQualifyExperience() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/qualify_screenshot.png"
+          src="/Vet Capture.png"
           alt="May I Qualify workspace showing appointment capacity, patient context, and AI-recommended actions"
           className="qualify-image"
         />
@@ -1461,12 +1485,12 @@ function SlideEngine() {
     { icon: <MessageSquare size={16} />, text: "Text Agents" },
   ];
   const connectOutcomes = [
-    { icon: <Landmark size={16} />, text: "Pre-Auth Portal Action Agents" },
+    { icon: <Landmark size={16} />, text: "Payer Portal Action Agents" },
     { icon: <CirclePlus size={16} />, text: "EMR Action Agents" },
     { icon: <Workflow size={16} />, text: "CRM Orchestrator Agents" },
   ];
   const convertOutcomes = [
-    { icon: <PhoneOutgoing size={16} />, text: "Patient Recall Agents" },
+    { icon: <PhoneOutgoing size={16} />, text: "Client Recall Agents" },
     { icon: <FileCheck size={16} />, text: "Targeted Marketing Agents" },
     { icon: <Banknote size={16} />, text: "Collections Agents" },
   ];
@@ -1484,8 +1508,8 @@ function SlideEngine() {
         animate="show"
       >
         May I is the <strong>critical system of engagement</strong> — deploying
-        agents that sit between patients and the practice, while
-        EMR/PMS remains the system of record.
+        agents that sit between clients and the practice, while
+        EMR/PMS/PIMS remains the system of record.
       </motion.p>
       <motion.div
         className="engine-diagram"
@@ -1501,7 +1525,7 @@ function SlideEngine() {
             { icon: <Globe size={16} />, text: "Web chat" },
             { icon: <Share2 size={16} />, text: "Social leads" },
             { icon: <FileCheck size={16} />, text: "Referrals (Fax)" },
-            { icon: <Database size={16} />, text: "EMR/PMS" },
+            { icon: <Database size={16} />, text: "EMR/PMS/PIMS" },
           ].map(({ icon, text }) => (
             <div key={text} className="engine-chip">
               {icon}
@@ -1529,7 +1553,7 @@ function SlideEngine() {
                 text: <>Agentic Voice, Text, Vision,<br />&amp; Computer Use</>,
               },
               { icon: <AudioLines size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
-              { icon: <Database size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
+              { icon: <Database size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "Customer Relationship Management", text: "Customer Relationship Management" },
             ].map(({ icon, label, text }) => (
               <div key={label} className="engine-core-item">
                 {icon}
@@ -1559,7 +1583,7 @@ function SlideEngine() {
           </div>
           <div className="engine-group">
             <div className="engine-group-label engine-group-convert">Convert</div>
-            <div className="engine-group-agent engine-group-agent-convert">Patient Retention Agents</div>
+            <div className="engine-group-agent engine-group-agent-convert">Client Retention Agents</div>
             {convertOutcomes.map(({ icon, text }) => (
               <div key={text} className="engine-chip engine-chip-out engine-chip-convert">{icon}<span>{text}</span></div>
             ))}
@@ -1757,11 +1781,25 @@ function SlideTraction() {
             {TRACTION_CUSTOMERS.map((customer) => (
               <article key={customer.name} className="traction-customer-card">
                 <div className="traction-customer-logo-wrap">
-                  <img
-                    src={customer.logoSrc}
-                    alt={customer.logoAlt}
-                    className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
-                  />
+                  {customer.logoSrc ? (
+                    <img
+                      src={customer.logoSrc}
+                      alt={customer.logoAlt}
+                      className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
+                    />
+                  ) : (
+                    <svg
+                      className="traction-customer-logo traction-customer-logo-generic"
+                      viewBox="0 0 48 48"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <rect x="6" y="18" width="36" height="24" rx="2" stroke="currentColor" strokeWidth="2.5" />
+                      <path d="M4 18L24 5l20 13" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
+                      <path d="M20 42V29a4 4 0 0 1 8 0v13" stroke="currentColor" strokeWidth="2.5" />
+                      <path d="M15 24v6M12 27h6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  )}
                 </div>
                 <div className="traction-customer-name">{customer.name}</div>
                 <div className="traction-customer-profile">{customer.profile}</div>
@@ -1773,7 +1811,7 @@ function SlideTraction() {
             <span className="traction-proof-accent">Real production demand</span> across two distinct specialty practices.
           </p>
           <p className="traction-proof-copy">
-            May I is already live in workflows where speed to response drives revenue and patient conversion. This is production usage. It is recurring, specialty-specific call volume with measurable after-hours capture.
+            May I is already live in workflows where speed to response drives revenue and client conversion. This is production usage. It is recurring, specialty-specific call volume with measurable after-hours capture.
           </p>
           <div className="traction-customer-intro">
             Two deployments, two specialties, two states. Early evidence that the product travels across healthcare verticals without changing the core wedge.
@@ -2090,7 +2128,7 @@ function SlideMoats() {
         </motion.div>
         <motion.h2 variants={fadeUp} className="slide-title">
           <span className="vision-title-line">The path to growth</span>
-          <span className="vision-title-line">is owning the patient engagement layer.</span>
+          <span className="vision-title-line">is owning the client engagement layer.</span>
         </motion.h2>
       </motion.div>
       <div className="rev-layout">
