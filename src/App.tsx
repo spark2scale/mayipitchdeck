@@ -435,7 +435,10 @@ function renderSlide(
   if (slideId === "hero") return <SlideHero goTo={goTo} isExportMode={options.isExportMode} />;
   if (slideId === "problem") return <SlideProblem isBuilt={options.problemBuilt || options.isExportMode} />;
   if (slideId === "loss") return <SlideLoss />;
+  if (slideId === "voice-agent") return <SlideVoiceAgent />;
+  if (slideId === "qualify-experience") return <SlideQualifyExperience />;
   if (slideId === "qualify") return <SlideQualify />;
+  if (slideId === "confirm") return <SlideConfirm />;
   if (slideId === "engine") return <SlideEngine />;
   if (slideId === "capture-detail") return <SlideCaptureDetail />;
   if (slideId === "connect-detail") return <SlideConnectDetail />;
@@ -1277,14 +1280,88 @@ function SlideLoss() {
   );
 }
 
+function SlideVoiceAgent() {
+  const capabilities = [
+    "Customizable multi-lingual agent",
+    "Intelligent responses specific to Envision Eye Group",
+    "Patient intake and scheduling",
+    "Personalized greeting for returning patients",
+    "Patient schedule lookup with two-factor authentication",
+    "Call routing",
+    "Route to booking app",
+  ];
+
+  const exampleQuestions = [
+    "Tell me about Dr. Laiyin Ma.",
+    "What services are offered at the practice?",
+    "Is EVO ICL right for me?",
+    "Do I have an upcoming appointment? (birthdate: 4-12-1988)",
+    "I'd like to schedule an appointment.",
+  ];
+
+  return (
+    <div className="slide slide-voice-agent">
+      <SlideHeader
+        eyebrow="Capture - Voice Agent Demo"
+        title={<>Multi-lingual Voice Agent for<br /><span style={{ whiteSpace: "nowrap" }}>Envision Eye Group</span></>}
+      />
+
+      <div className="voice-agent-layout">
+        <motion.section
+          className="voice-agent-panel"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
+          <div className="voice-agent-call-panel hero-engine-box">
+            <div className="hero-engine-box-header">
+              <img src="/may_i_vectorized.svg" alt="May I" className="hero-engine-logo" />
+              <div>
+                <div className="hero-engine-box-label">Call</div>
+                <div className="voice-agent-call-value">386-202-9994</div>
+              </div>
+            </div>
+          </div>
+          <div className="voice-agent-panel-label">Voice Agent Features</div>
+          <div className="voice-agent-list">
+            {capabilities.map((item, index) => (
+              <div key={item} className="voice-agent-list-item">
+                <span className="voice-agent-list-index">{index + 1}</span>
+                <span className="voice-agent-list-text">{item}</span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section
+          className="voice-agent-panel"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
+          <div className="voice-agent-panel-label">Sample Questions To Ask The Agent</div>
+          <div className="voice-agent-question-list">
+            {exampleQuestions.map((item) => (
+              <div key={item} className="voice-agent-question-card">
+                <MessageSquare size={18} className="voice-agent-question-icon" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      </div>
+    </div>
+  );
+}
+
 // ─── Slide 4: Engine overview ─────────────────────────────────────────────────
 
 function SlideQualify() {
   return (
     <div className="slide slide-qualify">
       <SlideHeader
-        eyebrow="LIVE USER EXPERIENCE"
-        title="May I Communications Agent"
+        eyebrow="CONNECT - AGENTIC CRM"
+        title="AI Organizes the Work—Your Team Elevates the Patient Experience"
       />
       <motion.figure
         className="qualify-figure"
@@ -1293,8 +1370,54 @@ function SlideQualify() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/Qualify.png"
-          alt="May I Qualify workflow showing weekly scheduling and customer conversation history"
+          src="/capture_screenshot.png"
+          alt="May I CRM workspace showing patient communication and workflow details"
+          className="qualify-image"
+        />
+      </motion.figure>
+    </div>
+  );
+}
+
+function SlideConfirm() {
+  return (
+    <div className="slide slide-qualify">
+      <SlideHeader
+        eyebrow="CONVERT - APPOINTMENT CONFIRMATION"
+        title="Protect Revenue With Automated, Multi-Lingual Reminders"
+      />
+      <motion.figure
+        className="qualify-figure"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
+        <img
+          src="/confirm_screenshot.png"
+          alt="May I confirmation calendar showing appointment status and automated reminder controls"
+          className="qualify-image"
+        />
+      </motion.figure>
+    </div>
+  );
+}
+
+function SlideQualifyExperience() {
+  return (
+    <div className="slide slide-qualify">
+      <SlideHeader
+        eyebrow="Capture - PATIENT INTELLIGENCE"
+        title="Empower Your Staff with Patient Intelligence for Every Call and Text"
+      />
+      <motion.figure
+        className="qualify-figure"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
+        <img
+          src="/qualify_screenshot.png"
+          alt="May I Qualify workspace showing appointment capacity, patient context, and AI-recommended actions"
           className="qualify-image"
         />
       </motion.figure>
