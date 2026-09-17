@@ -80,10 +80,12 @@ pdfExportRouter.get("/pdf", async (req, res, next) => {
       const slideUrl = buildSlideExportUrl(exportUrl, slideId);
       await page.goto(slideUrl, { waitUntil: "networkidle", timeout: 30000 });
       await page.waitForFunction(
-        () => {
+        (expectedSlideId) => {
           const exportWindow = window as Window & { __PDF_READY__?: boolean };
-          return exportWindow.__PDF_READY__ === true || document.documentElement.dataset.pdfReady === "true";
+          const isReady = exportWindow.__PDF_READY__ === true || document.documentElement.dataset.pdfReady === "true";
+          return isReady && document.documentElement.dataset.exportSlide === expectedSlideId;
         },
+        slideId,
         { timeout: 30000 },
       );
 
