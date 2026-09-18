@@ -498,14 +498,14 @@ export function useDemoLoop(
       addLogs(["🔄 Sending initial screenshot to Azure OpenAI"]);
 
       const task = [
-        "You are automating a healthcare prior-authorization workflow.",
-        "STEP 1: You are viewing a Patient Data Card with patient demographics, insurance, clinical, and provider information.",
+        "You are automating EMR computer use: transcribing a new-patient referral into the EMR patient chart.",
+        "STEP 1: You are viewing a New Patient Referral card with patient demographics, visit details, and insurance information.",
         "Take a screenshot and read ALL the information carefully.",
         "STEP 2: Click the button labeled 'Next Page →' at the bottom of the card.",
-        "STEP 3: You are now on the Authorization Form. Fill in EVERY input field using the exact values from the Patient Data Card.",
-        "Match each field precisely: firstName → First Name, lastName → Last Name, dob → Date of Birth, phone → Phone, address → Address, insurance → Insurance Carrier, memberId → Member ID, groupNumber → Group Number, diagnosisCode → Diagnosis Code, diagnosisDesc → Diagnosis Description, cptCode → CPT Code, procedureName → Procedure Name, providerName → Provider Name, providerNpi → Provider NPI.",
+        "STEP 3: You are now on the EMR Patient Chart form. Fill in EVERY input field using the exact values from the New Patient Referral card.",
+        "Match each field precisely: firstName → First Name, lastName → Last Name, dob → Date of Birth, phone → Phone, address → Address, emergencyContact → Emergency Contact, preferredPharmacy → Preferred Pharmacy, reasonForVisit → Reason for Visit, referringProvider → Referring Provider, insurance → Insurance Carrier, memberId → Member ID.",
         "Click each field before typing into it. Type the exact value character by character.",
-        "Do not skip any fields. Complete all 14 fields.",
+        "Do not skip any fields. Complete all 11 fields.",
       ].join(" ");
 
       const startResp = await fetch(`${API_BASE}/api/computer-use/start`, {
@@ -572,7 +572,7 @@ export function useDemoLoop(
         done = contData.done;
       }
 
-      addLogs(["✅ Prior-authorization workflow completed successfully!"]);
+      addLogs(["✅ Patient chart created successfully!"]);
       setStatus("done");
     } catch (err) {
       console.error("[useDemoLoop]", err);

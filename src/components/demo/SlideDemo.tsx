@@ -55,7 +55,7 @@ function InteractiveSlideDemo() {
         <div className="eyebrow-tag">Live Demo</div>
         <h2 className="slide-title demo-slide-title">
           May I Revenue Operations Agent
-          <span className="demo-slide-subtitle"> — Insurance Prior-Authorization Workflow</span>
+          <span className="demo-slide-subtitle"> — EMR Computer Use</span>
         </h2>
       </motion.div>
 
@@ -138,7 +138,7 @@ function ExportSlideDemo() {
         <div className="eyebrow-tag">Live Demo</div>
         <h2 className="slide-title demo-slide-title">
           May I Revenue Operations Agent
-          <span className="demo-slide-subtitle"> — Insurance Prior-Authorization Workflow</span>
+          <span className="demo-slide-subtitle"> — EMR Computer Use</span>
         </h2>
       </div>
 

@@ -12,7 +12,7 @@ import {
   FileCheck,
   CheckCircle2,
   ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
-  FileSearch, MailCheck, Workflow, ScanSearch,
+  MailCheck, Workflow, ScanSearch,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
   AudioLines, Printer, CirclePlus, Landmark, ShieldCheck, BadgeDollarSign, HeartHandshake,
   type LucideIcon,
@@ -514,26 +514,26 @@ const CONNECT_DETAIL: DetailStage = {
   impact: "$750K",
   impactQualifier: "per year lost to inefficiency",
   percent: "10%",
-  friction: "Back-office personnel spend 20% of their time manually entering data into payer portals, and emailing or calling payers to verify insurance.",
+  friction: "Back-office personnel spend 20% of their time manually entering data into the EMR, and fielding patient billing and status requests.",
   summary: "of back-office time automated",
   shade: "card-connect",
   accent: CCC_COLORS.connect,
   cards: [
     {
-      icon: FileSearch,
-      title: "Automated Insurance Pre-Authorization",
-      text: "AI navigates payer portals, enters patient data, and triggers insurance pre-authorization automatically.",
-      compactText: "Portal submission and pre-auth initiation without staff entry.",
+      icon: Landmark,
+      title: "Patient Service Agent",
+      text: "AI handles patient-facing back-office requests — billing questions, records, and status updates — without staff involvement.",
+      compactText: "Handles patient billing and status requests without staff involvement.",
     },
     {
-      icon: UserRound,
-      title: "Patient Intelligence and Lead Scoring",
-      text: "Responses that arrive via email are reconciled, resubmitted, or flagged — without staff involvement.",
-      compactText: "Patient history and spend signals help prioritize calls and outreach.",
+      icon: CirclePlus,
+      title: "EMR Computer Use Agents",
+      text: "AI operates the EMR directly — entering data, updating records, and completing workflows the same way a staff member would.",
+      compactText: "Operates the EMR directly to complete back-office workflows.",
     },
     {
       icon: Workflow,
-      title: "Business Orchestration",
+      title: "CRM Orchestrator Agents",
       text: "Inputs, agentic operations, and outputs are defined for each stage in the CRM and automatically moved to the next stage until complete.",
       compactText: "Stage-based CRM operations move work to completion.",
     },
@@ -637,7 +637,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   },
   {
     id: "preauth",
-    stage: "Pre-authorization",
+    stage: "Back-Office Operations",
     persona: "Back-office",
     metricTitle: "Administrative Overload",
     metricValue: "2:1",
@@ -645,13 +645,13 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     commentary: "Administrative drag cuts capacity, slows follow-up, creates bottlenecks, and fuels burnout.",
     sourceHref: "https://www.acpjournals.org/doi/10.7326/M16-0961",
     sourceLabel: "Source: Annals of Internal Medicine",
-    challenge: "Manual payer data entry, status chasing, and rework across pre-auth workflows.",
+    challenge: "Manual EMR data entry, status chasing, and rework across back-office workflows.",
     accent: CCC_COLORS.connect,
     separatorAfter: true,
     solutions: [
-      getRevenueCycleSolution(CONNECT_DETAIL, "Automated Insurance Pre-Authorization", "May I Revenue Operations Agents", "Submits patient data and starts pre-auth"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Intelligence and Lead Scoring", "May I Revenue Operations Agents", "Responds to emails and triggers apps"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Business Orchestration", "May I Revenue Operations Agents", "Moves work through operational queues"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Service Agent", "May I Revenue Operations Agents", "Handles patient billing and status requests"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "EMR Computer Use Agents", "May I Revenue Operations Agents", "Operates the EMR to complete workflows"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "CRM Orchestrator Agents", "May I Revenue Operations Agents", "Moves work through operational queues"),
     ],
   },
   {
@@ -758,8 +758,8 @@ const ENTERPRISE_CONTROLS = [
 ] as const;
 
 const ASK_MILESTONES = [
-  "Hire a CTO + engineering team",
-  "Hire sales / marketing lead + GTM team",
+  "Hire CRO + GTM team",
+  "Hire engineering team",
   "Product GA with first 50 paying practices",
   "Prove unit economics (CAC, LTV, payback)",
   "Build pipeline for Series A",
@@ -1480,8 +1480,8 @@ function SlideEngine() {
     { icon: <MessageSquare size={16} />, text: "Text Agents" },
   ];
   const connectOutcomes = [
-    { icon: <Landmark size={16} />, text: "Pre-Auth Portal Action Agents" },
-    { icon: <CirclePlus size={16} />, text: "EMR Action Agents" },
+    { icon: <Landmark size={16} />, text: "Patient Service Agent" },
+    { icon: <CirclePlus size={16} />, text: "EMR Computer Use Agents" },
     { icon: <Workflow size={16} />, text: "CRM Orchestrator Agents" },
   ];
   const convertOutcomes = [
@@ -2061,7 +2061,7 @@ function SlideMoats() {
       label: "Capture",
       color: CCC_COLORS.capture,
       phases: [
-        ["Voice Agents", "Early Personalization", "Engagement With Data"],
+        ["Voice Agents", "Text Agents", "Early Personalization"],
         ["Referral Fax Agents"],
         ["Advanced Personalization", "Automated Quality Loop", "A/B testing"],
       ],
@@ -2070,9 +2070,9 @@ function SlideMoats() {
       label: "Connect",
       color: CCC_COLORS.connect,
       phases: [
-        ["Early Lead Scoring"],
-        ["Advanced Lead Scoring", "Pre-Auth Portal Action Agents"],
-        ["CRM Orchestration Agent", "EMR Action Agent"],
+        ["Engagement With Data", "Early Lead Scoring"],
+        ["Advanced Lead Scoring", "Patient Service Agent"],
+        ["CRM Orchestration Agent", "EMR Computer Use Agent"],
       ],
     },
     {
@@ -2318,7 +2318,7 @@ function SlideVision() {
       agentTitle: "Revenue Operations Agents",
       icon: <ScanSearch size={22} />,
       headline: "Own the workflow, capture the data",
-      text: "Insurance Pre-auth, Billing, Patient recalls — orchestrated by May I across the full patient journey.",
+      text: "Patient service, EMR data entry, CRM orchestration — May I runs the back office so staff can focus on patients.",
       color: CCC_COLORS.connect,
     },
     {
@@ -2714,7 +2714,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
             <div className="priority-legend-title">Segment Priority Framework</div>
             <div className="priority-legend-rows">
               {([
-                [1, "High-Yield Retail",     "Massive ATV; every lead is a \u201cmust-win\u201d."],
+                [1, "High-Yield Elective",   "Massive ATV; every lead is a \u201cmust-win\u201d."],
                 [2, "Velocity Hubs",          "High transaction counts; ROI comes from time saved."],
                 [3, "Specialty Segments",     "High complexity; ROI comes from billing/auth accuracy."],
                 [4, "Infrastructure Tier",    "The \u201clong-game\u201d volume play."],
@@ -2748,7 +2748,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
 
 const APX_ROWS = [
   {
-    category: "Retail",
+    category: "Elective",
     vertical: "Fertility (IVF)",
     practiceCount: "500",
     mdDo: "1,500",
@@ -2762,7 +2762,7 @@ const APX_ROWS = [
     rationale: "Highest ATV in the set. Small target list, but each missed consult is expensive and conversion speed matters.",
   },
   {
-    category: "Retail",
+    category: "Elective",
     vertical: "Plastic Surgery",
     practiceCount: "5,500",
     mdDo: "8,000",
@@ -2776,7 +2776,7 @@ const APX_ROWS = [
     rationale: "Classic high-consideration retail funnel. Lead response and consult scheduling directly influence revenue capture.",
   },
   {
-    category: "Retail",
+    category: "Elective",
     vertical: "Dentistry & Ortho",
     practiceCount: "179,000",
     mdDo: "-",
@@ -2790,7 +2790,7 @@ const APX_ROWS = [
     rationale: "Largest retail practice base. Strong fit for always-on scheduling, recall, and treatment-start conversion workflows.",
   },
   {
-    category: "Retail",
+    category: "Elective",
     vertical: "Ophthalmology / Optom.",
     practiceCount: "45,000",
     mdDo: "-",
@@ -2804,7 +2804,7 @@ const APX_ROWS = [
     rationale: "Combines recurring exams with elective conversion opportunities, creating both throughput and revenue sensitivity.",
   },
   {
-    category: "Retail",
+    category: "Elective",
     vertical: "Dermatology",
     practiceCount: "10,000",
     mdDo: "12,000",
@@ -2818,7 +2818,7 @@ const APX_ROWS = [
     rationale: "Mix of medical and cosmetic demand. Front-desk load is high, while cosmetic consults reward fast response.",
   },
   {
-    category: "Retail",
+    category: "Elective",
     vertical: "Veterinary",
     practiceCount: "32,000",
     mdDo: "-",
@@ -2832,7 +2832,7 @@ const APX_ROWS = [
     rationale: "Fragmented market with heavy inbound demand. Automation helps with urgent scheduling, reminders, and missed-call recovery.",
   },
   {
-    category: "Retail",
+    category: "Elective",
     vertical: "Medical Spas",
     practiceCount: "11,500",
     mdDo: "10,488",

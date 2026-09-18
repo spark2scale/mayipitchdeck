@@ -124,7 +124,7 @@ export default function DemoAIPanel({ status, logs, onStart, onRefresh, staticMo
       <div className="dap-log-list" ref={logListRef}>
         {logs.length === 0 ? (
           <div className="dap-log-empty">
-            Click <strong>Start Demo</strong> to watch the AI complete a prior-authorization workflow.
+            Click <strong>Start Demo</strong> to watch the AI transcribe a patient referral into the EMR.
           </div>
         ) : (
           [...logs].reverse().map((entry) => (

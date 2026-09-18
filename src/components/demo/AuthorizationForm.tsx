@@ -16,23 +16,19 @@ interface FieldDef {
 
 const FIELDS: FieldDef[] = [
   // Demographics
-  { key: "firstName",     label: "First Name",        placeholder: "Patient first name" },
-  { key: "lastName",      label: "Last Name",         placeholder: "Patient last name" },
-  { key: "dob",           label: "Date of Birth",     placeholder: "MM/DD/YYYY" },
-  { key: "phone",         label: "Phone",             placeholder: "(000) 000-0000" },
-  { key: "address",       label: "Address",           placeholder: "Street, City, State ZIP" },
+  { key: "firstName",         label: "First Name",         placeholder: "Patient first name" },
+  { key: "lastName",          label: "Last Name",          placeholder: "Patient last name" },
+  { key: "dob",               label: "Date of Birth",      placeholder: "MM/DD/YYYY" },
+  { key: "phone",             label: "Phone",               placeholder: "(000) 000-0000" },
+  { key: "address",           label: "Address",             placeholder: "Street, City, State ZIP" },
+  { key: "emergencyContact",  label: "Emergency Contact",   placeholder: "Name (Relation) — Phone" },
+  { key: "preferredPharmacy", label: "Preferred Pharmacy",  placeholder: "Pharmacy name and location" },
+  // Visit
+  { key: "reasonForVisit",    label: "Reason for Visit",    placeholder: "Chief complaint / visit reason" },
+  { key: "referringProvider", label: "Referring Provider",  placeholder: "Dr. First Last, MD" },
   // Insurance
-  { key: "insurance",     label: "Insurance Carrier", placeholder: "Insurance company name" },
-  { key: "memberId",      label: "Member ID",         placeholder: "Insurance member ID" },
-  { key: "groupNumber",   label: "Group Number",      placeholder: "Group / plan number" },
-  // Clinical
-  { key: "diagnosisCode", label: "Diagnosis Code",    placeholder: "ICD-10 code" },
-  { key: "diagnosisDesc", label: "Diagnosis Description", placeholder: "Diagnosis description" },
-  { key: "cptCode",       label: "CPT Code",          placeholder: "Procedure CPT code" },
-  { key: "procedureName", label: "Procedure Name",    placeholder: "Procedure description" },
-  // Provider
-  { key: "providerName",  label: "Provider Name",     placeholder: "Dr. First Last, MD" },
-  { key: "providerNpi",   label: "Provider NPI",      placeholder: "10-digit NPI number" },
+  { key: "insurance",         label: "Insurance Carrier",   placeholder: "Insurance company name" },
+  { key: "memberId",          label: "Member ID",           placeholder: "Insurance member ID" },
 ];
 
 export { FIELDS };
@@ -42,9 +38,9 @@ export default function AuthorizationForm({ values, activeField }: Props) {
     <div className="af-root" id="authorization-form">
       {/* Header */}
       <div className="af-header">
-        <div className="af-header-badge">Insurance Pre-Authorization Portal</div>
+        <div className="af-header-badge">EMR Patient Chart</div>
         <div className="af-header-sub">
-          Complete all fields to submit for prior authorization review
+          Complete all fields to create the new patient chart
         </div>
       </div>
 
@@ -55,7 +51,36 @@ export default function AuthorizationForm({ values, activeField }: Props) {
           <fieldset className="af-fieldset">
             <legend className="af-legend">Patient Demographics</legend>
             <div className="af-grid">
-              {FIELDS.slice(0, 5).map((f) => (
+              {FIELDS.slice(0, 7).map((f) => (
+                <div
+                  key={f.key}
+                  className={`af-field ${activeField === f.key ? "af-field--active" : ""}`}
+                  data-field={f.key}
+                >
+                  <label className="af-label" htmlFor={`af-${f.key}`}>
+                    {f.label}
+                  </label>
+                  <input
+                    id={`af-${f.key}`}
+                    name={f.key}
+                    className="af-input"
+                    type="text"
+                    placeholder={f.placeholder}
+                    value={values[f.key] ?? ""}
+                    readOnly
+                    data-field={f.key}
+                    aria-label={f.label}
+                  />
+                </div>
+              ))}
+            </div>
+          </fieldset>
+
+          {/* Visit */}
+          <fieldset className="af-fieldset">
+            <legend className="af-legend">Visit Details</legend>
+            <div className="af-grid">
+              {FIELDS.slice(7, 9).map((f) => (
                 <div
                   key={f.key}
                   className={`af-field ${activeField === f.key ? "af-field--active" : ""}`}
@@ -84,65 +109,7 @@ export default function AuthorizationForm({ values, activeField }: Props) {
           <fieldset className="af-fieldset">
             <legend className="af-legend">Insurance Information</legend>
             <div className="af-grid">
-              {FIELDS.slice(5, 8).map((f) => (
-                <div
-                  key={f.key}
-                  className={`af-field ${activeField === f.key ? "af-field--active" : ""}`}
-                  data-field={f.key}
-                >
-                  <label className="af-label" htmlFor={`af-${f.key}`}>
-                    {f.label}
-                  </label>
-                  <input
-                    id={`af-${f.key}`}
-                    name={f.key}
-                    className="af-input"
-                    type="text"
-                    placeholder={f.placeholder}
-                    value={values[f.key] ?? ""}
-                    readOnly
-                    data-field={f.key}
-                    aria-label={f.label}
-                  />
-                </div>
-              ))}
-            </div>
-          </fieldset>
-
-          {/* Clinical */}
-          <fieldset className="af-fieldset">
-            <legend className="af-legend">Clinical Information</legend>
-            <div className="af-grid">
-              {FIELDS.slice(8, 12).map((f) => (
-                <div
-                  key={f.key}
-                  className={`af-field ${activeField === f.key ? "af-field--active" : ""}`}
-                  data-field={f.key}
-                >
-                  <label className="af-label" htmlFor={`af-${f.key}`}>
-                    {f.label}
-                  </label>
-                  <input
-                    id={`af-${f.key}`}
-                    name={f.key}
-                    className="af-input"
-                    type="text"
-                    placeholder={f.placeholder}
-                    value={values[f.key] ?? ""}
-                    readOnly
-                    data-field={f.key}
-                    aria-label={f.label}
-                  />
-                </div>
-              ))}
-            </div>
-          </fieldset>
-
-          {/* Provider */}
-          <fieldset className="af-fieldset">
-            <legend className="af-legend">Requesting Provider</legend>
-            <div className="af-grid">
-              {FIELDS.slice(12).map((f) => (
+              {FIELDS.slice(9).map((f) => (
                 <div
                   key={f.key}
                   className={`af-field ${activeField === f.key ? "af-field--active" : ""}`}
@@ -171,10 +138,10 @@ export default function AuthorizationForm({ values, activeField }: Props) {
         {/* Submit */}
         <div className="af-footer">
           <button className="af-submit-btn" disabled aria-disabled="true">
-            Submit for Authorization
+            Save to Chart
           </button>
           <span className="af-submit-hint">
-            All fields required before submission
+            All fields required before saving
           </span>
         </div>
       </div>

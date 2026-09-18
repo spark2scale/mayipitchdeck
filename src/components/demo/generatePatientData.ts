@@ -1,5 +1,5 @@
 // ─── Patient Data Generator ──────────────────────────────────────────────────
-// Produces realistic-looking (but entirely fake) prior-auth demographics.
+// Produces realistic-looking (but entirely fake) front-desk intake data.
 
 export interface PatientData {
   // Demographics
@@ -8,18 +8,14 @@ export interface PatientData {
   dob: string;         // MM/DD/YYYY
   phone: string;
   address: string;
+  emergencyContact: string;
+  preferredPharmacy: string;
+  // Visit
+  reasonForVisit: string;
+  referringProvider: string;
   // Insurance
   insurance: string;
   memberId: string;
-  groupNumber: string;
-  // Clinical
-  diagnosisCode: string;
-  diagnosisDesc: string;
-  cptCode: string;
-  procedureName: string;
-  // Provider
-  providerName: string;
-  providerNpi: string;
 }
 
 // ── Static pools ──────────────────────────────────────────────────────────────
@@ -55,51 +51,29 @@ const CITIES = [
   "Columbus, OH", "Indianapolis, IN", "Jacksonville, FL", "San Antonio, TX",
 ];
 
-const CLINICAL = [
-  {
-    diagnosisCode: "M17.11",
-    diagnosisDesc: "Primary osteoarthritis, right knee",
-    cptCode: "27447",
-    procedureName: "Total Knee Arthroplasty",
-  },
-  {
-    diagnosisCode: "K80.20",
-    diagnosisDesc: "Calculus of gallbladder without cholecystitis",
-    cptCode: "47562",
-    procedureName: "Laparoscopic Cholecystectomy",
-  },
-  {
-    diagnosisCode: "N40.0",
-    diagnosisDesc: "Benign prostatic hyperplasia without LUTS",
-    cptCode: "52601",
-    procedureName: "Transurethral Resection of Prostate",
-  },
-  {
-    diagnosisCode: "M51.16",
-    diagnosisDesc: "Intervertebral disc degeneration, lumbar region",
-    cptCode: "22612",
-    procedureName: "Lumbar Spinal Fusion",
-  },
-  {
-    diagnosisCode: "I25.10",
-    diagnosisDesc: "Atherosclerotic heart disease of native coronary artery",
-    cptCode: "33533",
-    procedureName: "Coronary Artery Bypass Graft",
-  },
-  {
-    diagnosisCode: "H26.9",
-    diagnosisDesc: "Unspecified cataract",
-    cptCode: "66984",
-    procedureName: "Cataract Removal with IOL Implant",
-  },
+const REASONS_FOR_VISIT = [
+  "New patient consult",
+  "Annual wellness exam",
+  "Follow-up on prior visit",
+  "Referral for specialist evaluation",
+  "Persistent joint pain",
+  "Routine screening",
+];
+
+const PHARMACIES = [
+  "CVS Pharmacy #4021",
+  "Walgreens #1188",
+  "Walmart Pharmacy #302",
+  "Kroger Pharmacy #77",
+  "Costco Pharmacy #519",
 ];
 
 const PROVIDERS = [
-  { name: "Dr. Emily Chen, MD", npi: "1245319599" },
-  { name: "Dr. Marcus Webb, DO", npi: "1568423170" },
-  { name: "Dr. Sarah Okonkwo, MD", npi: "1679834021" },
-  { name: "Dr. James Patel, MD", npi: "1780945132" },
-  { name: "Dr. Lauren Tran, MD", npi: "1891056243" },
+  "Dr. Emily Chen, MD",
+  "Dr. Marcus Webb, DO",
+  "Dr. Sarah Okonkwo, MD",
+  "Dr. James Patel, MD",
+  "Dr. Lauren Tran, MD",
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -132,13 +106,15 @@ function randomMemberId(ins: string) {
   return `${prefix}${digits}`;
 }
 
-function randomGroupNumber() {
-  return `GRP-${String(Math.floor(10000 + Math.random() * 90000))}`;
-}
-
 function randomAddress() {
   const num = 100 + Math.floor(Math.random() * 9900);
   return `${num} ${pick(STREETS)}, ${pick(CITIES)} ${String(10000 + Math.floor(Math.random() * 90000))}`;
+}
+
+function randomEmergencyContact(lastName: string) {
+  const firstName = pick(FIRST_NAMES);
+  const relations = ["Spouse", "Parent", "Sibling", "Adult Child", "Friend"];
+  return `${firstName} ${lastName} (${pick(relations)}) — ${randomPhone()}`;
 }
 
 // ── Public factory ────────────────────────────────────────────────────────────
@@ -147,8 +123,6 @@ export function generatePatientData(): PatientData {
   const firstName = pick(FIRST_NAMES);
   const lastName = pick(LAST_NAMES);
   const ins = pick(INSURANCES);
-  const clinical = pick(CLINICAL);
-  const provider = pick(PROVIDERS);
 
   return {
     firstName,
@@ -156,11 +130,11 @@ export function generatePatientData(): PatientData {
     dob: randomDob(),
     phone: randomPhone(),
     address: randomAddress(),
+    emergencyContact: randomEmergencyContact(lastName),
+    preferredPharmacy: pick(PHARMACIES),
+    reasonForVisit: pick(REASONS_FOR_VISIT),
+    referringProvider: pick(PROVIDERS),
     insurance: ins,
     memberId: randomMemberId(ins),
-    groupNumber: randomGroupNumber(),
-    ...clinical,
-    providerName: provider.name,
-    providerNpi: provider.npi,
   };
 }
