@@ -14,7 +14,7 @@ import {
   ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
   MailCheck, Workflow, ScanSearch,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
-  AudioLines, Printer, CirclePlus, Landmark, ShieldCheck, BadgeDollarSign, HeartHandshake,
+  AudioLines, Printer, ShieldCheck, BadgeDollarSign, HeartHandshake,
   type LucideIcon,
 } from "lucide-react";
 
@@ -520,16 +520,16 @@ const CONNECT_DETAIL: DetailStage = {
   accent: CCC_COLORS.connect,
   cards: [
     {
-      icon: Landmark,
-      title: "Patient Service Agent",
-      text: "AI handles patient-facing back-office requests — billing questions, records, and status updates — without staff involvement.",
-      compactText: "Handles patient billing and status requests without staff involvement.",
+      icon: ScanText,
+      title: "Conversation Intelligence Agent",
+      text: "AI analyzes call and text transcripts to extract structured intelligence — procedure, intent, willingness to pay — and labels the case automatically.",
+      compactText: "Extracts procedure, intent, and willingness-to-pay signals from every conversation.",
     },
     {
-      icon: CirclePlus,
-      title: "EMR Computer Use Agents",
-      text: "AI operates the EMR directly — entering data, updating records, and completing workflows the same way a staff member would.",
-      compactText: "Operates the EMR directly to complete back-office workflows.",
+      icon: Database,
+      title: "Patient Context Agent",
+      text: "AI pulls relevant context from the EMR/PMS — patient history, prior procedures, appointments, provider relationships, medications/records where appropriate — and uses it to inform the interaction.",
+      compactText: "Pulls patient history and context from the EMR/PMS to inform every interaction.",
     },
     {
       icon: Workflow,
@@ -575,14 +575,14 @@ const CONVERT_DETAIL: DetailStage = {
 type RevenueCycleSolution = {
   icon: LucideIcon;
   title: string;
-  employeeType: "Agentic Front Office Employee" | "May I Communications Agents" | "Agentic Back Office Employee" | "May I Revenue Operations Agents" | "May I Patient Retention Agents";
+  employeeType: "Agentic Front Office Employee" | "May I Communications Agents" | "Agentic Back Office Employee" | "May I Demand Qualification Agents" | "May I Growth & Retention Agents";
   functionLabel: string;
 };
 
 type RevenueCycleStage = {
   id: string;
   stage: string;
-  persona: "Front-office" | "Back-office" | "Clinician";
+  persona: "Patient Engagement" | "Care";
   metricTitle: string;
   metricValue: string;
   metricLabel: string;
@@ -620,7 +620,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   {
     id: "intake",
     stage: "Patient Intake",
-    persona: "Front-office",
+    persona: "Patient Engagement",
     metricTitle: "Missed Demand",
     metricValue: "35%",
     metricLabel: "of calls during the day are missed",
@@ -637,54 +637,54 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   },
   {
     id: "preauth",
-    stage: "Back-Office Operations",
-    persona: "Back-office",
-    metricTitle: "Administrative Overload",
-    metricValue: "2:1",
-    metricLabel: "more time on admin than patients",
-    commentary: "Administrative drag cuts capacity, slows follow-up, creates bottlenecks, and fuels burnout.",
-    sourceHref: "https://www.acpjournals.org/doi/10.7326/M16-0961",
-    sourceLabel: "Source: Annals of Internal Medicine",
-    challenge: "Manual EMR data entry, status chasing, and rework across back-office workflows.",
+    stage: "Patient Qualification",
+    persona: "Patient Engagement",
+    metricTitle: "Slow Speed-to-Lead",
+    metricValue: "42hrs",
+    metricLabel: "average company response time",
+    commentary: "Responding within 5 minutes makes contact 100x more likely — but patient intent is scattered.",
+    sourceHref: "https://hbr.org/2011/03/the-short-life-of-online-sales-leads",
+    sourceLabel: "Source: Harvard Business Review",
+    challenge: "Captured demand goes unqualified and unenriched, so practices can't act on it fast enough.",
     accent: CCC_COLORS.connect,
     separatorAfter: true,
     solutions: [
-      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Service Agent", "May I Revenue Operations Agents", "Handles patient billing and status requests"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "EMR Computer Use Agents", "May I Revenue Operations Agents", "Operates the EMR to complete workflows"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "CRM Orchestrator Agents", "May I Revenue Operations Agents", "Moves work through operational queues"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Conversation Intelligence Agent", "May I Demand Qualification Agents", "Extracts procedure, intent, and sentiment"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Context Agent", "May I Demand Qualification Agents", "Enriches interactions with EMR/PMS context"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "CRM Orchestrator Agents", "May I Demand Qualification Agents", "Orchestrates the next best action"),
     ],
   },
   {
     id: "consult",
     stage: "Consult",
-    persona: "Clinician",
-    metricTitle: "Slow Speed-to-Lead",
-    metricValue: "42hrs",
-    metricLabel: "average company response time",
-    commentary: "Practices are 100x more likely to make contact and 21x more likely to qualify if they respond within 5 minutes.",
-    sourceHref: "https://hbr.org/2011/03/the-short-life-of-online-sales-leads",
-    sourceLabel: "Source: Harvard Business Review",
-    challenge: "Incomplete patient context and poor workflow handoff into the consult decision point.",
+    persona: "Care",
+    metricTitle: "",
+    metricValue: "",
+    metricLabel: "",
+    commentary: "",
+    sourceHref: "",
+    sourceLabel: "",
+    challenge: "The clinician delivers care and the EMR/PMS remains the system of record.",
     accent: "var(--mi-copper)",
     showMetricCard: false,
     solutions: [],
   },
   {
     id: "recall",
-    stage: "Patient Recall / Collections",
-    persona: "Back-office",
+    stage: "Patient Growth & Retention",
+    persona: "Patient Engagement",
     metricTitle: "Patient Churn",
     metricValue: "25%",
     metricLabel: "switched providers because they were unhappy",
     commentary: "Poor patient experience now drives measurable provider switching across healthcare.",
     sourceHref: "https://www.accenture.com/us-en/insightsnew/health/difference-between-loyalty-leaving",
     sourceLabel: "Source: Accenture",
-    challenge: "Revenue is lost when follow-up, procedure coordination, and collections depend on manual outreach.",
+    challenge: "Dormant patient relationships go unmanaged once the encounter ends.",
     accent: CCC_COLORS.convert,
     solutions: [
-      getRevenueCycleSolution(CONVERT_DETAIL, "Lead Generation", "May I Patient Retention Agents", "Runs follow-up outreach for recalls"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall, Upsell / Cross Sell", "May I Patient Retention Agents", "Targeted Marketing"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Revenue Recovery", "May I Patient Retention Agents", "Follows up on balances and collections"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Lead Generation", "May I Growth & Retention Agents", "Runs patient recall and reactivation outreach"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall, Upsell / Cross Sell", "May I Growth & Retention Agents", "Runs targeted patient marketing"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Revenue Recovery", "May I Growth & Retention Agents", "Follows up on outstanding balances"),
     ],
   },
 ] as const;
@@ -723,38 +723,6 @@ const TRACTION_CUSTOMERS = [
     profile: "2-provider ophthalmology practice in Rosemead, California",
     impact: "Shows the platform adapts across specialties, capturing patient demand in a high-volume workflow-heavy environment.",
   },
-] as const;
-
-const OPEN_AGENT_RISKS = [
-  {
-    stat: "~20%",
-    headline: "of ClawHub marketplace flagged as malware",
-    source: "Bitdefender, Feb 2026",
-  },
-  {
-    stat: "1,467",
-    headline: "malicious skills identified",
-    source: "Snyk ToxicSkills report",
-  },
-  {
-    stat: "42,000+",
-    headline: "exposed instances without authentication",
-    source: "Shodan / Censys",
-  },
-  {
-    stat: "CVE-2026-25253",
-    headline: "one-click RCE, CVSS 8.8 — a severe flaw that could let an attacker take over a system with a single click",
-    source: "NVD",
-  },
-] as const;
-
-const ENTERPRISE_CONTROLS = [
-  "HIPAA-compliant infrastructure from day one",
-  "No open marketplace — curated, audited workflows",
-  "Healthcare-specific guardrails and validation",
-  "Human-in-the-loop for critical decisions",
-  "SOC 2 compliance pathway",
-  "Closed-loop system — no third-party skills",
 ] as const;
 
 const ASK_MILESTONES = [
@@ -869,18 +837,18 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
   const agendaAll: ReadonlyArray<{ num: string; label: string; slideId: SlideId }> = [
     { num: "2",  label: "The Problem",            slideId: "problem" },
     { num: "4",  label: "Product Workflow",       slideId: "qualify" },
-    { num: "5",  label: "Live Demo",              slideId: "demo" },
-    { num: "6",  label: "The May I System",       slideId: "engine" },
+    { num: "5",  label: "The May I System",       slideId: "engine" },
     // { num: "7",  label: "Business Impact",        slideId: "roi" },
-    { num: "9",  label: "Traction",               slideId: "traction" },
-    { num: "10", label: "Founder & CEO",          slideId: "founder" },
-    { num: "11", label: "Enterprise Security",    slideId: "enterprise-grade" },
-    { num: "12", label: "Competitive Landscape",  slideId: "why-wins" },
-    { num: "13", label: "Investor Case",          slideId: "path" },
-    { num: "14", label: "Revenue Projections",    slideId: "moats" },
-    { num: "15", label: "Vision",                 slideId: "vision" },
-    { num: "16", label: "The Ask",                slideId: "ask" },
-    { num: "17", label: "Appendix",               slideId: "appendix" },
+    { num: "6",  label: "Traction",               slideId: "traction" },
+    { num: "7",  label: "Founder & CEO",          slideId: "founder" },
+    { num: "8",  label: "Enterprise Security",    slideId: "enterprise-grade" },
+    { num: "9",  label: "Competitive Landscape",  slideId: "why-wins" },
+    { num: "10", label: "Investor Case",          slideId: "path" },
+    { num: "11", label: "Revenue Projections",    slideId: "moats" },
+    { num: "12", label: "Vision",                 slideId: "vision" },
+    { num: "13", label: "The Ask",                slideId: "ask" },
+    { num: "14", label: "Appendix",               slideId: "appendix" },
+    { num: "15", label: "Live Demo",              slideId: "demo" },
   ];
   const agenda = (isMobile || isExportMode)
     ? agendaAll.filter((a) => a.label !== "Live Demo")
@@ -907,11 +875,11 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
           Investor Pitch · 2026
         </motion.div>
         <motion.h1 variants={fadeUp} className="hero-headline">
-          The AI Revenue Integrity Engine
+          The AI Patient Revenue Engine
           <span className="headline-accent"> for Healthcare.</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="hero-sub">
-          <strong>May I deploys agentic employees</strong> to capture demand, run operations, and drive patient retention.
+          <strong>May I deploys agentic employees</strong> to capture demand, run patient operations, and grow patient lifetime value.
         </motion.p>
       </motion.div>
 
@@ -1026,7 +994,7 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
         animate="show"
       >
         <div className="problem-timeline">
-          {REVENUE_CYCLE_STAGES.map(({ id, stage, persona, metricTitle, metricValue, metricLabel, commentary, sourceHref, sourceLabel, accent, showMetricCard = true, separatorAfter = false, solutions }, index) => (
+          {REVENUE_CYCLE_STAGES.map(({ id, stage, persona, metricTitle, metricValue, metricLabel, commentary, sourceHref, sourceLabel, accent, showMetricCard = true, separatorAfter = false }, index) => (
             <motion.section
               key={stage}
               layout
@@ -1099,17 +1067,38 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                   />
                 ) : null}
               </motion.div>
+            </motion.section>
+          ))}
+        </div>
 
-              <AnimatePresence initial={false}>
-                {isBuilt && solutions.length > 0 ? (
-                  <motion.div
-                    layout
-                    className="problem-solutions"
-                    initial={{ opacity: 0, y: 28 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 28 }}
-                    transition={{ duration: 0.38, ease: "easeOut" }}
-                  >
+        <AnimatePresence initial={false}>
+          {isBuilt ? (
+            <motion.div
+              className="problem-attribution-line"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.32, ease: "easeOut" }}
+            >
+              <span className="problem-attribution-rule" aria-hidden="true" />
+              <span className="problem-attribution-label">Revenue Attribution</span>
+              <span className="problem-attribution-rule" aria-hidden="true" />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <AnimatePresence initial={false}>
+          {isBuilt ? (
+            <motion.div
+              className="problem-timeline problem-solutions-row"
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 28 }}
+              transition={{ duration: 0.38, ease: "easeOut" }}
+            >
+              {REVENUE_CYCLE_STAGES.map(({ id, stage, accent, solutions }) => (
+                solutions.length > 0 ? (
+                  <div key={stage} className="problem-solutions">
                     <div className="problem-solution-card" style={{ borderTopColor: accent }}>
                       <div className="problem-solutions-label" style={{ color: accent }}>
                         <img
@@ -1138,12 +1127,12 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                         ))}
                       </div>
                     </div>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            </motion.section>
-          ))}
-        </div>
+                  </div>
+                ) : <div key={stage} aria-hidden="true" />
+              ))}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
@@ -1255,16 +1244,16 @@ function SlideLoss() {
           initial="hidden"
           animate="show"
         >
-          <span className="loss-market-value loss-market-value-stat">$353</span>
+          <span className="loss-market-value loss-market-value-stat">$13.8</span>
           <span className="loss-market-value">Billion</span>
-          <span className="loss-market-caption">2026 Business Process Operations market</span>
+          <span className="loss-market-caption">2026 U.S. Patient Engagement Solutions Market</span>
           <a
             className="loss-card-source-link"
-            href="https://www.fortunebusinessinsights.com/business-process-outsourcing-market-111583"
+            href="https://www.grandviewresearch.com/industry-analysis/us-patient-engagement-solutions-market"
             target="_blank"
             rel="noreferrer"
           >
-            Source: Fortune Business Insights
+            Source: Grand View Research
           </a>
         </motion.div>
       </div>
@@ -1480,8 +1469,8 @@ function SlideEngine() {
     { icon: <MessageSquare size={16} />, text: "Text Agents" },
   ];
   const connectOutcomes = [
-    { icon: <Landmark size={16} />, text: "Patient Service Agent" },
-    { icon: <CirclePlus size={16} />, text: "EMR Computer Use Agents" },
+    { icon: <ScanText size={16} />, text: "Conversation Intelligence Agent" },
+    { icon: <Database size={16} />, text: "Patient Context Agent" },
     { icon: <Workflow size={16} />, text: "CRM Orchestrator Agents" },
   ];
   const convertOutcomes = [
@@ -1502,9 +1491,9 @@ function SlideEngine() {
         initial="hidden"
         animate="show"
       >
-        May I is the <strong>critical system of engagement</strong> — deploying
-        agents that sit between patients and the practice, while
-        EMR/PMS remains the system of record.
+        May I is the <strong>system of engagement</strong> — capturing patient
+        intent, orchestrating action, and attributing revenue from demand
+        generation through conversion.
       </motion.p>
       <motion.div
         className="engine-diagram"
@@ -1816,8 +1805,8 @@ function SlideEnterpriseGrade() {
   return (
     <div className="slide slide-enterprise-grade">
       <SlideHeader
-        eyebrow="Why Enterprise-Grade Matters"
-        title="Open-source AI agents are a healthcare liability."
+        eyebrow="Market Validation"
+        title="Consumer Agents Are Calling Practices"
       />
       <motion.p
         className="enterprise-subtitle"
@@ -1825,34 +1814,26 @@ function SlideEnterpriseGrade() {
         initial="hidden"
         animate="show"
       >
-        In healthcare, security isn&apos;t a feature — it&apos;s a license to operate.
+        Instinct and Meta&apos;s Muse just gave millions of consumer agents the ability to call
+        businesses. Do you want humans handling that load? Businesses need to be ready with May I.
       </motion.p>
-      <motion.div className="enterprise-grid" variants={stagger} initial="hidden" animate="show">
-        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-risk">
-          <div className="enterprise-panel-label enterprise-panel-label-risk">The OpenClaw Crisis — Feb 2026</div>
-          <div className="enterprise-risk-list">
-            {OPEN_AGENT_RISKS.map(({ stat, headline, source }) => (
-              <div key={stat} className="enterprise-risk-item">
-                <div className="enterprise-risk-stat">{stat}</div>
-                <div className="enterprise-risk-copy">
-                  <div className="enterprise-risk-headline">{headline}</div>
-                  <div className="enterprise-risk-source">{source}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+      <motion.div className="enterprise-grid enterprise-grid-tweets" variants={stagger} initial="hidden" animate="show">
+        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-tweet">
+          <div className="enterprise-tweet-tag">Instinct</div>
+          <img
+            src="/tweet_instinct_screenshot.png"
+            alt="Tweet from Noah Shinn announcing Instinct Concierge, a white-glove service that can make phone calls"
+            className="enterprise-tweet-image"
+          />
         </motion.section>
 
-        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-safe">
-          <div className="enterprise-panel-label enterprise-panel-label-safe">May I's Enterprise Approach</div>
-          <div className="enterprise-safe-list">
-            {ENTERPRISE_CONTROLS.map((item) => (
-              <div key={item} className="enterprise-safe-item">
-                <CheckCircle2 size={18} className="enterprise-safe-icon" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
+        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-tweet">
+          <div className="enterprise-tweet-tag">Meta Muse</div>
+          <img
+            src="/tweet_muse_screenshot.png"
+            alt="Tweet from Ryan Fox announcing expanded outbound calling beta for Meta's Muse"
+            className="enterprise-tweet-image"
+          />
         </motion.section>
       </motion.div>
     </div>
@@ -1864,74 +1845,46 @@ function SlideEnterpriseGrade() {
 function SlideWhyWins() {
   const rows = [
     {
-      category: "AI Comms (Enterprise)",
-      company: "PolyAI",
-      strength: "Enterprise-grade voice AI with highly natural conversational experiences",
-      gap: "Non-healthcare native; Missing healthcare workflows; Missing AI CRM; Missing operational automation",
-      win: "Purpose-built for healthcare operations with end-to-end execution across the patient journey",
-    },
-    {
-      category: "AI Comms (Healthcare)",
-      company: "Hyro",
-      strength: "Strong chat + voice front door",
-      gap: "Missing AI CRM; Missing CU workflow automation",
-      win: "Executes workflows beyond conversation",
+      category: "AI Patient Operations",
+      company: "Luma Health",
+      strength: "Broad patient engagement, conversational AI, scheduling, referrals, outreach",
+      gap: "Broad healthcare focus; not purpose-built around elective-care demand conversion",
+      win: "Built around capturing, qualifying & converting elective patient demand",
     },
     {
       category: "AI Workflow Automation",
       company: "Notable Health",
-      strength: "Intake, scheduling, outreach workflows",
-      gap: "",
-      win: "Nimbler, GenAI native.",
+      strength: "AI agents for patient access and administrative workflows",
+      gap: "Broad enterprise healthcare automation vs. elective revenue lifecycle",
+      win: "Patient revenue and intent are the organizing layer",
     },
     {
-      category: "AI Workflow Automation",
-      company: "Infinitus Systems",
-      strength: "Automates payer calls, prior auth",
-      gap: "Missing AI CRM; Missing CU workflow automation",
-      win: "Covers full patient + revenue journey",
+      category: "AI Communications",
+      company: "Hyro",
+      strength: "Healthcare-native conversational AI across voice and digital channels",
+      gap: "Primarily conversational/self-service layer",
+      win: "Persistent patient intent + CRM orchestration + downstream conversion",
     },
     {
-      category: "AI CRM (Horizontal)",
+      category: "Patient Engagement",
+      company: "Klara / ModMed",
+      strength: "Messaging, communication and patient engagement integrated with practice workflows",
+      gap: "Engagement is attached to the system of record rather than an AI-native intent layer",
+      win: "Independent system of engagement across communications + EMR/PMS",
+    },
+    {
+      category: "Practice Platform",
+      company: "Tebra",
+      strength: "Integrated EHR, patient experience, marketing and payments for independent practices",
+      gap: "Broad practice-management suite rather than autonomous patient-revenue agents",
+      win: "AI-native agents operate across the demand-to-revenue lifecycle",
+    },
+    {
+      category: "Horizontal CRM",
       company: "HubSpot",
-      strength: "Easy-to-use CRM + AI features",
-      gap: "Non-healthcare native; Missing AI Comms; Missing AI employees",
-      win: "Replaces manual CRM usage entirely",
-    },
-    {
-      category: "AI CRM (Horizontal)",
-      company: "Zoho",
-      strength: "Affordable CRM + automation tools",
-      gap: "Non-healthcare native; Fragmented AI; Missing AI Comms",
-      win: "Unified AI-native system",
-    },
-    {
-      category: "Patient CRM / Engagement",
-      company: "Klara",
-      strength: "Messaging, intake, patient coordination",
-      gap: "Missing AI Employees; Missing autonomous workflows; Limited AI depth",
-      win: "AI replaces staff across workflows",
-    },
-    {
-      category: "Patient CRM / Engagement",
-      company: "NexHealth",
-      strength: "Scheduling APIs, patient experience",
-      gap: "Missing AI Employees; Missing AI Comms depth; Limited automation",
-      win: "Drives conversion autonomously",
-    },
-    {
-      category: "AI RCM Automation",
-      company: "AKASA",
-      strength: "Strong billing + coding automation",
-      gap: "Missing AI Comms; Missing AI CRM; Front office gap",
-      win: "Covers both front + back office",
-    },
-    {
-      category: "AI RCM Automation",
-      company: "R1 RCM",
-      strength: "Scaled outsourcing + revenue ops",
-      gap: "Not AI-native; Missing AI Comms; Missing AI CRM",
-      win: "Software replaces labor model",
+      strength: "Mature CRM, marketing automation and lead lifecycle tooling",
+      gap: "Not healthcare-native; lacks native EMR/PMS context and healthcare workflows",
+      win: "Healthcare-native CRM + patient context + autonomous agents",
     },
   ];
 
@@ -1939,7 +1892,7 @@ function SlideWhyWins() {
     <div className="slide slide-why-wins">
       <SlideHeader
         eyebrow="Competitive Landscape"
-        title={<>May I: Healthcare-Native AI Automation<br />for the Full Practice Workflow</>}
+        title="May I: The AI System of Engagement for Patient Revenue"
       />
       <motion.div
         className="competitive-table-wrap"

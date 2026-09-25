@@ -6,8 +6,6 @@ export const SLIDES = [
   "voice-agent",
   "qualify-experience",
   "qualify",
-  "confirm",
-  "demo",
   "engine",
   "traction",
   "founder",
@@ -21,6 +19,8 @@ export const SLIDES = [
   "capture-detail",
   "connect-detail",
   "convert-detail",
+  "confirm",
+  "demo",
 ];
 
 export const PDF_EXPORT_SLIDES = SLIDES.filter((slide) => slide !== "demo");

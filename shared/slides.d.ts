@@ -6,8 +6,6 @@ export declare const SLIDES: readonly [
   "voice-agent",
   "qualify-experience",
   "qualify",
-  "confirm",
-  "demo",
   "engine",
   "traction",
   "founder",
@@ -21,6 +19,8 @@ export declare const SLIDES: readonly [
   "capture-detail",
   "connect-detail",
   "convert-detail",
+  "confirm",
+  "demo",
 ];
 
 export type SlideId = (typeof SLIDES)[number];

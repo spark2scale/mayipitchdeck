@@ -735,6 +735,33 @@ strong { color: var(--mi-text); font-weight: 600; }
   width: 100%;
 }
 
+.problem-attribution-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.problem-solutions-row {
+  align-items: start;
+}
+
+.problem-attribution-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--mi-border);
+}
+
+.problem-attribution-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--mi-copper);
+}
+
 .problem-stage {
   position: relative;
   display: flex;
@@ -3199,6 +3226,40 @@ strong { color: var(--mi-text); font-weight: 600; }
   line-height: 1.35;
   font-style: italic;
   font-weight: 600;
+}
+
+.enterprise-panel-tweet {
+  position: relative;
+  border-left: 5px solid var(--mi-copper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.enterprise-tweet-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.72);
+  color: var(--mi-copper);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  padding: 6px 12px;
+  border: 1px solid var(--mi-copper);
+  border-radius: 999px;
+}
+
+.enterprise-tweet-image {
+  max-width: 100%;
+  max-height: 390px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 /* ─── Slide: Market ──────────────────────────────────────────────────────── */
