@@ -13,9 +13,9 @@ import {
   Phone, MessageSquare, Globe, Share2,
   FileCheck,
   ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
-  FileSearch, MailCheck, Workflow, ScanSearch,
+  MailCheck, Workflow, ScanSearch,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
-  AudioLines, Printer, CirclePlus, Landmark, ShieldCheck, BadgeDollarSign, HeartHandshake,
+  AudioLines, Printer, ShieldCheck, BadgeDollarSign, HeartHandshake,
   type LucideIcon,
 } from "lucide-react";
 
@@ -514,26 +514,26 @@ const CONNECT_DETAIL: DetailStage = {
   impact: "$750K",
   impactQualifier: "per year lost to inefficiency",
   percent: "10%",
-  friction: "Back-office personnel spend 20% of their time manually entering data into payer portals, and emailing or calling payers to verify insurance.",
+  friction: "Back-office personnel spend 20% of their time manually entering data into the EMR, and fielding patient billing and status requests.",
   summary: "of back-office time automated",
   shade: "card-connect",
   accent: CCC_COLORS.connect,
   cards: [
     {
-      icon: FileSearch,
-      title: "Automated Insurance Pre-Authorization",
-      text: "AI navigates payer portals, enters patient data, and triggers insurance pre-authorization automatically.",
-      compactText: "Portal submission and pre-auth initiation without staff entry.",
+      icon: ScanText,
+      title: "Conversation Intelligence Agent",
+      text: "AI analyzes call and text transcripts to extract structured intelligence — procedure, intent, willingness to pay — and labels the case automatically.",
+      compactText: "Extracts procedure, intent, and willingness-to-pay signals from every conversation.",
     },
     {
-      icon: UserRound,
-      title: "Patient Intelligence and Lead Scoring",
-      text: "Responses that arrive via email are reconciled, resubmitted, or flagged — without staff involvement.",
-      compactText: "Patient history and spend signals help prioritize calls and outreach.",
+      icon: Database,
+      title: "Patient Context Agent",
+      text: "AI pulls relevant context from the EMR/PMS — patient history, prior procedures, appointments, provider relationships, medications/records where appropriate — and uses it to inform the interaction.",
+      compactText: "Pulls patient history and context from the EMR/PMS to inform every interaction.",
     },
     {
       icon: Workflow,
-      title: "Business Orchestration",
+      title: "CRM Orchestrator Agents",
       text: "Inputs, agentic operations, and outputs are defined for each stage in the CRM and automatically moved to the next stage until complete.",
       compactText: "Stage-based CRM operations move work to completion.",
     },
@@ -582,7 +582,7 @@ type RevenueCycleSolution = {
 type RevenueCycleStage = {
   id: string;
   stage: string;
-  persona: "Front-office" | "Back-office" | "Clinician";
+  persona: "Demand Capture" | "Demand Connect" | "Demand Convert" | "Care";
   metricTitle: string;
   metricValue: string;
   metricLabel: string;
@@ -620,7 +620,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   {
     id: "intake",
     stage: "Patient Intake",
-    persona: "Front-office",
+    persona: "Demand Capture",
     metricTitle: "Missed Demand",
     metricValue: "35%",
     metricLabel: "of calls during the day are missed",
@@ -637,54 +637,54 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   },
   {
     id: "preauth",
-    stage: "Pre-authorization",
-    persona: "Back-office",
-    metricTitle: "Administrative Overload",
-    metricValue: "2:1",
-    metricLabel: "more time on admin than patients",
-    commentary: "Administrative drag cuts capacity, slows follow-up, creates bottlenecks, and fuels burnout.",
-    sourceHref: "https://www.acpjournals.org/doi/10.7326/M16-0961",
-    sourceLabel: "Source: Annals of Internal Medicine",
-    challenge: "Manual payer data entry, status chasing, and rework across pre-auth workflows.",
+    stage: "Patient Qualification",
+    persona: "Demand Connect",
+    metricTitle: "Slow Speed-to-Lead",
+    metricValue: "42hrs",
+    metricLabel: "average company response time",
+    commentary: "Responding within 5 minutes makes contact 100x more likely — but patient intent is scattered.",
+    sourceHref: "https://hbr.org/2011/03/the-short-life-of-online-sales-leads",
+    sourceLabel: "Source: Harvard Business Review",
+    challenge: "Captured demand goes unqualified and unenriched, so practices can't act on it fast enough.",
     accent: CCC_COLORS.connect,
     separatorAfter: true,
     solutions: [
-      getRevenueCycleSolution(CONNECT_DETAIL, "Automated Insurance Pre-Authorization", "May I Qualification Agents", "Submits patient data and starts pre-auth"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Intelligence and Lead Scoring", "May I Qualification Agents", "Responds to emails and triggers apps"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Business Orchestration", "May I Qualification Agents", "Moves work through operational queues"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Conversation Intelligence Agent", "May I Qualification Agents", "Extracts procedure, intent, and sentiment"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Context Agent", "May I Qualification Agents", "Enriches interactions with EMR/PMS context"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "CRM Orchestrator Agents", "May I Qualification Agents", "Orchestrates the next best action"),
     ],
   },
   {
     id: "consult",
     stage: "Consult",
-    persona: "Clinician",
-    metricTitle: "Slow Speed-to-Lead",
-    metricValue: "42hrs",
-    metricLabel: "average company response time",
-    commentary: "Practices are 100x more likely to make contact and 21x more likely to qualify if they respond within 5 minutes.",
-    sourceHref: "https://hbr.org/2011/03/the-short-life-of-online-sales-leads",
-    sourceLabel: "Source: Harvard Business Review",
-    challenge: "Incomplete patient context and poor workflow handoff into the consult decision point.",
+    persona: "Care",
+    metricTitle: "",
+    metricValue: "",
+    metricLabel: "",
+    commentary: "",
+    sourceHref: "",
+    sourceLabel: "",
+    challenge: "The clinician delivers care and the EMR/PMS remains the system of record.",
     accent: "var(--mi-copper)",
     showMetricCard: false,
     solutions: [],
   },
   {
     id: "recall",
-    stage: "Patient Recall / Collections",
-    persona: "Back-office",
+    stage: "Patient Growth & Retention",
+    persona: "Demand Convert",
     metricTitle: "Patient Churn",
     metricValue: "25%",
     metricLabel: "switched providers because they were unhappy",
     commentary: "Poor patient experience now drives measurable provider switching across healthcare.",
     sourceHref: "https://www.accenture.com/us-en/insightsnew/health/difference-between-loyalty-leaving",
     sourceLabel: "Source: Accenture",
-    challenge: "Revenue is lost when follow-up, procedure coordination, and collections depend on manual outreach.",
+    challenge: "Dormant patient relationships go unmanaged once the encounter ends.",
     accent: CCC_COLORS.convert,
     solutions: [
-      getRevenueCycleSolution(CONVERT_DETAIL, "Lead Generation", "May I Growth & Retention Agents", "Runs follow-up outreach for recalls"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall, Upsell / Cross Sell", "May I Growth & Retention Agents", "Targeted Marketing"),
-      getRevenueCycleSolution(CONVERT_DETAIL, "Revenue Recovery", "May I Growth & Retention Agents", "Follows up on balances and collections"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Lead Generation", "May I Growth & Retention Agents", "Runs patient recall and reactivation outreach"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall, Upsell / Cross Sell", "May I Growth & Retention Agents", "Runs targeted patient marketing"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Revenue Recovery", "May I Growth & Retention Agents", "Follows up on outstanding balances"),
     ],
   },
 ] as const;
@@ -864,11 +864,11 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
           Investor Pitch · 2026
         </motion.div>
         <motion.h1 variants={fadeUp} className="hero-headline">
-          The AI Revenue Integrity Engine
+          The AI Patient Revenue Engine
           <span className="headline-accent"> for Healthcare.</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="hero-sub">
-          <strong>May I deploys agentic employees</strong> to capture demand, run operations, and drive patient retention.
+          <strong>May I deploys agentic employees</strong> to capture demand, run patient operations, and grow patient lifetime value.
         </motion.p>
       </motion.div>
 
@@ -907,8 +907,8 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
                 <span className="flow-val hero-ccc-row">
                   {[
                     { label: "Capture", role: <>Comms<br />Agents</>, color: CCC_COLORS.capture, align: "right" },
-                    { label: "Connect", role: <>Revenue<br />Operations<br />Agents</>, color: CCC_COLORS.connect },
-                    { label: "Convert", role: <>Patient<br />Retention<br />Agents</>, color: CCC_COLORS.convert },
+                    { label: "Connect", role: <>Qualification<br />Agents</>, color: CCC_COLORS.connect },
+                    { label: "Convert", role: <>Growth &amp;<br />Retention<br />Agents</>, color: CCC_COLORS.convert },
                   ].map(({ label, role, color, align }, i) => (
                     <>
                       <span key={label} className={`hero-ccc-label-group${align === "right" ? " hero-ccc-label-group-right" : ""}`}>
@@ -983,7 +983,7 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
         animate="show"
       >
         <div className="problem-timeline">
-          {REVENUE_CYCLE_STAGES.map(({ id, stage, persona, metricTitle, metricValue, metricLabel, commentary, sourceHref, sourceLabel, accent, showMetricCard = true, separatorAfter = false, solutions }, index) => (
+          {REVENUE_CYCLE_STAGES.map(({ id, stage, persona, metricTitle, metricValue, metricLabel, commentary, sourceHref, sourceLabel, accent, showMetricCard = true, separatorAfter = false }, index) => (
             <motion.section
               key={stage}
               layout
@@ -1056,17 +1056,38 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                   />
                 ) : null}
               </motion.div>
+            </motion.section>
+          ))}
+        </div>
 
-              <AnimatePresence initial={false}>
-                {isBuilt && solutions.length > 0 ? (
-                  <motion.div
-                    layout
-                    className="problem-solutions"
-                    initial={{ opacity: 0, y: 28 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 28 }}
-                    transition={{ duration: 0.38, ease: "easeOut" }}
-                  >
+        <AnimatePresence initial={false}>
+          {isBuilt ? (
+            <motion.div
+              className="problem-attribution-line"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.32, ease: "easeOut" }}
+            >
+              <span className="problem-attribution-rule" aria-hidden="true" />
+              <span className="problem-attribution-label">Revenue Attribution</span>
+              <span className="problem-attribution-rule" aria-hidden="true" />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <AnimatePresence initial={false}>
+          {isBuilt ? (
+            <motion.div
+              className="problem-timeline problem-solutions-row"
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 28 }}
+              transition={{ duration: 0.38, ease: "easeOut" }}
+            >
+              {REVENUE_CYCLE_STAGES.map(({ id, stage, accent, solutions }) => (
+                solutions.length > 0 ? (
+                  <div key={stage} className="problem-solutions">
                     <div className="problem-solution-card" style={{ borderTopColor: accent }}>
                       <div className="problem-solutions-label" style={{ color: accent }}>
                         <img
@@ -1095,12 +1116,12 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                         ))}
                       </div>
                     </div>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            </motion.section>
-          ))}
-        </div>
+                  </div>
+                ) : <div key={stage} aria-hidden="true" />
+              ))}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
@@ -1421,8 +1442,8 @@ function SlideEngine() {
     { icon: <MessageSquare size={16} />, text: "Text Agents" },
   ];
   const connectOutcomes = [
-    { icon: <Landmark size={16} />, text: "Pre-Auth Portal Action Agents" },
-    { icon: <CirclePlus size={16} />, text: "EMR Action Agents" },
+    { icon: <ScanText size={16} />, text: "Conversation Intelligence Agent" },
+    { icon: <Database size={16} />, text: "Patient Context Agent" },
     { icon: <Workflow size={16} />, text: "CRM Orchestrator Agents" },
   ];
   const convertOutcomes = [
@@ -1443,9 +1464,9 @@ function SlideEngine() {
         initial="hidden"
         animate="show"
       >
-        May I is the <strong>critical system of engagement</strong> — deploying
-        agents that sit between patients and the practice, while
-        EMR/PMS remains the system of record.
+        May I is the <strong>system of engagement</strong> — capturing patient
+        intent, orchestrating action, and attributing revenue from demand
+        generation through conversion.
       </motion.p>
       <motion.div
         className="engine-diagram"

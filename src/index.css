@@ -735,6 +735,33 @@ strong { color: var(--mi-text); font-weight: 600; }
   width: 100%;
 }
 
+.problem-attribution-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.problem-solutions-row {
+  align-items: start;
+}
+
+.problem-attribution-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--mi-border);
+}
+
+.problem-attribution-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--mi-copper);
+}
+
 .problem-stage {
   position: relative;
   display: flex;
