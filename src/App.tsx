@@ -1789,7 +1789,7 @@ function SlideVision() {
       agentTitle: "Qualification Agents",
       icon: <ScanSearch size={22} />,
       headline: "Own the workflow, capture the data",
-      text: "Insurance Pre-auth, Billing, Patient recalls — orchestrated by May I across the full patient journey.",
+      text: "Patient service, EMR data entry, CRM orchestration — May I runs the back office so staff can focus on patients.",
       color: CCC_COLORS.connect,
     },
     {
