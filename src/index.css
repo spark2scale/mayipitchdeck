@@ -1288,20 +1288,20 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .everyday-benefit-label {
-  font-size: 11px;
+  font-size: 21px;
   line-height: 1.2;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.06em;
   font-weight: 700;
   color: var(--mi-copper);
 }
 
 .everyday-benefit h3 {
   margin: 13px 0 14px;
-  font-size: clamp(21px, 1.72vw, 27px);
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1.15;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
 }
 
 .everyday-benefit p {

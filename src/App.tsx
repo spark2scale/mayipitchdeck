@@ -575,14 +575,14 @@ const CONVERT_DETAIL: DetailStage = {
 type RevenueCycleSolution = {
   icon: LucideIcon;
   title: string;
-  employeeType: "Agentic Front Office Employee" | "May I Communications Agents" | "Agentic Back Office Employee" | "May I Demand Qualification Agents" | "May I Growth & Retention Agents";
+  employeeType: "Agentic Front Office Employee" | "May I Communications Agents" | "Agentic Back Office Employee" | "May I Qualification Agents" | "May I Growth & Retention Agents";
   functionLabel: string;
 };
 
 type RevenueCycleStage = {
   id: string;
   stage: string;
-  persona: "Patient Engagement" | "Care";
+  persona: "Demand Capture" | "Demand Connect" | "Demand Convert" | "Care";
   metricTitle: string;
   metricValue: string;
   metricLabel: string;
@@ -620,7 +620,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   {
     id: "intake",
     stage: "Patient Intake",
-    persona: "Patient Engagement",
+    persona: "Demand Capture",
     metricTitle: "Missed Demand",
     metricValue: "35%",
     metricLabel: "of calls during the day are missed",
@@ -638,7 +638,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   {
     id: "preauth",
     stage: "Patient Qualification",
-    persona: "Patient Engagement",
+    persona: "Demand Connect",
     metricTitle: "Slow Speed-to-Lead",
     metricValue: "42hrs",
     metricLabel: "average company response time",
@@ -649,9 +649,9 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     accent: CCC_COLORS.connect,
     separatorAfter: true,
     solutions: [
-      getRevenueCycleSolution(CONNECT_DETAIL, "Conversation Intelligence Agent", "May I Demand Qualification Agents", "Extracts procedure, intent, and sentiment"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Context Agent", "May I Demand Qualification Agents", "Enriches interactions with EMR/PMS context"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "CRM Orchestrator Agents", "May I Demand Qualification Agents", "Orchestrates the next best action"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Conversation Intelligence Agent", "May I Qualification Agents", "Extracts procedure, intent, and sentiment"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Context Agent", "May I Qualification Agents", "Enriches interactions with EMR/PMS context"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "CRM Orchestrator Agents", "May I Qualification Agents", "Orchestrates the next best action"),
     ],
   },
   {
@@ -672,7 +672,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
   {
     id: "recall",
     stage: "Patient Growth & Retention",
-    persona: "Patient Engagement",
+    persona: "Demand Convert",
     metricTitle: "Patient Churn",
     metricValue: "25%",
     metricLabel: "switched providers because they were unhappy",
@@ -918,8 +918,8 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
                 <span className="flow-val hero-ccc-row">
                   {[
                     { label: "Capture", role: <>Comms<br />Agents</>, color: CCC_COLORS.capture, align: "right" },
-                    { label: "Connect", role: <>Revenue<br />Operations<br />Agents</>, color: CCC_COLORS.connect },
-                    { label: "Convert", role: <>Patient<br />Retention<br />Agents</>, color: CCC_COLORS.convert },
+                    { label: "Connect", role: <>Qualification<br />Agents</>, color: CCC_COLORS.connect },
+                    { label: "Convert", role: <>Growth &amp;<br />Retention<br />Agents</>, color: CCC_COLORS.convert },
                   ].map(({ label, role, color, align }, i) => (
                     <>
                       <span key={label} className={`hero-ccc-label-group${align === "right" ? " hero-ccc-label-group-right" : ""}`}>
@@ -1560,14 +1560,14 @@ function SlideEngine() {
           </div>
           <div className="engine-group">
             <div className="engine-group-label engine-group-connect">Connect</div>
-            <div className="engine-group-agent engine-group-agent-connect">Revenue Operations Agents</div>
+            <div className="engine-group-agent engine-group-agent-connect">Qualification Agents</div>
             {connectOutcomes.map(({ icon, text }) => (
               <div key={text} className="engine-chip engine-chip-out engine-chip-connect">{icon}<span>{text}</span></div>
             ))}
           </div>
           <div className="engine-group">
             <div className="engine-group-label engine-group-convert">Convert</div>
-            <div className="engine-group-agent engine-group-agent-convert">Patient Retention Agents</div>
+            <div className="engine-group-agent engine-group-agent-convert">Growth &amp; Retention Agents</div>
             {convertOutcomes.map(({ icon, text }) => (
               <div key={text} className="engine-chip engine-chip-out engine-chip-convert">{icon}<span>{text}</span></div>
             ))}
@@ -2268,7 +2268,7 @@ function SlideVision() {
       num: "02",
       phase: "Tomorrow",
       stageLabel: "Connect",
-      agentTitle: "Revenue Operations Agents",
+      agentTitle: "Qualification Agents",
       icon: <ScanSearch size={22} />,
       headline: "Own the workflow, capture the data",
       text: "Patient service, EMR data entry, CRM orchestration — May I runs the back office so staff can focus on patients.",
@@ -2278,7 +2278,7 @@ function SlideVision() {
       num: "03",
       phase: "Future",
       stageLabel: "Convert",
-      agentTitle: "Patient Retention Agents",
+      agentTitle: "Growth & Retention Agents",
       icon: <Brain size={22} />,
       headline: "Predict and action on the data",
       text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes indispensable infrastructure.",
