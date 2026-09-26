@@ -8,8 +8,6 @@ export const SLIDES = [
   "qualify-experience",
   "qualify",
   "confirm",
-  "demo",
-  "fmla-demo",
   "traction",
   "founder",
   "vision",
@@ -20,5 +18,5 @@ export const SLIDES = [
 ];
 
 export const PDF_EXPORT_SLIDES = SLIDES.filter(
-  (slide) => !["demo", "capture-detail", "connect-detail", "convert-detail"].includes(slide)
+  (slide) => !["capture-detail", "connect-detail", "convert-detail"].includes(slide)
 );
