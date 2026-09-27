@@ -712,10 +712,10 @@ const TRACTION_SECONDARY_METRICS = [
 
 const TRACTION_CUSTOMERS = [
   {
-    name: "Austin Face and Body",
-    logoSrc: "/afbLogoBrown.png",
-    logoAlt: "Austin Face and Body logo",
-    logoClassName: "traction-customer-logo-light",
+    name: "Plastic Surgery Practice",
+    logoSrc: undefined,
+    logoAlt: "",
+    logoClassName: undefined,
     profile: "7-provider plastic surgery practice in Austin, Texas",
     impact: "Validates May I in a premium, high-intent specialty where missed calls directly translate into missed consult revenue.",
   },
@@ -1738,11 +1738,25 @@ function SlideTraction() {
             {TRACTION_CUSTOMERS.map((customer) => (
               <article key={customer.name} className="traction-customer-card">
                 <div className="traction-customer-logo-wrap">
-                  <img
-                    src={customer.logoSrc}
-                    alt={customer.logoAlt}
-                    className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
-                  />
+                  {customer.logoSrc ? (
+                    <img
+                      src={customer.logoSrc}
+                      alt={customer.logoAlt}
+                      className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
+                    />
+                  ) : (
+                    <svg
+                      className="traction-customer-logo traction-customer-logo-generic"
+                      viewBox="0 0 48 48"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <rect x="6" y="18" width="36" height="24" rx="2" stroke="currentColor" strokeWidth="2.5" />
+                      <path d="M4 18L24 5l20 13" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
+                      <path d="M20 42V29a4 4 0 0 1 8 0v13" stroke="currentColor" strokeWidth="2.5" />
+                      <path d="M15 24v6M12 27h6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  )}
                 </div>
                 <div className="traction-customer-name">{customer.name}</div>
                 <div className="traction-customer-profile">{customer.profile}</div>
