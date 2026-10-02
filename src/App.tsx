@@ -692,7 +692,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
 const LIVE_USAGE_METRICS = [
   { value: "2", heroValue: "2", heroLabel: "practices live", tractionLabel: "Practices" },
   { value: "9", heroValue: "9", heroLabel: "providers", tractionLabel: "Providers" },
-  { value: "3,082", heroValue: "3,082", heroLabel: "calls/month", tractionLabel: "Calls handled /\u00a0month" },
+  { value: "3,880", heroValue: "3,880", heroLabel: "calls/month", tractionLabel: "Calls handled /\u00a0month" },
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
