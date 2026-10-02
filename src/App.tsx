@@ -690,13 +690,15 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
 ] as const;
 
 const LIVE_USAGE_METRICS = [
-  { value: "2", heroValue: "2", heroLabel: "practices live", tractionLabel: "Practices" },
-  { value: "9", heroValue: "9", heroLabel: "providers", tractionLabel: "Providers" },
-  { value: "3,880", heroValue: "3,880", heroLabel: "calls/month", tractionLabel: "Calls handled /\u00a0month" },
+  { value: "$31,067", heroValue: "$31,067", heroLabel: "saved\n/practice/year", tractionLabel: "Saved /\u00a0practice /\u00a0year" },
+  { value: "$13,629", heroValue: "$13,629", heroLabel: "generated\n/practice/year", tractionLabel: "Generated / practice / year" },
+  { value: "2,775", heroValue: "2,775", heroLabel: "calls\n/practice/month", tractionLabel: "Calls /\u00a0practice /\u00a0month" },
+  { value: "612", heroValue: "612", heroLabel: "reminders sent\n/practice/month", tractionLabel: "Reminders sent / practice / month" },
+  { value: "132", heroValue: "132", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
-const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.map(({ value, tractionLabel }) => ({
+const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.filter(({ value }) => value).map(({ value, tractionLabel }) => ({
   value,
   label: tractionLabel,
 }));
@@ -946,12 +948,16 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
               LIVE MAY I COMMUNICATIONS AGENTS ANSWER INCOMING CALLS AND BOOK CONSULTS
             </div>
             <div className="hero-metrics-grid" aria-label="Live customer usage stats">
-              {LIVE_USAGE_METRICS.map((metric) => (
-                <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
-                  <div className="hero-metric-value">{metric.heroValue}</div>
-                  <div className="hero-metric-label">{metric.heroLabel}</div>
-                </motion.article>
-              ))}
+              {LIVE_USAGE_METRICS.map((metric, i) =>
+                metric.heroValue ? (
+                  <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
+                    <div className="hero-metric-value">{metric.heroValue}</div>
+                    <div className="hero-metric-label" style={{ whiteSpace: "pre-line" }}>{metric.heroLabel}</div>
+                  </motion.article>
+                ) : (
+                  <div key={`spacer-${i}`} aria-hidden="true" />
+                )
+              )}
             </div>
           </motion.div>
         </motion.div>
