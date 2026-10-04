@@ -10,8 +10,7 @@ import {
   ChevronRight, ChevronLeft,
   Phone, MessageSquare, Globe, Share2,
   FileCheck,
-  CheckCircle2,
-  ArrowRight, ScanText, BotMessageSquare, UserRound, Users,
+  ArrowRight, ArrowDown, ScanText, BotMessageSquare, UserRound, Users,
   MailCheck, Workflow, ScanSearch,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
   AudioLines, Printer, ShieldCheck, BadgeDollarSign, HeartHandshake,
@@ -84,7 +83,7 @@ export default function App() {
 
     return SLIDES.find((candidate) => candidate === slide) ?? null;
   }, [searchParams]);
-  const slides = isMobile && !isPdfExport ? SLIDES.filter((s) => s !== "appendix" && s !== "demo") : SLIDES;
+  const slides = isMobile && !isPdfExport ? SLIDES.filter((s) => s !== "demo") : SLIDES;
   const navSlides = useMemo(() => {
     const askIndex = slides.indexOf("ask");
     return askIndex >= 0 ? slides.slice(0, askIndex + 1) : slides;
@@ -325,7 +324,7 @@ export default function App() {
             />
             <div>
               <div className="logo-name">May I</div>
-              <div className="logo-sub">Investor Deck</div>
+              <div className="logo-sub">MAR Solutions Partner Deck</div>
             </div>
           </button>
 
@@ -441,18 +440,14 @@ function renderSlide(
   if (slideId === "qualify") return <SlideQualify />;
   if (slideId === "confirm") return <SlideConfirm />;
   if (slideId === "engine") return <SlideEngine />;
+  if (slideId === "mar-partnership") return <SlideMarPartnership />;
   if (slideId === "capture-detail") return <SlideCaptureDetail />;
   if (slideId === "connect-detail") return <SlideConnectDetail />;
   if (slideId === "convert-detail") return <SlideConvertDetail />;
   if (slideId === "traction") return <SlideTraction />;
-  if (slideId === "enterprise-grade") return <SlideEnterpriseGrade />;
-  if (slideId === "why-wins") return <SlideWhyWins />;
-  if (slideId === "moats") return <SlideMoats />;
   if (slideId === "vision") return <SlideVision />;
-  if (slideId === "path") return <SlidePath goTo={goTo} />;
   if (slideId === "ask") return <SlideAsk />;
   if (slideId === "demo") return <SlideDemo isExportMode={options.isExportMode} />;
-  if (slideId === "appendix") return <SlideAppendix />;
   return null;
 }
 
@@ -727,14 +722,6 @@ const TRACTION_CUSTOMERS = [
   },
 ] as const;
 
-const ASK_MILESTONES = [
-  "Hire CRO + GTM team",
-  "Hire engineering team",
-  "Product GA with first 50 paying practices",
-  "Prove unit economics (CAC, LTV, payback)",
-  "Build pipeline for Series A",
-] as const;
-
 function renderDetailCards(cards: DetailStage["cards"], shade: DetailCardShade) {
   return cards.map(({ title, text }) => (
     <motion.div key={title} variants={fadeUp} className={`detail-card ${shade}`}>
@@ -834,23 +821,18 @@ function SlideFounder() {
 function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExportMode: boolean }) {
   const isMobile = useIsMobile();
   const visibleSlides: readonly SlideId[] = isMobile
-    ? SLIDES.filter((slide): slide is Exclude<SlideId, "appendix" | "demo"> => slide !== "appendix" && slide !== "demo")
+    ? SLIDES.filter((slide): slide is Exclude<SlideId, "demo"> => slide !== "demo")
     : SLIDES;
   const agendaAll: ReadonlyArray<{ num: string; label: string; slideId: SlideId }> = [
-    { num: "2",  label: "The Problem",            slideId: "problem" },
-    { num: "4",  label: "Product Workflow",       slideId: "qualify" },
-    { num: "5",  label: "The May I System",       slideId: "engine" },
-    // { num: "7",  label: "Business Impact",        slideId: "roi" },
-    { num: "6",  label: "Traction",               slideId: "traction" },
-    { num: "7",  label: "Founder & CEO",          slideId: "founder" },
-    { num: "8",  label: "Enterprise Security",    slideId: "enterprise-grade" },
-    { num: "9",  label: "Competitive Landscape",  slideId: "why-wins" },
-    { num: "10", label: "Investor Case",          slideId: "path" },
-    { num: "11", label: "Revenue Projections",    slideId: "moats" },
-    { num: "12", label: "Vision",                 slideId: "vision" },
-    { num: "13", label: "The Ask",                slideId: "ask" },
-    { num: "14", label: "Appendix",               slideId: "appendix" },
-    { num: "15", label: "Live Demo",              slideId: "demo" },
+    { num: "2",  label: "The Problem",              slideId: "problem" },
+    { num: "4",  label: "Product Workflow",         slideId: "qualify" },
+    { num: "5",  label: "The May I System",         slideId: "engine" },
+    { num: "6",  label: "May I + MAR Solutions",    slideId: "mar-partnership" },
+    { num: "7",  label: "Traction",                 slideId: "traction" },
+    { num: "8",  label: "Founder & CEO",            slideId: "founder" },
+    { num: "9",  label: "Vision",                   slideId: "vision" },
+    { num: "10", label: "Next Steps",                slideId: "ask" },
+    { num: "11", label: "Live Demo",                slideId: "demo" },
   ];
   const agenda = (isMobile || isExportMode)
     ? agendaAll.filter((a) => a.label !== "Live Demo")
@@ -874,7 +856,7 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
         animate="show"
       >
         <motion.div variants={fadeUp} className="eyebrow-tag">
-          Investor Pitch · 2026
+          May I × MAR Solutions — Partnership Overview
         </motion.div>
         <motion.h1 variants={fadeUp} className="hero-headline">
           The AI Patient Revenue Engine
@@ -1584,6 +1566,113 @@ function SlideEngine() {
   );
 }
 
+// ─── Slide: May I × MAR Solutions Partnership ────────────────────────────────
+
+function SlideMarPartnership() {
+  const marLayer = [
+    "Practice Management",
+    "EMR",
+    "EDI",
+    "Billing / Revenue Cycle",
+    "Payments",
+    "Patient Communications",
+    "Implementation & Support",
+  ];
+  const mayILayer = [
+    "AI Front Office",
+    "Voice / SMS / Web Engagement",
+    "Patient Intent & Qualification",
+    "Patient Intake",
+    "Scheduling",
+    "Automated Follow-up",
+    "Agentic CRM",
+  ];
+  const outcomeLayer = [
+    "Capture More Demand",
+    "Reduce Front-Office Workload",
+    "Convert More Patients",
+    "Improve Patient Experience",
+    "Increase Revenue Realization",
+  ];
+
+  return (
+    <div className="slide slide-mar-partnership">
+      <SlideHeader
+        eyebrow="May I + MAR Solutions"
+        title="May I Extends the MAR Solutions Portfolio"
+      />
+
+      <motion.div
+        className="mar-partner-grid"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.section variants={fadeUp} className="mar-partner-col">
+          <div className="mar-partner-col-label">MAR Solutions</div>
+          <div className="mar-partner-col-sublabel">Core Practice Infrastructure</div>
+          <div className="mar-partner-chip-list">
+            {marLayer.map((item) => (
+              <div key={item} className="mar-partner-chip mar-partner-chip-mar">{item}</div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section variants={fadeUp} className="mar-partner-col mar-partner-col-center">
+          <div className="mar-partner-col-label mar-partner-col-label-mayi">May I</div>
+          <div className="mar-partner-col-sublabel">AI Patient Engagement Layer</div>
+          <div className="mar-partner-chip-list">
+            {mayILayer.map((item) => (
+              <div key={item} className="mar-partner-chip mar-partner-chip-mayi">{item}</div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section variants={fadeUp} className="mar-partner-col">
+          <div className="mar-partner-col-label">Shared Customer Outcome</div>
+          <div className="mar-partner-col-sublabel">What the Practice Gets</div>
+          <div className="mar-partner-chip-list">
+            {outcomeLayer.map((item) => (
+              <div key={item} className="mar-partner-chip mar-partner-chip-outcome">{item}</div>
+            ))}
+          </div>
+        </motion.section>
+      </motion.div>
+
+      <motion.div
+        className="mar-partner-flow"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.5 }}
+      >
+        <div className="mar-partner-flow-row">
+          <span className="mar-partner-flow-chip">Patient Demand</span>
+        </div>
+        <ArrowDown size={16} className="mar-partner-flow-arrow" />
+        <div className="mar-partner-flow-row">
+          <span className="mar-partner-flow-chip mar-partner-flow-chip-mayi">May I</span>
+          <span className="mar-partner-flow-text">Capture → Qualify → Intake → Schedule → Follow Up</span>
+        </div>
+        <ArrowDown size={16} className="mar-partner-flow-arrow" />
+        <div className="mar-partner-flow-row">
+          <span className="mar-partner-flow-chip mar-partner-flow-chip-mar">MAR / Existing Practice Systems</span>
+          <span className="mar-partner-flow-text">PM/EMR → Billing → Payments / RCM</span>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="mar-partner-statement"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55, duration: 0.5 }}
+      >
+        May I doesn&apos;t replace the systems MAR sells. It adds an intelligent
+        patient-engagement layer that makes them more valuable.
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── Slide 5: CCC Overview (circular diagram) ────────────────────────────────
 
 // ─── Slide 6a: Capture detail ─────────────────────────────────────────────────
@@ -1807,455 +1896,6 @@ function SlideTraction() {
   );
 }
 
-function SlideEnterpriseGrade() {
-  return (
-    <div className="slide slide-enterprise-grade">
-      <SlideHeader
-        eyebrow="Market Validation"
-        title="Consumer Agents Are Calling Practices"
-      />
-      <motion.p
-        className="enterprise-subtitle"
-        variants={fadeUp}
-        initial="hidden"
-        animate="show"
-      >
-        Instinct and Meta&apos;s Muse just gave millions of consumer agents the ability to call
-        businesses. Do you want humans handling that load? Businesses need to be ready with May I.
-      </motion.p>
-      <motion.div className="enterprise-grid enterprise-grid-tweets" variants={stagger} initial="hidden" animate="show">
-        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-tweet">
-          <div className="enterprise-tweet-tag">Instinct</div>
-          <img
-            src="/tweet_instinct_screenshot.png"
-            alt="Tweet from Noah Shinn announcing Instinct Concierge, a white-glove service that can make phone calls"
-            className="enterprise-tweet-image"
-          />
-        </motion.section>
-
-        <motion.section variants={fadeUp} className="enterprise-panel enterprise-panel-tweet">
-          <div className="enterprise-tweet-tag">Meta Muse</div>
-          <img
-            src="/tweet_muse_screenshot.png"
-            alt="Tweet from Ryan Fox announcing expanded outbound calling beta for Meta's Muse"
-            className="enterprise-tweet-image"
-          />
-        </motion.section>
-      </motion.div>
-    </div>
-  );
-}
-
-// ─── Slide 8: Why May I Wins ──────────────────────────────────────────────────
-
-function SlideWhyWins() {
-  const rows = [
-    {
-      category: "AI Patient Operations",
-      company: "Luma Health",
-      strength: "Broad patient engagement, conversational AI, scheduling, referrals, outreach",
-      gap: "Broad healthcare focus; not purpose-built around elective-care demand conversion",
-      win: "Built around capturing, qualifying & converting elective patient demand",
-    },
-    {
-      category: "AI Workflow Automation",
-      company: "Notable Health",
-      strength: "AI agents for patient access and administrative workflows",
-      gap: "Broad enterprise healthcare automation vs. elective revenue lifecycle",
-      win: "Patient revenue and intent are the organizing layer",
-    },
-    {
-      category: "AI Communications",
-      company: "Hyro",
-      strength: "Healthcare-native conversational AI across voice and digital channels",
-      gap: "Primarily conversational/self-service layer",
-      win: "Persistent patient intent + CRM orchestration + downstream conversion",
-    },
-    {
-      category: "Patient Engagement",
-      company: "Klara / ModMed",
-      strength: "Messaging, communication and patient engagement integrated with practice workflows",
-      gap: "Engagement is attached to the system of record rather than an AI-native intent layer",
-      win: "Independent system of engagement across communications + EMR/PMS",
-    },
-    {
-      category: "Practice Platform",
-      company: "Tebra",
-      strength: "Integrated EHR, patient experience, marketing and payments for independent practices",
-      gap: "Broad practice-management suite rather than autonomous patient-revenue agents",
-      win: "AI-native agents operate across the demand-to-revenue lifecycle",
-    },
-    {
-      category: "Horizontal CRM",
-      company: "HubSpot",
-      strength: "Mature CRM, marketing automation and lead lifecycle tooling",
-      gap: "Not healthcare-native; lacks native EMR/PMS context and healthcare workflows",
-      win: "Healthcare-native CRM + patient context + autonomous agents",
-    },
-  ];
-
-  return (
-    <div className="slide slide-why-wins">
-      <SlideHeader
-        eyebrow="Competitive Landscape"
-        title="May I: The AI System of Engagement for Patient Revenue"
-      />
-      <motion.div
-        className="competitive-table-wrap"
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-      >
-        <table className="competitive-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Company</th>
-              <th>What They Do Well</th>
-              <th>Gaps (Explicit)</th>
-              <th>Why May I Wins</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(({ category, company, strength, gap, win }, index) => (
-              <motion.tr key={`${company}-${category}-${index}`} variants={fadeUp}>
-                <td className="competitive-category">{category}</td>
-                <td className="competitive-company">{company}</td>
-                <td>{strength}</td>
-                <td className="competitive-gap">{gap || "\u2014"}</td>
-                <td className="competitive-win">
-                  <span className="competitive-win-badge">
-                    <CheckCircle2 size={12} />
-                    {win}
-                  </span>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-    </div>
-  );
-}
-
-// ─── Slide 9: Moats ───────────────────────────────────────────────────────────
-
-/* COMMENTED OUT — original Defensibility/Moats content
-function SlideMoats_original() {
-  const moats = [
-    { icon: <Activity size={30} />, title: "Closed-loop Revenue Attribution", text: "Connects first contact → response → booking → procedure → payment.", color: "#5fcf8a" },
-    { icon: <Brain size={30} />, title: "Patient Intent Graph", text: "Models sentiment, urgency, timing, and readiness to convert.", color: "var(--mi-copper)" },
-    { icon: <Stethoscope size={30} />, title: "Procedure-Aware Models", text: "Specialty-specific objection handling, prep flows, and follow-up logic.", color: "#a78bfa" },
-    { icon: <Shield size={30} />, title: "Dynamic Trust & Friction", text: "Adapts verification to risk, context, and patient intent.", color: "#38bdf8" },
-    { icon: <Database size={30} />, title: "Practice Operating Memory", text: "Captures the language, handoffs, and behaviors that convert for each practice.", color: "#f59e0b" },
-  ];
-  return (
-    <div className="slide slide-moats">
-      <SlideHeader eyebrow="Defensibility" title="The path to $1B is owning the patient conversion layer." />
-      <div className="moats-layout">
-        <motion.div className="moats-grid" variants={stagger} initial="hidden" animate="show">
-          {moats.map(({ icon, title, text, color }) => (
-            <motion.div key={title} variants={fadeUp} className="moat-card">
-              <div className="moat-icon" style={{ color }}>{icon}</div>
-              <div className="moat-title">{title}</div>
-              <div className="moat-text">{text}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-        <motion.div className="moats-logic" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.5 }}>
-          <div className="moats-logic-title">Billion-dollar logic</div>
-          <div className="moats-logic-steps">
-            {[{step:"Land",desc:"Obvious ROI: recover missed demand + reduce staff burden"},{step:"Expand",desc:"Conversion intelligence + revenue attribution across the practice"},{step:"Defend",desc:"Practice-specific memory that becomes impossible to replicate"}].map(({ step, desc }) => (
-              <div key={step} className="moats-logic-step"><div className="moats-logic-step-label">{step}</div><div className="moats-logic-step-desc">{desc}</div></div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  );
-}
-END COMMENTED OUT */
-
-function SlideMoats() {
-  const rows: {
-    year: string;
-    providerCount: number;
-    share: string;
-    arr: string;
-    arrValue: number;
-    val: string;
-    growth: string;
-    milestone?: boolean;
-  }[] = [
-    { year: "Year 1", providerCount: 299, share: "0.02%", arr: "$2.2M", arrValue: 2.2, val: "$17.2M", growth: "—" },
-    { year: "Year 2", providerCount: 1048, share: "0.07%", arr: "$7.5M", arrValue: 7.5, val: "$60.4M", growth: "241% (3.4x)" },
-    { year: "Year 3", providerCount: 3742, share: "0.25%", arr: "$26.9M", arrValue: 26.9, val: "$215.5M", growth: "259% (3.6x)" },
-    { year: "Year 4", providerCount: 10476, share: "0.70%", arr: "$75.4M", arrValue: 75.4, val: "$603.5M", growth: "180% (2.8x)" },
-    { year: "Year 5", providerCount: 17959, share: "1.20%", arr: "$129.3M", arrValue: 129.3, val: "$1.03B", growth: "71% (1.7x)", milestone: true },
-  ];
-
-  const arrValues = rows.map((row) => row.arrValue);
-  const xLabels = rows.map((_, index) => `Y${index + 1}`);
-
-  const W = 860, H = 280;
-  const PAD = { l: 56, r: 20, t: 2, b: 10 };
-  const CW  = W - PAD.l - PAD.r;
-  const CH  = H - PAD.t - PAD.b;
-  const MAX = 130;
-  const BAR_SLOT = CW / rows.length;
-  const BAR_W    = BAR_SLOT * 0.58;
-  const BAR_OFF  = (BAR_SLOT - BAR_W) / 2;
-  const chartBottom = PAD.t + CH;
-  const toY  = (v: number) => PAD.t + CH * (1 - v / MAX);
-  const toBH = (v: number) => CH * (v / MAX);
-  const barX  = (i: number) => PAD.l + i * BAR_SLOT + BAR_OFF;
-  const barCX = (i: number) => PAD.l + i * BAR_SLOT + BAR_SLOT / 2;
-  const yTicks = [0, 25, 50, 75, 100, 125];
-  const linePath = arrValues
-    .map((v, i) => `${i === 0 ? "M" : "L"} ${barCX(i).toFixed(1)},${toY(v).toFixed(1)}`)
-    .join(" ");
-
-  const platformMaturityMatrix = [
-    {
-      label: "Capture",
-      color: CCC_COLORS.capture,
-      phases: [
-        ["Voice Agents", "Text Agents", "Early Personalization"],
-        ["Referral Fax Agents"],
-        ["Advanced Personalization", "Automated Quality Loop", "A/B testing"],
-      ],
-    },
-    {
-      label: "Connect",
-      color: CCC_COLORS.connect,
-      phases: [
-        ["Engagement With Data", "Early Lead Scoring"],
-        ["Advanced Lead Scoring", "Patient Service Agent"],
-        ["CRM Orchestration Agent", "EMR Computer Use Agent"],
-      ],
-    },
-    {
-      label: "Convert",
-      color: CCC_COLORS.convert,
-      phases: [
-        ["Appointment Reminders"],
-        ["Patient Recall Agents"],
-        ["Top of the funnel marketing", "Targeted Marketing Agents", "Collections Agents"],
-      ],
-    },
-  ];
-
-  const projectionMatrix = [
-    {
-      label: "Providers",
-      values: rows.map((row) => row.providerCount.toLocaleString("en-US")),
-    },
-    {
-      label: "Share",
-      values: rows.map((row) => row.share),
-    },
-    {
-      label: "ARR",
-      values: rows.map((row) => row.arr),
-    },
-    {
-      label: "Growth",
-      values: rows.map((row) => row.growth),
-    },
-  ];
-
-  return (
-    <div className="slide slide-moats">
-      <motion.div
-        className="slide-header"
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-      >
-        <motion.div variants={fadeUp} className="eyebrow-tag">
-          Revenue Projection
-        </motion.div>
-        <motion.h2 variants={fadeUp} className="slide-title">
-          <span className="vision-title-line">The path to growth</span>
-          <span className="vision-title-line">is owning the patient engagement layer.</span>
-        </motion.h2>
-      </motion.div>
-      <div className="rev-layout">
-
-        {/* ── Bar chart ── */}
-        <motion.div
-          className="rev-chart-col"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-        >
-          <svg viewBox={`0 0 ${W} ${H}`} className="rev-chart-svg" aria-label="ARR by year">
-            <defs>
-              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#fcd34d" stopOpacity="0.95" />
-                <stop offset="100%" stopColor="#b45309" stopOpacity="0.55" />
-              </linearGradient>
-              <linearGradient id="barGradHi" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#fcd34d" stopOpacity="1"   />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.9" />
-              </linearGradient>
-            </defs>
-
-            {yTicks.map((t) => {
-              const y = toY(t);
-              return (
-                <g key={t}>
-                  <line x1={PAD.l} y1={y} x2={W - PAD.r} y2={y}
-                    stroke="rgba(255,255,255,0.07)" strokeWidth="1"
-                    strokeDasharray={t === 0 ? undefined : "3 5"} />
-                  <text x={PAD.l - 6} y={y + 3.5} textAnchor="end"
-                    fontSize="9" fill="rgba(168,196,184,0.65)">
-                    {t === 0 ? "0" : `$${t}M`}
-                  </text>
-                </g>
-              );
-            })}
-
-            <line x1={PAD.l} y1={chartBottom} x2={W - PAD.r} y2={chartBottom}
-              stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-
-            <text x={11} y={H / 2} textAnchor="middle" fontSize="9"
-              fill="rgba(168,196,184,0.5)" transform={`rotate(-90,11,${H / 2})`}>
-              ARR ($M)
-            </text>
-
-            {arrValues.map((v, i) => (
-              <motion.rect key={i}
-                x={barX(i)} width={BAR_W} rx="3"
-                fill={i === 7 ? "url(#barGradHi)" : "url(#barGrad)"}
-                initial={{ height: 0, y: chartBottom }}
-                animate={{ height: toBH(v), y: chartBottom - toBH(v) }}
-                transition={{ duration: 0.55, delay: 0.3 + i * 0.07, ease: "easeOut" }}
-              />
-            ))}
-
-            <motion.path d={linePath} fill="none"
-              stroke="#fcd34d" strokeWidth="1.5" strokeOpacity="0.5" strokeLinejoin="round"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.9, delay: 0.85, ease: "easeInOut" }}
-            />
-
-            {arrValues.map((v, i) => (
-              <motion.circle key={i} cx={barCX(i)} cy={toY(v)} r="2.8"
-                fill="#fcd34d"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2, delay: 1.0 + i * 0.06 }}
-              />
-            ))}
-
-            {xLabels.map((lbl, i) => (
-              <text key={lbl} x={barCX(i)} y={H - PAD.b + 14}
-                textAnchor="middle" fontSize="9" fill="rgba(168,196,184,0.7)">
-                {lbl}
-              </text>
-            ))}
-          </svg>
-        </motion.div>
-
-        {/* ── Table ── */}
-        <motion.div
-          className="rev-maturity-wrap"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-        >
-          <div className="platform-maturity">
-            <div className="platform-maturity-title">Platform Maturity</div>
-            <table className="platform-maturity-table">
-              <colgroup>
-                <col className="platform-maturity-col-stage" />
-                <col className="platform-maturity-col-phase" />
-                <col className="platform-maturity-col-phase" />
-                <col className="platform-maturity-col-phase" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>Stage</th>
-                  <th>Today</th>
-                  <th>Tomorrow</th>
-                  <th>Future</th>
-                </tr>
-              </thead>
-              <tbody>
-                {platformMaturityMatrix.map(({ label, color, phases }) => (
-                  <tr key={label}>
-                    <th className="platform-maturity-rowhead-cell" style={{ color }}>
-                      <div className="platform-maturity-rowhead">
-                        <span>{label}</span>
-                      </div>
-                    </th>
-                    {phases.map((items, index) => (
-                      <td key={`${label}-${index}`}>
-                        <div className="platform-maturity-cell-items">
-                          {items.length > 0 ? (
-                            items.map((item) => (
-                              <div key={item} className="platform-maturity-cell-item">{item}</div>
-                            ))
-                          ) : (
-                            <div className="platform-maturity-cell-item platform-maturity-cell-item-empty">—</div>
-                          )}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="rev-table-wrap"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-        >
-          <table className="rev-table rev-table-matrix">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                {rows.map(({ year }) => (
-                  <th key={year}>{year}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {projectionMatrix.map(({ label, values }) => (
-                <tr key={label}>
-                  <td className="rev-metric-label">{label}</td>
-                  {values.map((value, index) => (
-                    <td
-                      key={`${label}-${rows[index].year}`}
-                      className={
-                        [
-                          label === "ARR" ? "rev-arr" : "",
-                          label === "Growth" ? "rev-growth" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")
-                      }
-                    >
-                      {value}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </motion.div>
-
-      </div>
-    </div>
-  );
-}
-
 // ─── Slide 10: Vision ─────────────────────────────────────────────────────────
 
 function SlideVision() {
@@ -2287,7 +1927,7 @@ function SlideVision() {
       agentTitle: "Growth & Retention Agents",
       icon: <Brain size={22} />,
       headline: "Predict and action on the data",
-      text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes indispensable infrastructure.",
+      text: "Intent intelligence, Targeted Marketing, and Personalization — May I becomes the indispensable system of engagement alongside the systems of record practices already run on.",
       color: CCC_COLORS.convert,
     },
   ];
@@ -2361,595 +2001,75 @@ function SlideVision() {
 }
 
 function SlideAsk() {
+  const pilotSteps = [
+    {
+      num: "01",
+      title: "Identify",
+      text: "Select 1–2 MAR customers with meaningful front-office pain — high inbound call volume, missed calls, after-hours demand, staffing constraints, manual intake, or scheduling workload.",
+    },
+    {
+      num: "02",
+      title: "Deploy",
+      text: "May I handles implementation, configuration, and onboarding alongside the systems the practice already runs.",
+    },
+    {
+      num: "03",
+      title: "Prove",
+      text: "Jointly measure inquiries captured, response time, appointments generated, staff workload reduction, and conversion/revenue impact where measurable.",
+    },
+    {
+      num: "04",
+      title: "Expand",
+      text: "Use the pilot results to establish the broader MAR + May I reseller model.",
+    },
+  ];
+
   return (
     <div className="slide slide-ask">
       <motion.div className="ask-header" variants={stagger} initial="hidden" animate="show">
-        <motion.div variants={fadeUp} className="eyebrow-tag">The Ask</motion.div>
+        <motion.div variants={fadeUp} className="eyebrow-tag">Next Steps</motion.div>
         <motion.h2 variants={fadeUp} className="ask-title">
-          Join us in building
+          Start with one MAR customer.
           <br />
-          the revenue integrity layer for healthcare.
+          Prove the ROI. Expand from there.
         </motion.h2>
       </motion.div>
 
-      <motion.div className="ask-grid" variants={stagger} initial="hidden" animate="show">
-        <motion.section variants={fadeUp} className="ask-panel">
-          <div className="ask-raise-statement">Raising $5M in this round.</div>
-          <div className="ask-panel-label">Milestones This Capital Unlocks</div>
-          <div className="ask-milestone-list">
-            {ASK_MILESTONES.map((item) => (
-              <div key={item} className="ask-milestone-item">
-                <ArrowRight size={16} className="ask-milestone-icon" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        <motion.section variants={fadeUp} className="ask-panel ask-contact-panel">
-          <div className="ask-panel-label">Contact</div>
-          <div className="ask-contact-list">
-            <span className="ask-contact-item ask-contact-item-primary">
-              <UserRound size={24} className="ask-contact-icon" strokeWidth={1.7} />
-              <span className="ask-contact-text ask-contact-text-primary">Chami Rupasinghe</span>
-            </span>
-            <span className="ask-contact-item ask-contact-item-secondary">
-              <MailCheck size={24} className="ask-contact-icon" strokeWidth={1.7} />
-              <span className="ask-contact-text ask-contact-text-secondary">chamir@mayiguide.com</span>
-            </span>
-            <span className="ask-contact-item ask-contact-item-secondary">
-              <Globe size={24} className="ask-contact-icon" strokeWidth={1.7} />
-              <span className="ask-contact-text ask-contact-text-secondary">www.mayiguide.com</span>
-            </span>
-          </div>
-        </motion.section>
-      </motion.div>
-    </div>
-  );
-}
-
-// ─── Slide: Path to $1B ─────────────────────────────────────────────────────
-
-function SlidePath({ goTo }: { goTo: (i: number) => void }) {
-  const isMobile = useIsMobile();
-  const visibleSlides: readonly SlideId[] = isMobile
-    ? SLIDES.filter((slide): slide is Exclude<SlideId, "appendix" | "demo"> => slide !== "appendix" && slide !== "demo")
-    : SLIDES;
-  const goToAppendix = useCallback(() => {
-    const slideIndex = visibleSlides.indexOf("appendix");
-    if (slideIndex >= 0) {
-      goTo(slideIndex);
-    }
-  }, [goTo, visibleSlides]);
-
-  // ── Layout constants (SVG user-space coords) ──
-  const W = 820, H = 436;
-  const ROWS = 9;
-  const TTOP = 16; // top margin for column labels
-  const rH = (H - TTOP) / ROWS; // ~46.7
-
-  const ROOT  = { x: 52,  y: TTOP + 4.5 * rH, r: 40 };
-  const SHAREX = 172; const SHARER = 28;
-  const PRICEX = 318; const PRICER = 20;
-  const ARRX   = 476; const ARRHW = 38; const ARRHH = 13;
-  const VALX   = 672; const VALHW = 50; const VALHH = 16;
-
-  const sy = (si: number) => TTOP + (si * 3 + 1.5) * rH;
-  const py = (i:  number) => TTOP + (i  + 0.5)     * rH;
-
-  // Returns line segment from edge of source circle to just before target edge
-  const edge = (x1: number, y1: number, r1: number, x2: number, y2: number, gap: number) => {
-    const dx = x2 - x1, dy = y2 - y1;
-    const d = Math.sqrt(dx * dx + dy * dy) || 1;
-    const ux = dx / d, uy = dy / d;
-    return { x1: x1 + ux * r1, y1: y1 + uy * r1, x2: x2 - ux * gap, y2: y2 - uy * gap };
-  };
-
-  const shareData = [
-    { pct: "1.7%", users: "25,442", hl: false },
-    { pct: "1.2%", users: "17,959", hl: true  },
-    { pct: "0.9%", users: "13,469", hl: false },
-  ];
-  const prices = ["$800", "$600", "$400"];
-
-  type Sc = { si: number; pi: number; arr: string; val: string;
-              isBillion: boolean; isSweet: boolean; isAnnotate: boolean; };
-  const scenarios: Sc[] = [
-    { si:0, pi:0, arr:"$244.2M", val:"$1.95B", isBillion:true,  isSweet:false, isAnnotate:false },
-    { si:0, pi:1, arr:"$183.2M", val:"$1.47B", isBillion:true,  isSweet:false, isAnnotate:false },
-    { si:0, pi:2, arr:"$122.1M", val:"$977M",  isBillion:false, isSweet:false, isAnnotate:false },
-    { si:1, pi:0, arr:"$172.4M", val:"$1.38B", isBillion:true,  isSweet:false, isAnnotate:false },
-    { si:1, pi:1, arr:"$129.3M", val:"$1.03B", isBillion:true,  isSweet:true,  isAnnotate:false },
-    { si:1, pi:2, arr:"$86.2M",  val:"$690M",  isBillion:false, isSweet:false, isAnnotate:false },
-    { si:2, pi:0, arr:"$129.3M", val:"$1.03B", isBillion:true,  isSweet:false, isAnnotate:true  },
-    { si:2, pi:1, arr:"$97.0M",  val:"$776M",  isBillion:false, isSweet:false, isAnnotate:false },
-    { si:2, pi:2, arr:"$64.7M",  val:"$517M",  isBillion:false, isSweet:false, isAnnotate:false },
-  ];
-
-  return (
-    <div className="slide slide-path">
-      <motion.div className="path-top" variants={stagger} initial="hidden" animate="show">
-        <motion.div variants={fadeUp} className="eyebrow-tag">Investor Case</motion.div>
-        <motion.h2 variants={fadeUp} className="path-headline">
-          The <span className="path-accent">1.2%</span> Path to a{" "}
-          <span className="path-accent">$1B</span> Valuation.
-        </motion.h2>
+      <motion.div className="ask-pilot-grid" variants={stagger} initial="hidden" animate="show">
+        {pilotSteps.map(({ num, title, text }) => (
+          <motion.section key={num} variants={fadeUp} className="ask-panel ask-pilot-step">
+            <div className="ask-pilot-step-num">{num}</div>
+            <div className="ask-pilot-step-title">{title}</div>
+            <p className="ask-pilot-step-text">{text}</p>
+          </motion.section>
+        ))}
       </motion.div>
 
-      <div className="path-body">
-        {/* ── SVG Decision Tree ── */}
-        <motion.div className="path-tree-area" variants={stagger} initial="hidden" animate="show">
-          <motion.svg
-            variants={fadeUp}
-            viewBox={`0 0 ${W} ${H}`}
-            className="dt-svg"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <defs>
-              {(["muted","gold","green"] as const).map((n) => (
-                <marker key={n} id={`arr-${n}`}
-                  markerWidth="8" markerHeight="8" refX="6" refY="4"
-                  orient="auto" markerUnits="userSpaceOnUse">
-                  <path d="M0,0.5 L0,7.5 L8,4 z" fill={
-                    n==="gold"  ? "rgba(196,146,71,0.9)" :
-                    n==="green" ? "rgba(95,207,138,0.8)" :
-                                  "rgba(168,196,184,0.35)"
-                  } />
-                </marker>
-              ))}
-            </defs>
+      <motion.div
+        className="ask-pilot-statement"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+      >
+        MAR owns the customer relationship. May I provides the AI platform and implementation expertise.
+      </motion.div>
 
-            {/* Column labels */}
-            {(["TAM", "SHARE", "PRICING", "ARR", "VALUATION × 8"] as const).map((lbl, i) => (
-              <text key={lbl}
-                x={[ROOT.x, SHAREX, PRICEX, ARRX, VALX][i]}
-                y={10} textAnchor="middle"
-                fill="rgba(168,196,184,0.4)" fontSize={7.5} fontWeight={600}
-              >{lbl}</text>
-            ))}
-
-            {/* ── Root → Share arrows ── */}
-            {shareData.map((sd, si) => {
-              const a = edge(ROOT.x, ROOT.y, ROOT.r, SHAREX, sy(si), SHARER + 6);
-              return (
-                <line key={`rs${si}`} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-                  stroke={sd.hl ? "rgba(196,146,71,0.7)" : "rgba(168,196,184,0.18)"}
-                  strokeWidth={sd.hl ? 1.6 : 0.8}
-                  strokeDasharray={sd.hl ? undefined : "4 4"}
-                  markerEnd={sd.hl ? "url(#arr-gold)" : "url(#arr-muted)"} />
-              );
-            })}
-
-            {/* ── Share → Price arrows ── */}
-            {scenarios.map((s, i) => {
-              const a = edge(SHAREX, sy(s.si), SHARER, PRICEX, py(i), PRICER + 6);
-              const hl = s.isSweet;
-              const dimHl = s.si === 1;
-              return (
-                <line key={`sp${i}`} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-                  stroke={hl ? "rgba(196,146,71,0.75)" : dimHl ? "rgba(196,146,71,0.22)" : "rgba(168,196,184,0.13)"}
-                  strokeWidth={hl ? 1.6 : 0.7}
-                  strokeDasharray={hl ? undefined : "3 4"}
-                  markerEnd={hl ? "url(#arr-gold)" : "url(#arr-muted)"} />
-              );
-            })}
-
-            {/* ── Price → ARR arrows ── */}
-            {scenarios.map((s, i) => {
-              const iy = py(i);
-              return (
-                <line key={`pa${i}`}
-                  x1={PRICEX + PRICER} y1={iy}
-                  x2={ARRX - ARRHW - 5} y2={iy}
-                  stroke={s.isSweet ? "rgba(196,146,71,0.75)" : s.isBillion ? "rgba(95,207,138,0.3)" : "rgba(168,196,184,0.12)"}
-                  strokeWidth={s.isSweet ? 1.6 : 0.7}
-                  strokeDasharray={s.isSweet ? undefined : "3 4"}
-                  markerEnd={s.isSweet ? "url(#arr-gold)" : s.isBillion ? "url(#arr-green)" : "url(#arr-muted)"} />
-              );
-            })}
-
-            {/* ── ARR → Val arrows ── */}
-            {scenarios.map((s, i) => {
-              const iy = py(i);
-              return (
-                <line key={`av${i}`}
-                  x1={ARRX + ARRHW} y1={iy}
-                  x2={VALX - VALHW - 5} y2={iy}
-                  stroke={s.isSweet ? "rgba(196,146,71,0.75)" : s.isBillion ? "rgba(95,207,138,0.3)" : "rgba(168,196,184,0.12)"}
-                  strokeWidth={s.isSweet ? 1.6 : 0.7}
-                  strokeDasharray={s.isSweet ? undefined : "3 4"}
-                  markerEnd={s.isSweet ? "url(#arr-gold)" : s.isBillion ? "url(#arr-green)" : "url(#arr-muted)"} />
-              );
-            })}
-
-            {/* ── Root node ── */}
-            <circle cx={ROOT.x} cy={ROOT.y} r={ROOT.r}
-              fill="rgba(0,51,32,0.75)" stroke="rgba(0,74,46,0.9)" strokeWidth={1.5} />
-            {/* inner glow ring */}
-            <circle cx={ROOT.x} cy={ROOT.y} r={ROOT.r - 5}
-              fill="none" stroke="rgba(0,74,46,0.35)" strokeWidth={0.75} />
-            <text x={ROOT.x} y={ROOT.y - 7} textAnchor="middle"
-              fill="white" fontSize={20} fontWeight={700}>1.5M</text>
-            <text x={ROOT.x} y={ROOT.y + 8} textAnchor="middle"
-              fill="rgba(196,146,71,0.9)" fontSize={7} fontWeight={600}>PROVIDERS</text>
-            <text x={ROOT.x} y={ROOT.y + 20} textAnchor="middle"
-              fill="rgba(168,196,184,0.5)" fontSize={6.5}>Total Market</text>
-
-            {/* ── Share nodes ── */}
-            {shareData.map((sd, si) => {
-              const cy = sy(si);
-              return (
-                <g key={`sn${si}`}>
-                  <circle cx={SHAREX} cy={cy} r={SHARER}
-                    fill={sd.hl ? "rgba(144,99,35,0.25)" : "rgba(0,51,32,0.65)"}
-                    stroke={sd.hl ? "rgba(196,146,71,0.9)" : "rgba(0,74,46,0.5)"}
-                    strokeWidth={sd.hl ? 1.75 : 0.8} />
-                  {sd.hl && (
-                    <circle cx={SHAREX} cy={cy} r={SHARER - 4}
-                      fill="none" stroke="rgba(196,146,71,0.25)" strokeWidth={0.75} />
-                  )}
-                  <text x={SHAREX} y={cy - 4} textAnchor="middle"
-                    fill={sd.hl ? "rgba(196,146,71,1)" : "rgba(255,255,255,0.9)"}
-                    fontSize={sd.hl ? 14 : 12} fontWeight={700}>{sd.pct}</text>
-                  <text x={SHAREX} y={cy + 9} textAnchor="middle"
-                    fill="rgba(168,196,184,0.65)" fontSize={6.5}>{sd.users}</text>
-                  {sd.hl && (
-                    <text x={SHAREX} y={cy + SHARER + 11} textAnchor="middle"
-                      fill="rgba(196,146,71,0.8)" fontSize={6.5} fontWeight={600}>▲ Primary Target</text>
-                  )}
-                </g>
-              );
-            })}
-
-            {/* ── Price nodes ── */}
-            {scenarios.map((s, i) => {
-              const iy = py(i);
-              const hl = s.isSweet;
-              return (
-                <g key={`pn${i}`}>
-                  <circle cx={PRICEX} cy={iy} r={PRICER}
-                    fill={hl ? "rgba(144,99,35,0.28)" : "rgba(0,51,32,0.6)"}
-                    stroke={hl ? "rgba(196,146,71,0.9)" : "rgba(0,74,46,0.4)"}
-                    strokeWidth={hl ? 1.5 : 0.7} />
-                  <text x={PRICEX} y={iy + 4} textAnchor="middle"
-                    fill={hl ? "rgba(196,146,71,1)" : "rgba(255,255,255,0.85)"}
-                    fontSize={hl ? 10.5 : 9} fontWeight={hl ? 700 : 500}>{prices[s.pi]}</text>
-                </g>
-              );
-            })}
-
-            {/* ── ARR pills ── */}
-            {scenarios.map((s, i) => {
-              const iy = py(i);
-              const stroke = s.isSweet ? "rgba(196,146,71,0.7)"  : s.isBillion ? "rgba(95,207,138,0.45)" : "rgba(0,74,46,0.32)";
-              const fill   = s.isSweet ? "rgba(144,99,35,0.2)"   : s.isBillion ? "rgba(95,207,138,0.07)" : "rgba(0,51,32,0.35)";
-              const tFill  = s.isSweet ? "rgba(196,146,71,0.95)" : s.isBillion ? "rgba(95,207,138,0.85)" : "rgba(168,196,184,0.7)";
-              return (
-                <g key={`an${i}`}>
-                  <rect x={ARRX - ARRHW} y={iy - ARRHH}
-                    width={ARRHW * 2} height={ARRHH * 2} rx={ARRHH}
-                    fill={fill} stroke={stroke} strokeWidth={s.isSweet ? 1.2 : 0.7} />
-                  <text x={ARRX} y={iy + 4} textAnchor="middle"
-                    fill={tFill} fontSize={s.isSweet ? 10 : 9}
-                    fontWeight={s.isSweet ? 700 : 500}>{s.arr}</text>
-                </g>
-              );
-            })}
-
-            {/* ── Valuation leaf nodes (pills) ── */}
-            {scenarios.map((s, i) => {
-              const iy = py(i);
-              const stroke = s.isSweet ? "rgba(196,146,71,0.9)" : s.isBillion ? "rgba(95,207,138,0.55)" : "rgba(0,74,46,0.35)";
-              const fill   = s.isSweet ? "rgba(144,99,35,0.28)"  : s.isBillion ? "rgba(95,207,138,0.1)"  : "rgba(0,51,32,0.45)";
-              const tFill  = s.isSweet ? "rgba(196,146,71,1)"    : s.isBillion ? "#5fcf8a"               : "rgba(168,196,184,0.85)";
-              return (
-                <g key={`vn${i}`}>
-                  <rect x={VALX - VALHW} y={iy - VALHH}
-                    width={VALHW * 2} height={VALHH * 2} rx={VALHH}
-                    fill={fill} stroke={stroke}
-                    strokeWidth={s.isSweet ? 1.5 : 0.75} />
-                  <text x={VALX} y={iy + 4} textAnchor="middle"
-                    fill={tFill} fontSize={s.isSweet ? 12 : 10.5}
-                    fontWeight={s.isBillion ? 700 : 600}>{s.val}</text>
-                  {s.isSweet && (
-                    <text x={VALX + VALHW + 6} y={iy + 4} textAnchor="start"
-                      fill="rgba(196,146,71,0.85)" fontSize={7.5} fontWeight={700}>★</text>
-                  )}
-                </g>
-              );
-            })}
-          </motion.svg>
-
-          {/* Callout bar */}
-          <motion.div variants={fadeUp} className="dt-callout">
-            <span className="dt-callout-label">Pricing</span>
-            <span className="dt-callout-text">Designed as per provider per month.</span>
-          </motion.div>
-        </motion.div>
-
-        {/* ── Right column – Segment Priority Framework ── */}
-        <motion.div className="path-right-col" variants={stagger} initial="hidden" animate="show">
-          <motion.div variants={fadeUp} className="priority-legend">
-            <div className="priority-legend-title">Segment Priority Framework</div>
-            <div className="priority-legend-rows">
-              {([
-                [1, "High-Yield Elective",   "Massive ATV; every lead is a \u201cmust-win\u201d."],
-                [2, "Velocity Hubs",          "High transaction counts; ROI comes from time saved."],
-                [3, "Specialty Segments",     "High complexity; ROI comes from billing/auth accuracy."],
-                [4, "Infrastructure Tier",    "The \u201clong-game\u201d volume play."],
-              ] as const).map(([num, label, desc]) => (
-                <div key={num} className={`pl-row pl-row-${num}`}>
-                  <span className="pl-badge">{num}</span>
-                  <span className="pl-label">{label}</span>
-                  <span className="pl-desc">{desc}</span>
-                </div>
-              ))}
-            </div>
-            <motion.button
-              type="button"
-              variants={fadeUp}
-              className="priority-legend-link"
-              onClick={goToAppendix}
-              aria-label="Go to slide 17, Appendix market segment analysis"
-            >
-              <span>Go to slide 17: Market Segment Analysis</span>
-              <ArrowRight size={14} />
-            </motion.button>
-          </motion.div>
-
-        </motion.div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Appendix ───────────────────────────────────────────────────────────────
-
-const APX_ROWS = [
-  {
-    category: "Elective",
-    vertical: "Fertility (IVF)",
-    practiceCount: "500",
-    mdDo: "1,500",
-    np: "400",
-    pa: "300",
-    other: "-",
-    totalProviders: "2,200",
-    atv: "$15,000",
-    annualTransactions: "800",
-    annualRevenue: "$12,000,000",
-    rationale: "Highest ATV in the set. Small target list, but each missed consult is expensive and conversion speed matters.",
-  },
-  {
-    category: "Elective",
-    vertical: "Plastic Surgery",
-    practiceCount: "5,500",
-    mdDo: "8,000",
-    np: "1,000",
-    pa: "1,200",
-    other: "-",
-    totalProviders: "10,200",
-    atv: "$2,500",
-    annualTransactions: "800",
-    annualRevenue: "$2,000,000",
-    rationale: "Classic high-consideration retail funnel. Lead response and consult scheduling directly influence revenue capture.",
-  },
-  {
-    category: "Elective",
-    vertical: "Dentistry & Ortho",
-    practiceCount: "179,000",
-    mdDo: "-",
-    np: "-",
-    pa: "-",
-    other: "213,315",
-    totalProviders: "213,315",
-    atv: "$350",
-    annualTransactions: "5,142",
-    annualRevenue: "$1,800,000",
-    rationale: "Largest retail practice base. Strong fit for always-on scheduling, recall, and treatment-start conversion workflows.",
-  },
-  {
-    category: "Elective",
-    vertical: "Ophthalmology / Optom.",
-    practiceCount: "45,000",
-    mdDo: "-",
-    np: "-",
-    pa: "-",
-    other: "42,000",
-    totalProviders: "60,500",
-    atv: "$250",
-    annualTransactions: "7,200",
-    annualRevenue: "$1,800,000",
-    rationale: "Combines recurring exams with elective conversion opportunities, creating both throughput and revenue sensitivity.",
-  },
-  {
-    category: "Elective",
-    vertical: "Dermatology",
-    practiceCount: "10,000",
-    mdDo: "12,000",
-    np: "1,400",
-    pa: "6,200",
-    other: "-",
-    totalProviders: "19,600",
-    atv: "$300",
-    annualTransactions: "6,000",
-    annualRevenue: "$1,800,000",
-    rationale: "Mix of medical and cosmetic demand. Front-desk load is high, while cosmetic consults reward fast response.",
-  },
-  {
-    category: "Elective",
-    vertical: "Veterinary",
-    practiceCount: "32,000",
-    mdDo: "-",
-    np: "-",
-    pa: "-",
-    other: "127,000",
-    totalProviders: "127,000",
-    atv: "$150",
-    annualTransactions: "10,000",
-    annualRevenue: "$1,500,000",
-    rationale: "Fragmented market with heavy inbound demand. Automation helps with urgent scheduling, reminders, and missed-call recovery.",
-  },
-  {
-    category: "Elective",
-    vertical: "Medical Spas",
-    practiceCount: "11,500",
-    mdDo: "10,488",
-    np: "21,500",
-    pa: "10,500",
-    other: "-",
-    totalProviders: "42,488",
-    atv: "$600",
-    annualTransactions: "2,333",
-    annualRevenue: "$1,400,000",
-    rationale: "Highly competitive consumer acquisition environment where speed-to-lead and reactivation drive outsized ROI.",
-  },
-  {
-    category: "Other",
-    vertical: "Surgery Centers (ASCs)",
-    practiceCount: "6,300",
-    mdDo: "100,000",
-    np: "-",
-    pa: "-",
-    other: "-",
-    totalProviders: "100,000",
-    atv: "$3,200",
-    annualTransactions: "2,200",
-    annualRevenue: "$7,040,000",
-    rationale: "High case-value settings support premium software budgets, especially for scheduling and pre-op coordination.",
-  },
-  {
-    category: "Other",
-    vertical: "Cardiology",
-    practiceCount: "15,000",
-    mdDo: "40,300",
-    np: "-",
-    pa: "-",
-    other: "-",
-    totalProviders: "40,300",
-    atv: "$400",
-    annualTransactions: "8,750",
-    annualRevenue: "$3,500,000",
-    rationale: "Referral-heavy specialty with dense scheduling and pre-procedure coordination that creates real ops leverage.",
-  },
-  {
-    category: "Other",
-    vertical: "Urgent Care",
-    practiceCount: "15,000",
-    mdDo: "-",
-    np: "-",
-    pa: "-",
-    other: "-",
-    totalProviders: "30,000",
-    atv: "$125",
-    annualTransactions: "14,400",
-    annualRevenue: "$1,800,000",
-    rationale: "Lower ATV, but exceptional visit velocity. Small workflow gains compound immediately across high transaction volume.",
-  },
-  {
-    category: "Other",
-    vertical: "Primary Care",
-    practiceCount: "230,000",
-    mdDo: "743,500",
-    np: "-",
-    pa: "-",
-    other: "-",
-    totalProviders: "743,500",
-    atv: "$180",
-    annualTransactions: "10,000",
-    annualRevenue: "$1,800,000",
-    rationale: "Massive footprint and repeat utilization make it the broadest platform expansion wedge for intake and follow-up automation.",
-  },
-  {
-    category: "Other",
-    vertical: "Podiatry",
-    practiceCount: "8,000",
-    mdDo: "12,500",
-    np: "-",
-    pa: "-",
-    other: "-",
-    totalProviders: "12,500",
-    atv: "$200",
-    annualTransactions: "4,000",
-    annualRevenue: "$800,000",
-    rationale: "Balanced mix of repeat care and procedures. Moderate size, but operational pain is consistent and automatable.",
-  },
-  {
-    category: "Other",
-    vertical: "Psychiatry",
-    practiceCount: "35,000",
-    mdDo: "95,000",
-    np: "-",
-    pa: "-",
-    other: "-",
-    totalProviders: "95,000",
-    atv: "$250",
-    annualTransactions: "3,000",
-    annualRevenue: "$750,000",
-    rationale: "Persistent access bottlenecks make qualification, intake, and scheduling automation disproportionately valuable.",
-  },
-  {
-    category: "",
-    vertical: "Total",
-    practiceCount: "592,800",
-    mdDo: "1,023,288",
-    np: "24,300",
-    pa: "18,200",
-    other: "382,315",
-    totalProviders: "1,496,603",
-    atv: "-",
-    annualTransactions: "-",
-    annualRevenue: "$37,990,000",
-    rationale: "Blended view across retail and ambulatory care shows a broad, diversified revenue base for expansion.",
-    total: true,
-  },
-] as const;
-
-function SlideAppendix() {
-  return (
-    <div className="appendix-slide">
-      <SlideHeader eyebrow="Appendix" title="Market Segment Analysis" />
-      <div className="appendix-table-wrap">
-        <table className="appendix-table">
-          <colgroup>
-            <col /><col /><col /><col /><col /><col /><col /><col /><col /><col /><col /><col />
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Vertical</th>
-              <th className="apx-th-num">Practices</th>
-              <th className="apx-th-num">MD / DO</th>
-              <th className="apx-th-num">NP</th>
-              <th className="apx-th-num">PA</th>
-              <th className="apx-th-num">Other</th>
-              <th className="apx-th-num">Providers</th>
-              <th className="apx-th-num">ATV</th>
-              <th className="apx-th-num">Ann. Tx / Practice</th>
-              <th className="apx-th-num">Ann. Rev / Practice</th>
-              <th>Rationale</th>
-            </tr>
-          </thead>
-          <tbody>
-            {APX_ROWS.map((r) => (
-              <tr key={r.vertical} className={`apx-row${"total" in r && r.total ? " apx-total-row" : ""}`}>
-                <td className="apx-group">{r.category || "Total"}</td>
-                <td className="apx-cat">{r.vertical}</td>
-                <td className="apx-num">{r.practiceCount}</td>
-                <td className="apx-num">{r.mdDo}</td>
-                <td className="apx-num">{r.np}</td>
-                <td className="apx-num">{r.pa}</td>
-                <td className="apx-num">{r.other}</td>
-                <td className="apx-num">{r.totalProviders}</td>
-                <td className="apx-num">{r.atv}</td>
-                <td className="apx-num">{r.annualTransactions}</td>
-                <td className="apx-num">{r.annualRevenue}</td>
-                <td className="apx-note">{r.rationale}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <motion.div variants={fadeUp} className="ask-contact-footer">
+        <div className="ask-contact-list">
+          <span className="ask-contact-item ask-contact-item-primary">
+            <UserRound size={18} className="ask-contact-icon" strokeWidth={1.8} />
+            <span className="ask-contact-text ask-contact-text-primary">Chami Rupasinghe</span>
+          </span>
+          <span className="ask-contact-item ask-contact-item-secondary">
+            <MailCheck size={18} className="ask-contact-icon" strokeWidth={1.8} />
+            <span className="ask-contact-text ask-contact-text-secondary">chamir@mayiguide.com</span>
+          </span>
+          <span className="ask-contact-item ask-contact-item-secondary">
+            <Globe size={18} className="ask-contact-icon" strokeWidth={1.8} />
+            <span className="ask-contact-text ask-contact-text-secondary">www.mayiguide.com</span>
+          </span>
+        </div>
+      </motion.div>
     </div>
   );
 }

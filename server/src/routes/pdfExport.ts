@@ -11,13 +11,12 @@ const pdfExportRouter = Router();
 // like "1,problem,16". Falls back to the default (shared/slides.js) if unset or empty.
 //
 // Page numbers, for reference (1-based, matches localhost:5173 slide order):
-//   1 hero                8 engine               15 vision              22 demo
-//   2 problem             9 traction             16 ask
-//   3 loss               10 founder              17 appendix
-//   4 everyday-benefits   11 enterprise-grade     18 capture-detail
-//   5 voice-agent         12 why-wins             19 connect-detail
-//   6 qualify-experience  13 path                 20 convert-detail
-//   7 qualify             14 moats                21 confirm
+//    1 hero                 7 qualify             13 ask
+//    2 problem              8 engine              14 capture-detail
+//    3 loss                 9 mar-partnership      15 connect-detail
+//    4 everyday-benefits   10 traction             16 convert-detail
+//    5 voice-agent         11 founder              17 confirm
+//    6 qualify-experience  12 vision               18 demo
 function resolveExportSlides(): readonly SlideId[] {
   const raw = process.env.PDF_EXPORT_SLIDES;
   if (!raw || raw.trim().length === 0) {
