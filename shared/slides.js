@@ -1,7 +1,6 @@
 export const SLIDES = [
   "hero",
   "problem",
-  "loss",
   "everyday-benefits",
   "voice-agent",
   "qualify-experience",

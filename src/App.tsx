@@ -3,9 +3,7 @@ import SlideDemo from "./components/demo/SlideDemo";
 import { motion, AnimatePresence } from "framer-motion";
 import { SLIDES, type SlideId } from "../shared/slides.js";
 import {
-  PhoneOff, Layers,
   Database,
-  DollarSign,
   Brain, ShieldAlert,
   ChevronRight, ChevronLeft,
   Phone, MessageSquare, Globe, Share2,
@@ -433,7 +431,6 @@ function renderSlide(
   if (slideId === "founder") return <SlideFounder />;
   if (slideId === "hero") return <SlideHero goTo={goTo} isExportMode={options.isExportMode} />;
   if (slideId === "problem") return <SlideProblem isBuilt={options.problemBuilt || options.isExportMode} />;
-  if (slideId === "loss") return <SlideLoss />;
   if (slideId === "everyday-benefits") return <SlideEverydayBenefits />;
   if (slideId === "voice-agent") return <SlideVoiceAgent />;
   if (slideId === "qualify-experience") return <SlideQualifyExperience />;
@@ -1122,129 +1119,6 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
           ) : null}
         </AnimatePresence>
       </motion.div>
-    </div>
-  );
-}
-
-// ─── Slide 3: Invisible Loss ──────────────────────────────────────────────────
-
-function SlideLoss() {
-  const losses = [
-    {
-      icon: <PhoneOff size={20} />,
-      label: "Capture",
-      impact: "$1.8M",
-      impactQualifier: "per year missed consults",
-      subtext: "AI captures missed-calls of which 10% are leads. Of the 150 leads/month, 20% convert at $5K/proc",
-      sourceHref: "https://www.plasticsurgery.org/news/plastic-surgery-statistics",
-      sourceLabel: "Source: ASPS statistics",
-      color: CCC_COLORS.capture,
-      featured: true,
-      hideImpactLabel: true,
-      hideSecondaryStat: true,
-    },
-    {
-      icon: <Layers size={20} />,
-      label: "Connect",
-      impact: "$750K",
-      impactQualifier: "per year lost to inefficiency",
-      subtext: "A 5-provider practice generating $5M annually requires 30% admin effort and 50% leaks.",
-      sourceHref: "https://www.healthaffairs.org/content/briefs/role-administrative-waste-excess-us-health-spending",
-      sourceLabel: "Source: Health Affairs",
-      color: CCC_COLORS.connect,
-      featured: true,
-      hideImpactLabel: true,
-      hideSecondaryStat: true,
-    },
-    {
-      icon: <DollarSign size={20} />,
-      label: "Convert",
-      impact: "$2.0M",
-      impactQualifier: "per year patient lifetime revenue expansion potential",
-      subtext: "Existing patients are 12x more likely to return than new patients are to convert. A 5% increase in retention can increase profits by 25–95%.",
-      sourceHref: "https://www.bain.com/insights/retaining-customers-is-the-real-challenge",
-      sourceLabel: "Source: Bain & Company",
-      color: CCC_COLORS.convert,
-      featured: true,
-      hideImpactLabel: true,
-      hideSecondaryStat: true,
-    },
-  ];
-
-  return (
-    <div className="slide slide-loss">
-      <SlideHeader
-        eyebrow="Invisible Loss"
-        title="Revenue is lost - or left on the table - at every step"
-      />
-      <div className="loss-body">
-        <motion.div
-          className="loss-grid"
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-        >
-          {losses.map(({ icon, label, impact, impactQualifier, subtext, sourceHref, sourceLabel, color, featured }) => (
-            <motion.section key={label} variants={fadeUp} className={`loss-card${featured ? " loss-card-featured" : ""}`}>
-              <div className="loss-card-head">
-                <div className="loss-card-label" style={{ color }}>{label}</div>
-                <div className="loss-card-icon" style={{ color, borderColor: color }}>
-                  {icon}
-                </div>
-              </div>
-              <div className="loss-card-main">
-                <div className="loss-card-stat-wrap">
-                  <div className="loss-card-impact">{impact}</div>
-                  {impactQualifier && <div className="loss-card-impact-qualifier">{impactQualifier}</div>}
-                </div>
-                <div className="loss-card-text-wrap">
-                  <div className="loss-card-copy">{subtext}</div>
-                  {sourceHref && sourceLabel && (
-                    <a
-                      className="loss-card-source-link"
-                      href={sourceHref}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {sourceLabel}
-                    </a>
-                  )}
-                </div>
-              </div>
-            </motion.section>
-          ))}
-        </motion.div>
-
-        <motion.div
-          className="loss-summary"
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-        >
-          <span className="loss-summary-value">$4.6</span>
-          <span className="loss-summary-text">Million</span>
-          <span className="loss-summary-caption">per practice per year revenue opportunity</span>
-        </motion.div>
-
-        <motion.div
-          className="loss-market"
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-        >
-          <span className="loss-market-value loss-market-value-stat">$13.8</span>
-          <span className="loss-market-value">Billion</span>
-          <span className="loss-market-caption">2026 U.S. Patient Engagement Solutions Market</span>
-          <a
-            className="loss-card-source-link"
-            href="https://www.grandviewresearch.com/industry-analysis/us-patient-engagement-solutions-market"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Source: Grand View Research
-          </a>
-        </motion.div>
-      </div>
     </div>
   );
 }

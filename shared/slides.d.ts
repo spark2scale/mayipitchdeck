@@ -1,7 +1,6 @@
 export declare const SLIDES: readonly [
   "hero",
   "problem",
-  "loss",
   "everyday-benefits",
   "voice-agent",
   "qualify-experience",
