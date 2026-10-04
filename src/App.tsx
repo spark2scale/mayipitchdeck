@@ -1744,7 +1744,7 @@ function SlideTraction() {
                     />
                   ) : (
                     <div className="traction-customer-icon" aria-hidden="true">
-                      <Building2 size={26} strokeWidth={1.6} />
+                      <Building2 size={29} strokeWidth={1.6} />
                     </div>
                   )}
                 </div>
