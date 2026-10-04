@@ -3079,7 +3079,7 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .traction-stat-card-featured {
-  min-height: 132px;
+  min-height: 108px;
 }
 
 .traction-stat-card-featured .traction-stat-label {
@@ -3088,10 +3088,15 @@ strong { color: var(--mi-text); font-weight: 600; }
 
 .traction-stat-card-featured .traction-stat-value {
   color: var(--mi-copper);
+  font-size: clamp(26px, 2.6vw, 34px);
 }
 
 .traction-stat-card-secondary {
-  min-height: 118px;
+  min-height: 140px;
+}
+
+.traction-stat-card-secondary .traction-stat-value {
+  font-size: clamp(38px, 4.2vw, 56px);
 }
 
 .traction-stat-card-primary .traction-stat-value {
@@ -3108,7 +3113,6 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .traction-stat-card-secondary .traction-stat-value {
-  font-size: clamp(28px, 3vw, 40px);
   color: var(--mi-text);
 }
 
