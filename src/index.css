@@ -399,7 +399,7 @@ strong { color: var(--mi-text); font-weight: 600; }
 .hero-card-col {
   flex: 0.7;
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .hero-agenda-col,
