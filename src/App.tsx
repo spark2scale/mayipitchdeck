@@ -694,7 +694,7 @@ const LIVE_USAGE_METRICS = [
   { value: "$13,629", heroValue: "$13,629", heroLabel: "generated\n/practice/year", tractionLabel: "Generated / practice / year" },
   { value: "2,775", heroValue: "2,775", heroLabel: "calls\n/practice/month", tractionLabel: "Calls /\u00a0practice /\u00a0month" },
   { value: "612", heroValue: "612", heroLabel: "reminders sent\n/practice/month", tractionLabel: "Reminders sent / practice / month" },
-  { value: "132", heroValue: "132", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
+  { value: "99", heroValue: "99", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
