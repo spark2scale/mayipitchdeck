@@ -684,7 +684,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
 const LIVE_USAGE_METRICS = [
   { value: "$31,067", heroValue: "$31,067", heroLabel: "saved\n/practice/year", tractionLabel: "Saved /\u00a0practice /\u00a0year" },
   { value: "$13,629", heroValue: "$13,629", heroLabel: "generated\n/practice/year", tractionLabel: "Generated / practice / year" },
-  { value: "2,775", heroValue: "2,775", heroLabel: "calls\n/practice/month", tractionLabel: "Calls /\u00a0practice /\u00a0month" },
+  { value: "2,775", heroValue: "2,775", heroLabel: "calls\n/practice/month", tractionLabel: "Calls\n/\u00a0practice /\u00a0month" },
   { value: "612", heroValue: "612", heroLabel: "reminders sent\n/practice/month", tractionLabel: "Reminders sent / practice / month" },
   { value: "99", heroValue: "99", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
@@ -1723,7 +1723,7 @@ function SlideTraction() {
             {TRACTION_PRIMARY_METRICS.map((metric) => (
               <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
                 <div className="traction-stat-value">{metric.value}</div>
-                <div className="traction-stat-label">{metric.label}</div>
+                <div className="traction-stat-label" style={{ whiteSpace: "pre-line" }}>{metric.label}</div>
               </div>
             ))}
           </div>
