@@ -3079,7 +3079,7 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .traction-stat-card-featured {
-  min-height: 108px;
+  min-height: 128px;
 }
 
 .traction-stat-card-featured .traction-stat-label {
@@ -3088,7 +3088,7 @@ strong { color: var(--mi-text); font-weight: 600; }
 
 .traction-stat-card-featured .traction-stat-value {
   color: var(--mi-copper);
-  font-size: clamp(26px, 2.6vw, 34px);
+  font-size: clamp(32px, 3.4vw, 46px);
 }
 
 .traction-stat-card-secondary {
