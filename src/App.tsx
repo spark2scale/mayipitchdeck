@@ -9,7 +9,7 @@ import {
   Phone, MessageSquare, Globe, Share2,
   FileCheck,
   ArrowRight, ArrowDown, ScanText, BotMessageSquare, UserRound, Users,
-  MailCheck, Workflow, ScanSearch,
+  MailCheck, Workflow, ScanSearch, Building2,
   PhoneOutgoing, Stethoscope as SurgeryIcon, Banknote,
   AudioLines, Printer, ShieldCheck, BadgeDollarSign, HeartHandshake,
   type LucideIcon,
@@ -1736,12 +1736,16 @@ function SlideTraction() {
             {TRACTION_CUSTOMERS.map((customer) => (
               <article key={customer.name} className="traction-customer-card">
                 <div className="traction-customer-logo-wrap">
-                  {customer.logoSrc && (
+                  {customer.logoSrc ? (
                     <img
                       src={customer.logoSrc}
                       alt={customer.logoAlt}
                       className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
                     />
+                  ) : (
+                    <div className="traction-customer-icon" aria-hidden="true">
+                      <Building2 size={26} strokeWidth={1.6} />
+                    </div>
                   )}
                 </div>
                 <div className="traction-customer-name">{customer.name}</div>
