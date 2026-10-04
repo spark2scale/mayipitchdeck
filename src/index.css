@@ -3051,13 +3051,13 @@ strong { color: var(--mi-text); font-weight: 600; }
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
-  margin-bottom: 14px;
 }
 
 .traction-secondary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  margin-bottom: 14px;
 }
 
 .traction-stat-card {

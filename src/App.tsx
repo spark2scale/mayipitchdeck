@@ -1710,18 +1710,18 @@ function SlideTraction() {
         <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
           <div className="traction-panel-label">Live customer usage</div>
 
-          <div className="traction-featured-stack">
-            {TRACTION_PRIMARY_METRICS.map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
+          <div className="traction-secondary-grid">
+            {TRACTION_SECONDARY_METRICS.map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-secondary">
                 <div className="traction-stat-value">{metric.value}</div>
                 <div className="traction-stat-label">{metric.label}</div>
               </div>
             ))}
           </div>
 
-          <div className="traction-secondary-grid">
-            {TRACTION_SECONDARY_METRICS.map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-secondary">
+          <div className="traction-featured-stack">
+            {TRACTION_PRIMARY_METRICS.map((metric) => (
+              <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
                 <div className="traction-stat-value">{metric.value}</div>
                 <div className="traction-stat-label">{metric.label}</div>
               </div>
