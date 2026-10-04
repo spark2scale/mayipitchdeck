@@ -875,7 +875,7 @@ function SlideHero({ goTo, isExportMode }: { goTo: (i: number) => void; isExport
           animate="show"
         >
           <div className="hero-card">
-            <div className="hero-card-label">Revenue Integrity Engine</div>
+            <div className="hero-card-label">AI Patient Revenue Engine</div>
             <div className="flow-rows flow-rows-demand">
               <div className="flow-row flow-row-demand">
                 <span className="flow-key">Demand in</span>
