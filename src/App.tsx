@@ -704,10 +704,10 @@ const TRACTION_SECONDARY_METRICS = [
 
 const TRACTION_CUSTOMERS = [
   {
-    name: "Austin Face and Body",
-    logoSrc: "/afbLogoBrown.png",
-    logoAlt: "Austin Face and Body logo",
-    logoClassName: "traction-customer-logo-light",
+    name: "Plastic Surgery Practice",
+    logoSrc: undefined,
+    logoAlt: "",
+    logoClassName: undefined,
     profile: "7-provider plastic surgery practice in Austin, Texas",
     impact: "Validates May I in a premium, high-intent specialty where missed calls directly translate into missed consult revenue.",
   },
@@ -1736,11 +1736,13 @@ function SlideTraction() {
             {TRACTION_CUSTOMERS.map((customer) => (
               <article key={customer.name} className="traction-customer-card">
                 <div className="traction-customer-logo-wrap">
-                  <img
-                    src={customer.logoSrc}
-                    alt={customer.logoAlt}
-                    className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
-                  />
+                  {customer.logoSrc && (
+                    <img
+                      src={customer.logoSrc}
+                      alt={customer.logoAlt}
+                      className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
+                    />
+                  )}
                 </div>
                 <div className="traction-customer-name">{customer.name}</div>
                 <div className="traction-customer-profile">{customer.profile}</div>
