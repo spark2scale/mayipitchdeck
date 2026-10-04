@@ -3092,11 +3092,11 @@ strong { color: var(--mi-text); font-weight: 600; }
 }
 
 .traction-stat-card-secondary {
-  min-height: 140px;
+  min-height: 128px;
 }
 
 .traction-stat-card-secondary .traction-stat-value {
-  font-size: clamp(38px, 4.2vw, 56px);
+  font-size: clamp(34px, 3.7vw, 48px);
 }
 
 .traction-stat-card-primary .traction-stat-value {
