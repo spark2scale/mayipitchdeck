@@ -690,10 +690,12 @@ const LIVE_USAGE_METRICS = [
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
-const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.filter(({ value }) => value).map(({ value, tractionLabel }) => ({
-  value,
-  label: tractionLabel,
-}));
+const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS
+  .filter(({ value }) => value && !value.startsWith("$"))
+  .map(({ value, tractionLabel }) => ({
+    value,
+    label: tractionLabel,
+  }));
 
 const TRACTION_SECONDARY_METRICS = [
   { value: "18.6%", label: "of call volume occurs after hours" },
@@ -1708,17 +1710,8 @@ function SlideTraction() {
         <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
           <div className="traction-panel-label">Live customer usage</div>
 
-          <div className="traction-summary-grid">
-            {TRACTION_PRIMARY_METRICS.slice(0, 2).map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-primary">
-                <div className="traction-stat-value">{metric.value}</div>
-                <div className="traction-stat-label">{metric.label}</div>
-              </div>
-            ))}
-          </div>
-
           <div className="traction-featured-stack">
-            {TRACTION_PRIMARY_METRICS.slice(2).map((metric) => (
+            {TRACTION_PRIMARY_METRICS.map((metric) => (
               <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
                 <div className="traction-stat-value">{metric.value}</div>
                 <div className="traction-stat-label">{metric.label}</div>
