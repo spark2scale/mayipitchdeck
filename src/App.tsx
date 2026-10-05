@@ -1306,7 +1306,7 @@ function SlideQualifyExperience() {
     <div className="slide slide-qualify">
       <SlideHeader
         eyebrow="Capture - PATIENT INTELLIGENCE"
-        title="Empower Your Staff with Patient Intelligence for Every Call and Text"
+        title="Empower Staff with Patient Intelligence for Every Call and Text"
       />
       <motion.figure
         className="qualify-figure"
