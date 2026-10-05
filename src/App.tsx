@@ -1260,7 +1260,7 @@ function SlideQualify() {
     <div className="slide slide-qualify">
       <SlideHeader
         eyebrow="CONNECT - AGENTIC CRM"
-        title="AI Organizes the Work—Your Team Elevates the Patient Experience"
+        title="AI Organizes the Work—The Team Elevates the Patient Experience"
       />
       <motion.figure
         className="qualify-figure"
