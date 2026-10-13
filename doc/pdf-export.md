@@ -2,8 +2,13 @@
 
 ## How it works
 
-- The `Download PDF` button in the frontend hits `GET /api/export/pdf`.
-- The backend opens the frontend in Playwright, one slide at a time, using `?export=pdf&slide=<id>`.
+- The `Download PDF` button in the frontend hits `GET /api/export/pdf`, appending the
+  visitor's currently selected theme as `&theme=light|dark` (see `src/colorScheme.ts`).
+- The backend opens the frontend in Playwright, one slide at a time, using
+  `?export=pdf&slide=<id>&theme=<light|dark>`.
+- `index.html`'s inline pre-paint script reads `?theme=` and sets `data-theme` on `<html>`
+  before the app mounts, so the export renders in the requested theme, not whatever the
+  server's own default would otherwise be.
 - The frontend renders the export-safe slide and sets `__PDF_READY__` / `data-pdf-ready` when fonts and images have settled.
 - The backend screenshots the slide container marked with `data-export-capture="true"`.
 - Each screenshot is embedded into a `16:9` PDF page sized `960 × 540` points.
@@ -12,6 +17,8 @@ Relevant files:
 
 - `src/App.tsx`
 - `src/index.css`
+- `src/colorScheme.ts`
+- `index.html`
 - `server/src/routes/pdfExport.ts`
 
 ## Why the export viewport is `1600 × 900`

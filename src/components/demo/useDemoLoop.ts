@@ -175,11 +175,17 @@ export function useDemoLoop(
 
     addLogs(["📸 Capturing screenshot of current screen"]);
 
+    // Fallback fill for any transparent region in the capture — matches the active
+    // theme's page background (see src/index.css --bg-page) rather than a fixed color.
+    const themeBackground = getComputedStyle(document.documentElement)
+      .getPropertyValue("--bg-page")
+      .trim() || "#001810";
+
     const canvas = await html2canvas(el as HTMLElement, {
       scale: 1,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: "#001810",
+      backgroundColor: themeBackground,
       logging: false,
     });
 

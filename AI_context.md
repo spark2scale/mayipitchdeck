@@ -94,46 +94,102 @@ unless those ideas are tied back to conversion, monetization, patient intent, or
 
 ## Style Guide Source
 
-The visual system is based on the existing May I website and its source code:
+The visual system is ported from the May I product's own design system, documented in
+[doc/design-system.md](doc/design-system.md) (a portable snapshot of
+`MayiCommsCustomerCenter/src/components/ui/*`). That file is the source of truth for tokens,
+components, and rules — this section is a summary tuned for this repo.
 
-- Live website: https://www.mayiguide.com
-- GitHub repo: https://github.com/May-I-LLC/MayIWebsite
+The deck ships **both** themes from the source system — light "Champagne & Forest" (default)
+and dark "Deep Emerald & Brass" — switched via `data-theme` on `<html>`, ported as plain CSS
+custom properties rather than the Tailwind/React component layer the source doc also offers.
 
-The design tokens were confirmed from the live site and the source repo.
+### Theme switching
 
-### Brand Tokens
+- [src/colorScheme.ts](src/colorScheme.ts): `Theme` type, `THEME_STORAGE_KEY`
+  (`"mayi-deck-theme"`, localStorage), `readTheme()`/`applyTheme()`, and the `useColorScheme()`
+  hook (subscribes to `data-theme` changes via a `MutationObserver`).
+- [src/components/ThemeToggle.tsx](src/components/ThemeToggle.tsx): the Sun/Moon header
+  button, wired into the header in `App.tsx`.
+- [index.html](index.html): an inline `<head>` script applies the saved theme (or a
+  `?theme=light|dark` query param) **before first paint**, so there's no flash of the wrong
+  theme. Keep its logic in sync with `colorScheme.ts` if either changes.
+- PDF export: `handleDownloadPdf` in `App.tsx` appends the live theme as `?theme=…` to the
+  export request; `server/src/routes/pdfExport.ts` forwards it to every per-slide URL it asks
+  Playwright to screenshot, so the exported PDF matches whatever the visitor had selected.
 
-- `--mi-primary: #906323`
-- `--mi-primary2: #7A531D`
-- `--mi-accent: #8B4513`
-- `--mi-copper: #906323`
-- `--mi-bg: #001810`
-- `--mi-surface: #003320`
-- `--mi-border: #004A2E`
-- `--mi-text: #FFFFFF`
-- `--mi-muted: #A8C4B8`
+### Design tokens
 
-### Visual Language
+Defined in [src/index.css](src/index.css)'s `:root, :root[data-theme="light"]` block (the
+defaults) and `:root[data-theme="dark"]` block (overrides). Both blocks define the same set of
+custom properties — use these, and do not add new colors without checking the rule below first.
 
-Other agents should preserve the existing May I brand direction:
+- Surfaces (each nesting level a step darker in dark / more saturated in light): `--bg-page`,
+  `--bg-surface`, `--bg-surface-nested`, `--bg-inset`. RGB triplets (`--bg-page-rgb`,
+  `--bg-surface-rgb`, `--bg-inset-rgb`) exist for `rgba(var(--x-rgb), alpha)` tints — **always
+  use the RGB-triplet var, never a literal `r, g, b` triplet**, or the value won't switch when
+  the theme does.
+- Text: `--text-primary` (+ `--text-primary-rgb`), `--text-secondary` (+
+  `--text-secondary-rgb`), `--text-muted`, plus paired text-on-fill colors (`--text-on-accent`,
+  `--text-on-gold`, `--text-on-green`), and `--text-heading` (near-black in light, gold in dark).
+- Brand: `--gold`, `--green` (plus `--gold-rgb` / `--green-rgb`), and role aliases `--accent`
+  (green in light, gold in dark — the theme's primary color), `--accent-fg`, `--gold-text`,
+  `--cta-bg` (gold in both themes), `--cta-fg`, `--chip-neutral-bg`, `--chip-neutral-fg`.
+- `--border`, `--border-strong`, `--shadow-raised`, `--canvas` (full-page gradient background).
+- Chart/diagram series — **charts and inline SVG diagrams only, never general UI**:
+  `--chart-total`, `--chart-completed`, `--chart-in-progress`, `--chart-hourly`, `--chart-failed`.
+- Error/negative state: `--error`, `--error-rgb`, `--error-text` (Tailwind rose-600/400/700
+  equivalents, matching the source design system's error convention; `--error-text` picks the
+  readable shade per theme).
 
-- dark evergreen / deep green background
-- copper-gold accent color
-- white headlines
-- muted green body copy
-- glassy or translucent green surfaces with subtle borders
-- soft blurred background blooms rather than loud gradients
-- premium, restrained product-marketing tone
-- presentation-like composition, not a busy dashboard
+**Critical constraint:** all tokens are hex/rgb, never `oklch()` or `color-mix()`. The demo
+slide ([src/components/demo/useDemoLoop.ts](src/components/demo/useDemoLoop.ts)) captures the
+DOM with `html2canvas` 1.4.1, which cannot parse those color functions. Keep any new color
+value as hex/rgb/rgba, even if you have to convert from the source doc's OKLCH by hand — `var()`
+references (including `rgba(var(--gold-rgb), .5)`) are fine, since the browser resolves them to
+a plain rgba string before html2canvas reads computed styles.
+
+**App.tsx's `DECK_COLORS` and `CCC_COLORS`** (inline SVG chart/diagram colors, and the
+Capture/Connect/Convert accents) are `var()` references for exactly this reason — they
+automatically follow the active theme. If you add a new inline SVG color, follow the same
+pattern rather than hard-coding an rgb triplet.
+
+### Non-negotiable rules (from doc/design-system.md)
+
+1. **Fills, not outlines.** Cards, chips, and buttons use solid fills to show hierarchy. The
+   only borders are a hairline on a top-level card (`--border`) and the shadow on a `raised`
+   panel. A card nested inside another card is fill-only (`--bg-surface-nested` /
+   `--bg-inset`, `border-color: transparent`) — no border.
+2. Headings (anything that reads as a title, and every `h1`/`h2`/`h3` that isn't `.uppercase`)
+   are **Cormorant Garamond** 600, colored `--text-heading` (gold). Everything else —
+   including uppercase eyebrow/nav/chip labels — is **Work Sans** 400–700. Both are
+   self-hosted via `@fontsource/work-sans` and `@fontsource/cormorant-garamond`
+   ([src/main.tsx](src/main.tsx)), not Google Fonts `<link>`, to keep the Playwright PDF
+   export working offline.
+3. One status accent (gold or green) per card; use `--chip-neutral-bg` for everything else.
+4. Capture / Connect / Convert accent colors live in `CCC_COLORS` in
+   [src/App.tsx](src/App.tsx) — gold (capture), `--chart-in-progress` blue (connect),
+   `--chart-completed` green (convert) — and are mirrored onto `--ccc-capture` /
+   `--ccc-connect` / `--ccc-convert` CSS vars by an effect in `App.tsx`. Keep these three
+   mapped to in-palette tokens; don't reintroduce the old amber `#fcd34d`/`#f59e0b`/`#b45309`.
+5. Inline SVG charts/diagrams read colors from the `DECK_COLORS` constant near the top of
+   `App.tsx` (mirrors the source doc's `chartColors.ts` pattern) — extend that object rather
+   than hard-coding a new hex value inside a chart.
+6. Ask before introducing a color outside this palette.
+
+### Visual language
+
+- dark emerald background with a soft gold/green canvas glow (`--canvas`)
+- gold Cormorant Garamond headlines, Work Sans body copy
+- solid-fill cards with a hairline border, no backdrop blur on cards (blur is reserved for the
+  sticky header/footer chrome, which sits over scrolling content, not for cards)
+- premium, restrained product-marketing tone; presentation-like composition, not a dashboard
 
 ### Component / Layout Patterns
 
-The source site uses these patterns, and this investor site should generally keep them:
-
-- sticky translucent header
+- sticky translucent header/footer (these keep `backdrop-filter`; cards do not)
 - large headline typography with relatively sparse body copy
-- bordered surface cards with backdrop blur
-- copper gradient CTA treatment
+- solid-fill surface cards, one hairline border, no gradient CTA — buttons are a flat
+  `--cta-bg` fill with `--cta-fg` text
 - subtle motion only, mostly fade-up / stagger reveal
 - icon-led cards and system diagrams rather than decorative illustrations
 
