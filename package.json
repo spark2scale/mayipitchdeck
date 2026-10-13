@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource/inter": "^5.2.8",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/work-sans": "^5.3.0",
     "framer-motion": "^12.23.26",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.577.0",

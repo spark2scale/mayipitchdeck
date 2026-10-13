@@ -10,6 +10,28 @@
       name="description"
       content="May I investor pitch website: the AI revenue integrity engine for retail healthcare."
     />
+    <!--
+      Theme, applied before first paint to avoid a flash. Keep in sync with
+      THEME_INIT_SCRIPT in src/colorScheme.ts. A `?theme=light|dark` query param (used by
+      the PDF export route, see server/src/routes/pdfExport.ts) wins over the saved
+      preference for that page load, and also updates the saved preference so the export
+      page's own React app renders in the same theme it was asked for.
+    -->
+    <script>
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var requested = params.get("theme");
+          var theme = requested === "dark" || requested === "light"
+            ? requested
+            : localStorage.getItem("mayi-deck-theme");
+          if (theme === "dark" || theme === "light") {
+            document.documentElement.setAttribute("data-theme", theme);
+            if (requested) localStorage.setItem("mayi-deck-theme", theme);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

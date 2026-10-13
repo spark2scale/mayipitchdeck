@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import SlideDemo from "./components/demo/SlideDemo";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { readTheme } from "./colorScheme";
 import { motion, AnimatePresence } from "framer-motion";
 import { SLIDES, type SlideId } from "../shared/slides.js";
 import {
@@ -33,11 +35,38 @@ const slideInRight = {
   show: { opacity: 1, x: 0, transition: { duration: 0.55 } },
 };
 
-// ─── CCC Brand Colors (Option A — Light to Dark) ──────────────────────────────
+// ─── CCC Brand Colors ──────────────────────────────────────────────────────
+// Capture/Connect/Convert need three distinguishable accents, kept inside the May I
+// palette: gold (capture), a cooler "in progress" blue (connect, matching --chart-in-progress),
+// and the brand green (convert, matching --chart-completed / success).
 export const CCC_COLORS = {
-  capture: "#fcd34d",
-  connect: "#f59e0b",
-  convert: "#b45309",
+  capture: "var(--gold)",
+  connect: "var(--chart-in-progress)",
+  convert: "var(--chart-completed)",
+} as const;
+
+// ─── Deck chart/diagram colors ─────────────────────────────────────────────
+// For inline SVG charts and diagrams (ARR bar chart, path-to-$1B decision tree, market
+// sizing). Mirrors doc/design-system.md's chartColors.ts: reads CSS variables so marks
+// follow the active theme. The "Rgb" fields are var() references into the matching
+// "--x-rgb" custom property (set per theme in index.css), wrapped in rgba() at each call
+// site — e.g. `rgba(${DECK_COLORS.goldRgb}, .5)` resolves to `rgba(var(--gold-rgb), .5)`,
+// which both the browser and html2canvas 1.4.1 resolve fine (unlike oklch()/color-mix()).
+const DECK_COLORS = {
+  gold: "var(--gold)",
+  goldText: "var(--text-on-gold)",
+  green: "var(--chart-completed)",
+  textPrimary: "var(--text-primary)",
+  textSecondary: "var(--text-secondary)",
+  textMuted: "var(--text-muted)",
+  surface: "var(--bg-surface)",
+  border: "var(--border)",
+  // var() references to "--x-rgb" tokens, theme-aware; see note above.
+  goldRgb: "var(--gold-rgb)",
+  greenRgb: "var(--green-rgb)",
+  surfaceRgb: "var(--bg-surface-rgb)",
+  textPrimaryRgb: "var(--text-primary-rgb)",
+  textSecondaryRgb: "var(--text-secondary-rgb)",
 } as const;
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
@@ -108,6 +137,7 @@ export default function App() {
     setIsDownloadingPdf(true);
     const exportUrl = new URL("/api/export/pdf", getApiOrigin());
     exportUrl.searchParams.set("baseUrl", window.location.origin);
+    exportUrl.searchParams.set("theme", readTheme());
 
     const anchor = document.createElement("a");
     anchor.href = exportUrl.toString();
@@ -342,6 +372,7 @@ export default function App() {
           </nav>
 
           <div className="header-actions">
+            <ThemeToggle />
             {!isMobile && (
               <button
                 type="button"
@@ -665,7 +696,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     sourceHref: "",
     sourceLabel: "",
     challenge: "The clinician delivers care and the EMR/PMS remains the system of record.",
-    accent: "var(--mi-copper)",
+    accent: "var(--gold)",
     showMetricCard: false,
     solutions: [],
   },
@@ -1538,12 +1569,12 @@ function SlideEngine() {
           <div className="engine-core-items">
             {[
               {
-                icon: <Brain size={30} color="var(--mi-copper)" strokeWidth={1.6} />,
+                icon: <Brain size={30} color="var(--gold)" strokeWidth={1.6} />,
                 label: "Agentic Voice, Text, Vision, & Computer Use",
                 text: <>Agentic Voice, Text, Vision,<br />&amp; Computer Use</>,
               },
-              { icon: <AudioLines size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
-              { icon: <Database size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
+              { icon: <AudioLines size={30} color="var(--gold)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
+              { icon: <Database size={30} color="var(--gold)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
             ].map(({ icon, label, text }) => (
               <div key={label} className="engine-core-item">
                 {icon}
@@ -2092,12 +2123,12 @@ function SlideMoats() {
           <svg viewBox={`0 0 ${W} ${H}`} className="rev-chart-svg" aria-label="ARR by year">
             <defs>
               <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#fcd34d" stopOpacity="0.95" />
-                <stop offset="100%" stopColor="#b45309" stopOpacity="0.55" />
+                <stop offset="0%"   stopColor={DECK_COLORS.gold} stopOpacity="0.95" />
+                <stop offset="100%" stopColor={DECK_COLORS.gold} stopOpacity="0.45" />
               </linearGradient>
               <linearGradient id="barGradHi" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#fcd34d" stopOpacity="1"   />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.9" />
+                <stop offset="0%"   stopColor={DECK_COLORS.gold} stopOpacity="1"   />
+                <stop offset="100%" stopColor={DECK_COLORS.gold} stopOpacity="0.8" />
               </linearGradient>
             </defs>
 
@@ -2106,10 +2137,10 @@ function SlideMoats() {
               return (
                 <g key={t}>
                   <line x1={PAD.l} y1={y} x2={W - PAD.r} y2={y}
-                    stroke="rgba(255,255,255,0.07)" strokeWidth="1"
+                    stroke={`rgba(${DECK_COLORS.textSecondaryRgb}, 0.15)`} strokeWidth="1"
                     strokeDasharray={t === 0 ? undefined : "3 5"} />
                   <text x={PAD.l - 6} y={y + 3.5} textAnchor="end"
-                    fontSize="9" fill="rgba(168,196,184,0.65)">
+                    fontSize="9" fill={DECK_COLORS.textMuted}>
                     {t === 0 ? "0" : `$${t}M`}
                   </text>
                 </g>
@@ -2117,10 +2148,10 @@ function SlideMoats() {
             })}
 
             <line x1={PAD.l} y1={chartBottom} x2={W - PAD.r} y2={chartBottom}
-              stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
+              stroke={`rgba(${DECK_COLORS.textSecondaryRgb}, 0.3)`} strokeWidth="1" />
 
             <text x={11} y={H / 2} textAnchor="middle" fontSize="9"
-              fill="rgba(168,196,184,0.5)" transform={`rotate(-90,11,${H / 2})`}>
+              fill={DECK_COLORS.textMuted} transform={`rotate(-90,11,${H / 2})`}>
               ARR ($M)
             </text>
 
@@ -2135,7 +2166,7 @@ function SlideMoats() {
             ))}
 
             <motion.path d={linePath} fill="none"
-              stroke="#fcd34d" strokeWidth="1.5" strokeOpacity="0.5" strokeLinejoin="round"
+              stroke={DECK_COLORS.gold} strokeWidth="1.5" strokeOpacity="0.5" strokeLinejoin="round"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
               transition={{ duration: 0.9, delay: 0.85, ease: "easeInOut" }}
@@ -2143,7 +2174,7 @@ function SlideMoats() {
 
             {arrValues.map((v, i) => (
               <motion.circle key={i} cx={barCX(i)} cy={toY(v)} r="2.8"
-                fill="#fcd34d"
+                fill={DECK_COLORS.gold}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2, delay: 1.0 + i * 0.06 }}
@@ -2152,7 +2183,7 @@ function SlideMoats() {
 
             {xLabels.map((lbl, i) => (
               <text key={lbl} x={barCX(i)} y={H - PAD.b + 14}
-                textAnchor="middle" fontSize="9" fill="rgba(168,196,184,0.7)">
+                textAnchor="middle" fontSize="9" fill={DECK_COLORS.textMuted}>
                 {lbl}
               </text>
             ))}
@@ -2491,9 +2522,9 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
                   markerWidth="8" markerHeight="8" refX="6" refY="4"
                   orient="auto" markerUnits="userSpaceOnUse">
                   <path d="M0,0.5 L0,7.5 L8,4 z" fill={
-                    n==="gold"  ? "rgba(196,146,71,0.9)" :
-                    n==="green" ? "rgba(95,207,138,0.8)" :
-                                  "rgba(168,196,184,0.35)"
+                    n==="gold"  ? `rgba(${DECK_COLORS.goldRgb}, 0.9)` :
+                    n==="green" ? `rgba(${DECK_COLORS.greenRgb}, 0.8)` :
+                                  `rgba(${DECK_COLORS.textSecondaryRgb}, 0.35)`
                   } />
                 </marker>
               ))}
@@ -2504,7 +2535,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
               <text key={lbl}
                 x={[ROOT.x, SHAREX, PRICEX, ARRX, VALX][i]}
                 y={10} textAnchor="middle"
-                fill="rgba(168,196,184,0.4)" fontSize={7.5} fontWeight={600}
+                fill={`rgba(${DECK_COLORS.textSecondaryRgb}, 0.4)`} fontSize={7.5} fontWeight={600}
               >{lbl}</text>
             ))}
 
@@ -2513,7 +2544,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
               const a = edge(ROOT.x, ROOT.y, ROOT.r, SHAREX, sy(si), SHARER + 6);
               return (
                 <line key={`rs${si}`} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-                  stroke={sd.hl ? "rgba(196,146,71,0.7)" : "rgba(168,196,184,0.18)"}
+                  stroke={sd.hl ? `rgba(${DECK_COLORS.goldRgb}, 0.7)` : `rgba(${DECK_COLORS.textSecondaryRgb}, 0.18)`}
                   strokeWidth={sd.hl ? 1.6 : 0.8}
                   strokeDasharray={sd.hl ? undefined : "4 4"}
                   markerEnd={sd.hl ? "url(#arr-gold)" : "url(#arr-muted)"} />
@@ -2527,7 +2558,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
               const dimHl = s.si === 1;
               return (
                 <line key={`sp${i}`} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-                  stroke={hl ? "rgba(196,146,71,0.75)" : dimHl ? "rgba(196,146,71,0.22)" : "rgba(168,196,184,0.13)"}
+                  stroke={hl ? `rgba(${DECK_COLORS.goldRgb}, 0.75)` : dimHl ? `rgba(${DECK_COLORS.goldRgb}, 0.22)` : `rgba(${DECK_COLORS.textSecondaryRgb}, 0.13)`}
                   strokeWidth={hl ? 1.6 : 0.7}
                   strokeDasharray={hl ? undefined : "3 4"}
                   markerEnd={hl ? "url(#arr-gold)" : "url(#arr-muted)"} />
@@ -2541,7 +2572,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
                 <line key={`pa${i}`}
                   x1={PRICEX + PRICER} y1={iy}
                   x2={ARRX - ARRHW - 5} y2={iy}
-                  stroke={s.isSweet ? "rgba(196,146,71,0.75)" : s.isBillion ? "rgba(95,207,138,0.3)" : "rgba(168,196,184,0.12)"}
+                  stroke={s.isSweet ? `rgba(${DECK_COLORS.goldRgb}, 0.75)` : s.isBillion ? `rgba(${DECK_COLORS.greenRgb}, 0.3)` : `rgba(${DECK_COLORS.textSecondaryRgb}, 0.12)`}
                   strokeWidth={s.isSweet ? 1.6 : 0.7}
                   strokeDasharray={s.isSweet ? undefined : "3 4"}
                   markerEnd={s.isSweet ? "url(#arr-gold)" : s.isBillion ? "url(#arr-green)" : "url(#arr-muted)"} />
@@ -2555,7 +2586,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
                 <line key={`av${i}`}
                   x1={ARRX + ARRHW} y1={iy}
                   x2={VALX - VALHW - 5} y2={iy}
-                  stroke={s.isSweet ? "rgba(196,146,71,0.75)" : s.isBillion ? "rgba(95,207,138,0.3)" : "rgba(168,196,184,0.12)"}
+                  stroke={s.isSweet ? `rgba(${DECK_COLORS.goldRgb}, 0.75)` : s.isBillion ? `rgba(${DECK_COLORS.greenRgb}, 0.3)` : `rgba(${DECK_COLORS.textSecondaryRgb}, 0.12)`}
                   strokeWidth={s.isSweet ? 1.6 : 0.7}
                   strokeDasharray={s.isSweet ? undefined : "3 4"}
                   markerEnd={s.isSweet ? "url(#arr-gold)" : s.isBillion ? "url(#arr-green)" : "url(#arr-muted)"} />
@@ -2564,16 +2595,16 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
 
             {/* ── Root node ── */}
             <circle cx={ROOT.x} cy={ROOT.y} r={ROOT.r}
-              fill="rgba(0,51,32,0.75)" stroke="rgba(0,74,46,0.9)" strokeWidth={1.5} />
+              fill={`rgba(${DECK_COLORS.surfaceRgb}, 0.75)`} stroke={`rgba(${DECK_COLORS.surfaceRgb}, 0.9)`} strokeWidth={1.5} />
             {/* inner glow ring */}
             <circle cx={ROOT.x} cy={ROOT.y} r={ROOT.r - 5}
-              fill="none" stroke="rgba(0,74,46,0.35)" strokeWidth={0.75} />
+              fill="none" stroke={`rgba(${DECK_COLORS.surfaceRgb}, 0.35)`} strokeWidth={0.75} />
             <text x={ROOT.x} y={ROOT.y - 7} textAnchor="middle"
-              fill="white" fontSize={20} fontWeight={700}>1.5M</text>
+              fill={DECK_COLORS.textPrimary} fontSize={20} fontWeight={700}>1.5M</text>
             <text x={ROOT.x} y={ROOT.y + 8} textAnchor="middle"
-              fill="rgba(196,146,71,0.9)" fontSize={7} fontWeight={600}>PROVIDERS</text>
+              fill={`rgba(${DECK_COLORS.goldRgb}, 0.9)`} fontSize={7} fontWeight={600}>PROVIDERS</text>
             <text x={ROOT.x} y={ROOT.y + 20} textAnchor="middle"
-              fill="rgba(168,196,184,0.5)" fontSize={6.5}>Total Market</text>
+              fill={`rgba(${DECK_COLORS.textSecondaryRgb}, 0.5)`} fontSize={6.5}>Total Market</text>
 
             {/* ── Share nodes ── */}
             {shareData.map((sd, si) => {
@@ -2581,21 +2612,21 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
               return (
                 <g key={`sn${si}`}>
                   <circle cx={SHAREX} cy={cy} r={SHARER}
-                    fill={sd.hl ? "rgba(144,99,35,0.25)" : "rgba(0,51,32,0.65)"}
-                    stroke={sd.hl ? "rgba(196,146,71,0.9)" : "rgba(0,74,46,0.5)"}
+                    fill={sd.hl ? `rgba(${DECK_COLORS.goldRgb}, 0.25)` : `rgba(${DECK_COLORS.surfaceRgb}, 0.65)`}
+                    stroke={sd.hl ? `rgba(${DECK_COLORS.goldRgb}, 0.9)` : `rgba(${DECK_COLORS.surfaceRgb}, 0.5)`}
                     strokeWidth={sd.hl ? 1.75 : 0.8} />
                   {sd.hl && (
                     <circle cx={SHAREX} cy={cy} r={SHARER - 4}
-                      fill="none" stroke="rgba(196,146,71,0.25)" strokeWidth={0.75} />
+                      fill="none" stroke={`rgba(${DECK_COLORS.goldRgb}, 0.25)`} strokeWidth={0.75} />
                   )}
                   <text x={SHAREX} y={cy - 4} textAnchor="middle"
-                    fill={sd.hl ? "rgba(196,146,71,1)" : "rgba(255,255,255,0.9)"}
+                    fill={sd.hl ? DECK_COLORS.gold : `rgba(${DECK_COLORS.textPrimaryRgb}, 0.9)`}
                     fontSize={sd.hl ? 14 : 12} fontWeight={700}>{sd.pct}</text>
                   <text x={SHAREX} y={cy + 9} textAnchor="middle"
-                    fill="rgba(168,196,184,0.65)" fontSize={6.5}>{sd.users}</text>
+                    fill={`rgba(${DECK_COLORS.textSecondaryRgb}, 0.65)`} fontSize={6.5}>{sd.users}</text>
                   {sd.hl && (
                     <text x={SHAREX} y={cy + SHARER + 11} textAnchor="middle"
-                      fill="rgba(196,146,71,0.8)" fontSize={6.5} fontWeight={600}>▲ Primary Target</text>
+                      fill={`rgba(${DECK_COLORS.goldRgb}, 0.8)`} fontSize={6.5} fontWeight={600}>▲ Primary Target</text>
                   )}
                 </g>
               );
@@ -2608,11 +2639,11 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
               return (
                 <g key={`pn${i}`}>
                   <circle cx={PRICEX} cy={iy} r={PRICER}
-                    fill={hl ? "rgba(144,99,35,0.28)" : "rgba(0,51,32,0.6)"}
-                    stroke={hl ? "rgba(196,146,71,0.9)" : "rgba(0,74,46,0.4)"}
+                    fill={hl ? `rgba(${DECK_COLORS.goldRgb}, 0.28)` : `rgba(${DECK_COLORS.surfaceRgb}, 0.6)`}
+                    stroke={hl ? `rgba(${DECK_COLORS.goldRgb}, 0.9)` : `rgba(${DECK_COLORS.surfaceRgb}, 0.4)`}
                     strokeWidth={hl ? 1.5 : 0.7} />
                   <text x={PRICEX} y={iy + 4} textAnchor="middle"
-                    fill={hl ? "rgba(196,146,71,1)" : "rgba(255,255,255,0.85)"}
+                    fill={hl ? DECK_COLORS.gold : `rgba(${DECK_COLORS.textPrimaryRgb}, 0.85)`}
                     fontSize={hl ? 10.5 : 9} fontWeight={hl ? 700 : 500}>{prices[s.pi]}</text>
                 </g>
               );
@@ -2621,9 +2652,9 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
             {/* ── ARR pills ── */}
             {scenarios.map((s, i) => {
               const iy = py(i);
-              const stroke = s.isSweet ? "rgba(196,146,71,0.7)"  : s.isBillion ? "rgba(95,207,138,0.45)" : "rgba(0,74,46,0.32)";
-              const fill   = s.isSweet ? "rgba(144,99,35,0.2)"   : s.isBillion ? "rgba(95,207,138,0.07)" : "rgba(0,51,32,0.35)";
-              const tFill  = s.isSweet ? "rgba(196,146,71,0.95)" : s.isBillion ? "rgba(95,207,138,0.85)" : "rgba(168,196,184,0.7)";
+              const stroke = s.isSweet ? `rgba(${DECK_COLORS.goldRgb}, 0.7)`  : s.isBillion ? `rgba(${DECK_COLORS.greenRgb}, 0.45)` : `rgba(${DECK_COLORS.surfaceRgb}, 0.32)`;
+              const fill   = s.isSweet ? `rgba(${DECK_COLORS.goldRgb}, 0.2)`   : s.isBillion ? `rgba(${DECK_COLORS.greenRgb}, 0.07)` : `rgba(${DECK_COLORS.surfaceRgb}, 0.35)`;
+              const tFill  = s.isSweet ? `rgba(${DECK_COLORS.goldRgb}, 0.95)` : s.isBillion ? `rgba(${DECK_COLORS.greenRgb}, 0.85)` : `rgba(${DECK_COLORS.textSecondaryRgb}, 0.7)`;
               return (
                 <g key={`an${i}`}>
                   <rect x={ARRX - ARRHW} y={iy - ARRHH}
@@ -2639,9 +2670,9 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
             {/* ── Valuation leaf nodes (pills) ── */}
             {scenarios.map((s, i) => {
               const iy = py(i);
-              const stroke = s.isSweet ? "rgba(196,146,71,0.9)" : s.isBillion ? "rgba(95,207,138,0.55)" : "rgba(0,74,46,0.35)";
-              const fill   = s.isSweet ? "rgba(144,99,35,0.28)"  : s.isBillion ? "rgba(95,207,138,0.1)"  : "rgba(0,51,32,0.45)";
-              const tFill  = s.isSweet ? "rgba(196,146,71,1)"    : s.isBillion ? "#5fcf8a"               : "rgba(168,196,184,0.85)";
+              const stroke = s.isSweet ? `rgba(${DECK_COLORS.goldRgb}, 0.9)` : s.isBillion ? `rgba(${DECK_COLORS.greenRgb}, 0.55)` : `rgba(${DECK_COLORS.surfaceRgb}, 0.35)`;
+              const fill   = s.isSweet ? `rgba(${DECK_COLORS.goldRgb}, 0.28)`  : s.isBillion ? `rgba(${DECK_COLORS.greenRgb}, 0.1)`  : `rgba(${DECK_COLORS.surfaceRgb}, 0.45)`;
+              const tFill  = s.isSweet ? DECK_COLORS.gold : s.isBillion ? DECK_COLORS.green : `rgba(${DECK_COLORS.textSecondaryRgb}, 0.85)`;
               return (
                 <g key={`vn${i}`}>
                   <rect x={VALX - VALHW} y={iy - VALHH}
@@ -2653,7 +2684,7 @@ function SlidePath({ goTo }: { goTo: (i: number) => void }) {
                     fontWeight={s.isBillion ? 700 : 600}>{s.val}</text>
                   {s.isSweet && (
                     <text x={VALX + VALHW + 6} y={iy + 4} textAnchor="start"
-                      fill="rgba(196,146,71,0.85)" fontSize={7.5} fontWeight={700}>★</text>
+                      fill={`rgba(${DECK_COLORS.goldRgb}, 0.85)`} fontSize={7.5} fontWeight={700}>★</text>
                   )}
                 </g>
               );
