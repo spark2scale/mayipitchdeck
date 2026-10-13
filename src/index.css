@@ -1389,6 +1389,16 @@ strong { color: var(--text-primary); font-weight: 600; }
   line-height: 1.2;
 }
 
+/* In dark theme, --bg-surface reads as a bright sage-green panel floating on the much
+   darker page/canvas — fine for most cards, but on this slide's dense 3-card + 2-stat
+   layout it felt too light. Step down to --bg-surface-nested (one level darker) for a
+   calmer card here; light theme is unaffected. */
+:root[data-theme="dark"] .loss-card,
+:root[data-theme="dark"] .loss-summary,
+:root[data-theme="dark"] .loss-market {
+  background: var(--bg-surface-nested);
+}
+
 /* ─── Slide: Everyday Benefits ───────────────────────────────────────────── */
 
 .slide-everyday-benefits {
@@ -3022,16 +3032,9 @@ strong { color: var(--text-primary); font-weight: 600; }
   margin-bottom: 18px;
 }
 
-.traction-summary-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
 .traction-featured-stack {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-bottom: 14px;
 }
@@ -3056,29 +3059,22 @@ strong { color: var(--text-primary); font-weight: 600; }
   padding: 18px 18px 16px;
 }
 
-.traction-stat-card-primary {
-  min-height: 118px;
-}
-
 .traction-stat-card-featured {
   min-height: 132px;
 }
 
 .traction-stat-card-featured .traction-stat-label {
-  max-width: none;
-  white-space: nowrap;
+  max-width: 18ch;
+  white-space: normal;
 }
 
 .traction-stat-card-featured .traction-stat-value {
   color: var(--gold);
+  font-size: clamp(28px, 3vw, 40px);
 }
 
 .traction-stat-card-secondary {
   min-height: 118px;
-}
-
-.traction-stat-card-primary .traction-stat-value {
-  font-size: clamp(28px, 3vw, 40px);
 }
 
 .traction-stat-value {
@@ -3156,6 +3152,7 @@ strong { color: var(--text-primary); font-weight: 600; }
 }
 
 .traction-customer-logo-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -3171,9 +3168,28 @@ strong { color: var(--text-primary); font-weight: 600; }
   object-fit: contain;
 }
 
-.traction-customer-logo-light {
+/* AFB's source mark is dark charcoal — true to its own color on the light theme's card
+   (no filter needed), but invisible there if forced toward white. In dark, invert it to a
+   warm cream so it still reads against the dark card. */
+:root[data-theme="dark"] .traction-customer-logo-light {
   filter: brightness(0) invert(0.92) sepia(0.08) saturate(0.55) hue-rotate(355deg);
   opacity: 0.98;
+}
+
+/* Some customer logos (e.g. Rosemead) ship two asset variants — one with a wordmark
+   recolored for the light theme, one the original for the dark theme — stacked in the
+   DOM and toggled here, since a single CSS filter can't fix a near-white wordmark that's
+   already baked into the source file. */
+.traction-customer-logo-theme-dark {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+:root[data-theme="dark"] .traction-customer-logo-theme-light {
+  display: none;
+}
+:root[data-theme="dark"] .traction-customer-logo-theme-dark {
+  display: block;
 }
 
 .traction-customer-name {
@@ -3579,9 +3595,9 @@ strong { color: var(--text-primary); font-weight: 600; }
 .rev-chart-col {
   grid-area: chart;
   display: flex;
-  border: 1px solid rgba(var(--text-primary-rgb), 0.07);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(0,0,0,0.18);
+  background: rgba(var(--bg-surface-rgb), 0.28);
   padding: 6px 10px 4px 6px;
   min-height: var(--rev-chart-height);
   height: var(--rev-chart-height);
@@ -5124,11 +5140,6 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     margin-bottom: 14px;
   }
 
-  .print-slide .traction-summary-grid {
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
   .print-slide .traction-featured-stack {
     gap: 12px;
     margin-bottom: 12px;
@@ -5143,20 +5154,12 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     padding: 16px 16px 14px;
   }
 
-  .print-slide .traction-stat-card-primary {
-    min-height: 94px;
-  }
-
   .print-slide .traction-stat-card-featured {
     min-height: 102px;
   }
 
   .print-slide .traction-stat-card-secondary {
     min-height: 94px;
-  }
-
-  .print-slide .traction-stat-card-primary .traction-stat-value {
-    font-size: 30px;
   }
 
   .print-slide .traction-stat-value {
@@ -6004,13 +6007,8 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     padding: 18px 18px 16px;
   }
 
-  .traction-summary-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
   .traction-featured-stack {
+    grid-template-columns: 1fr;
     gap: 12px;
     margin-bottom: 12px;
   }
@@ -6025,7 +6023,6 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     padding: 16px 16px 14px;
   }
 
-  .traction-stat-card-primary,
   .traction-stat-card-secondary {
     min-height: unset;
   }

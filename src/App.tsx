@@ -743,6 +743,7 @@ const TRACTION_CUSTOMERS = [
   {
     name: "Austin Face and Body",
     logoSrc: "/afbLogoBrown.png",
+    logoSrcDark: undefined as string | undefined,
     logoAlt: "Austin Face and Body logo",
     logoClassName: "traction-customer-logo-light",
     profile: "7-provider plastic surgery practice in Austin, Texas",
@@ -750,7 +751,11 @@ const TRACTION_CUSTOMERS = [
   },
   {
     name: "Rosemead Eye Center",
-    logoSrc: "/RosemeadEyeLogo.png",
+    // The source mark's wordmark is near-white, legible on the dark card but not the
+    // light one — RosemeadEyeLogoLight.png recolors just that wordmark to charcoal for
+    // the light theme; the original (logoSrcDark) still renders on the dark theme.
+    logoSrc: "/RosemeadEyeLogoLight.png",
+    logoSrcDark: "/RosemeadEyeLogo.png" as string | undefined,
     logoAlt: "Rosemead Eye Center logo",
     logoClassName: undefined,
     profile: "2-provider ophthalmology practice in Rosemead, California",
@@ -1442,8 +1447,8 @@ function SlideQualify() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/capture_screenshot.png"
-          alt="May I CRM workspace showing patient communication and workflow details"
+          src="/CRMforpitchdeck.png"
+          alt="May I CRM workspace showing patient cases organized into follow-up and scheduling queues"
           className="qualify-image"
         />
       </motion.figure>
@@ -1488,7 +1493,7 @@ function SlideQualifyExperience() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/qualify_screenshot.png"
+          src="/Qualifyforpitchdeck.png"
           alt="May I Qualify workspace showing appointment capacity, patient context, and AI-recommended actions"
           className="qualify-image"
         />
@@ -1776,15 +1781,6 @@ function SlideTraction() {
         <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
           <div className="traction-panel-label">Live customer usage</div>
 
-          <div className="traction-summary-grid">
-            {TRACTION_PRIMARY_METRICS.slice(0, 2).map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-primary">
-                <div className="traction-stat-value">{metric.value}</div>
-                <div className="traction-stat-label">{metric.label}</div>
-              </div>
-            ))}
-          </div>
-
           <div className="traction-featured-stack">
             {TRACTION_PRIMARY_METRICS.slice(2).map((metric) => (
               <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
@@ -1814,8 +1810,16 @@ function SlideTraction() {
                   <img
                     src={customer.logoSrc}
                     alt={customer.logoAlt}
-                    className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}`}
+                    className={`traction-customer-logo${customer.logoClassName ? ` ${customer.logoClassName}` : ""}${customer.logoSrcDark ? " traction-customer-logo-theme-light" : ""}`}
                   />
+                  {customer.logoSrcDark && (
+                    <img
+                      src={customer.logoSrcDark}
+                      alt=""
+                      aria-hidden="true"
+                      className="traction-customer-logo traction-customer-logo-theme-dark"
+                    />
+                  )}
                 </div>
                 <div className="traction-customer-name">{customer.name}</div>
                 <div className="traction-customer-profile">{customer.profile}</div>
@@ -1901,6 +1905,13 @@ function SlideWhyWins() {
       strength: "Healthcare-native conversational AI across voice and digital channels",
       gap: "Primarily conversational/self-service layer",
       win: "Persistent patient intent + CRM orchestration + downstream conversion",
+    },
+    {
+      category: "AI Front Desk",
+      company: "EliseAI",
+      strength: "Well-funded voice/text AI for scheduling, reminders, billing and intake across outpatient specialties",
+      gap: "Originated in multifamily real estate; healthcare is broad administrative coverage, not built around elective-care conversion",
+      win: "Purpose-built for high-ticket elective demand capture, qualification and revenue attribution",
     },
     {
       category: "Patient Engagement",
