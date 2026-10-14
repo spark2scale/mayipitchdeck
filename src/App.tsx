@@ -655,7 +655,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     metricTitle: "Missed Demand",
     metricValue: "35%",
     metricLabel: "of calls during the day are missed",
-    commentary: "High-intent patients hit voicemail during business hours, and move on before staff recovers the lead.",
+    commentary: "High-intent patients hit voicemail during business hours, and move on before the lead is recovered.",
     sourceHref: "https://www.mayiguide.com",
     sourceLabel: "Source: May I - Austin Face and Body",
     challenge: "Fragmented intake, missed patient information, and scheduling friction at first contact.",
@@ -1308,23 +1308,20 @@ function SlideEverydayBenefits() {
     {
       icon: ShieldCheck,
       label: "Peace of Mind",
-      headline: "Your front desk stays on, so providers can switch off.",
       copy: "Know every patient is supported, even after hours—without staffing gaps, turnover, or constant front-desk fire drills.",
-      outcome: "Confidence that the practice is covered.",
+      outcome: "Your front desk stays on, so providers can switch off.",
     },
     {
       icon: BadgeDollarSign,
       label: "Get Paid Faster",
-      headline: "Fewer gaps between care and payment.",
       copy: "Automated intake, follow-up, and payment workflows keep revenue from slipping through the cracks.",
-      outcome: "More predictable cash flow.",
+      outcome: "Fewer gaps between care and payment.",
     },
     {
       icon: HeartHandshake,
       label: "Higher Patient Satisfaction",
-      headline: "Every patient gets an immediate, helpful response.",
       copy: "Personalized, context-aware conversations make scheduling and getting answers effortless.",
-      outcome: "A practice patients want to return to.",
+      outcome: "Every patient gets an immediate, helpful response.",
     },
   ];
 
@@ -1343,11 +1340,10 @@ function SlideEverydayBenefits() {
         initial="hidden"
         animate="show"
       >
-        {benefits.map(({ icon: Icon, label, headline, copy, outcome }) => (
+        {benefits.map(({ icon: Icon, label, copy, outcome }) => (
           <motion.section key={label} className="everyday-benefit" variants={fadeUp}>
             <div className="everyday-benefit-icon"><Icon size={30} strokeWidth={1.6} /></div>
             <div className="everyday-benefit-label">{label}</div>
-            <h3>{headline}</h3>
             <p>{copy}</p>
             <div className="everyday-benefit-outcome">{outcome}</div>
           </motion.section>
