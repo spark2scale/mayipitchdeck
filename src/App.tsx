@@ -725,7 +725,7 @@ const LIVE_USAGE_METRICS = [
   { value: "$13,629", heroValue: "$13,629", heroLabel: "generated\n/practice/year", tractionLabel: "Generated / practice / year" },
   { value: "2,775", heroValue: "2,775", heroLabel: "calls\n/practice/month", tractionLabel: "Calls /\u00a0practice /\u00a0month" },
   { value: "612", heroValue: "612", heroLabel: "reminders sent\n/practice/month", tractionLabel: "Reminders sent / practice / month" },
-  { value: "132", heroValue: "132", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
+  { value: "99", heroValue: "99", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
@@ -1200,11 +1200,10 @@ function SlideLoss() {
     {
       icon: <Layers size={20} />,
       label: "Connect",
-      impact: "$750K",
-      impactQualifier: "per year lost to inefficiency",
-      subtext: "A 5-provider practice generating $5M annually requires 30% admin effort and 50% leaks.",
-      sourceHref: "https://www.healthaffairs.org/content/briefs/role-administrative-waste-excess-us-health-spending",
-      sourceLabel: "Source: Health Affairs",
+      impact: "$352.5K",
+      impactQualifier: "per year in RCM revenue leakage",
+      subtext: "A five-provider practice generating $5M in expected annual revenue could lose approximately 7% to unrecovered insurance denials and uncollected patient balances.",
+      sourceLabel: "Source: Illustrative RCM financial model (assumptions below).",
       color: CCC_COLORS.connect,
       featured: true,
       hideImpactLabel: true,
@@ -1253,15 +1252,19 @@ function SlideLoss() {
                 </div>
                 <div className="loss-card-text-wrap">
                   <div className="loss-card-copy">{subtext}</div>
-                  {sourceHref && sourceLabel && (
-                    <a
-                      className="loss-card-source-link"
-                      href={sourceHref}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {sourceLabel}
-                    </a>
+                  {sourceLabel && (
+                    sourceHref ? (
+                      <a
+                        className="loss-card-source-link"
+                        href={sourceHref}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {sourceLabel}
+                      </a>
+                    ) : (
+                      <span className="loss-card-source-link loss-card-source-text">{sourceLabel}</span>
+                    )
                   )}
                 </div>
               </div>
@@ -1275,7 +1278,7 @@ function SlideLoss() {
           initial="hidden"
           animate="show"
         >
-          <span className="loss-summary-value">$4.6</span>
+          <span className="loss-summary-value">$4.2</span>
           <span className="loss-summary-text">Million</span>
           <span className="loss-summary-caption">per practice per year revenue opportunity</span>
         </motion.div>
