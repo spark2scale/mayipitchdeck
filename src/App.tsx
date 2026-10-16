@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 // SlideDemo/FmlaDemo kept for later restoration — see renderSlide() below.
 // import SlideDemo from "./components/demo/SlideDemo";
 // import FmlaDemo from "./components/demo/FmlaDemo";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { readTheme } from "./colorScheme";
 import { motion, AnimatePresence } from "framer-motion";
 import { SLIDES, type SlideId } from "../shared/slides.js";
 import {
@@ -34,11 +36,14 @@ const slideInRight = {
   show: { opacity: 1, x: 0, transition: { duration: 0.55 } },
 };
 
-// ─── CCC Brand Colors (Option A — Light to Dark) ──────────────────────────────
+// ─── CCC Brand Colors ──────────────────────────────────────────────────────
+// Capture/Connect/Convert need three distinguishable accents, kept inside the May I
+// palette: gold (capture), a cooler "in progress" blue (connect, matching --chart-in-progress),
+// and the brand green (convert, matching --chart-completed / success).
 export const CCC_COLORS = {
-  capture: "#fcd34d",
-  connect: "#f59e0b",
-  convert: "#b45309",
+  capture: "var(--gold)",
+  connect: "var(--chart-in-progress)",
+  convert: "var(--chart-completed)",
 } as const;
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
@@ -109,6 +114,7 @@ export default function App() {
     setIsDownloadingPdf(true);
     const exportUrl = new URL("/api/export/pdf", getApiOrigin());
     exportUrl.searchParams.set("baseUrl", window.location.origin);
+    exportUrl.searchParams.set("theme", readTheme());
 
     const anchor = document.createElement("a");
     anchor.href = exportUrl.toString();
@@ -343,6 +349,7 @@ export default function App() {
           </nav>
 
           <div className="header-actions">
+            <ThemeToggle />
             {!isMobile && (
               <button
                 type="button"

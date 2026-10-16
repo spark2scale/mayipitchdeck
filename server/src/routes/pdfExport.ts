@@ -25,12 +25,22 @@ function getBrowser() {
   return browserPromise;
 }
 
-function getExportUrl(req: Request) {
+type ExportTheme = "light" | "dark";
+
+// Defaults to the deck's own default theme ("light", see src/colorScheme.ts) when the
+// client didn't ask for a specific one, so an un-parameterized export matches what a
+// visitor sees on first load.
+function resolveTheme(req: Request): ExportTheme {
+  return req.query.theme === "dark" ? "dark" : "light";
+}
+
+function getExportUrl(req: Request, theme: ExportTheme) {
   const requestedBaseUrl = req.query.baseUrl;
   if (typeof requestedBaseUrl === "string" && requestedBaseUrl.length > 0) {
     const requestedUrl = new URL(requestedBaseUrl);
     requestedUrl.pathname = "/";
     requestedUrl.searchParams.set("export", "pdf");
+    requestedUrl.searchParams.set("theme", theme);
     return requestedUrl.toString();
   }
 
@@ -52,6 +62,7 @@ function getExportUrl(req: Request) {
   url.pathname = "/";
   url.search = "";
   url.searchParams.set("export", "pdf");
+  url.searchParams.set("theme", theme);
 
   return url.toString();
 }
@@ -66,8 +77,9 @@ pdfExportRouter.get("/pdf", async (req, res, next) => {
   let page;
 
   try {
+    const theme = resolveTheme(req);
     const browser = await getBrowser();
-    const exportUrl = getExportUrl(req);
+    const exportUrl = getExportUrl(req, theme);
 
     page = await browser.newPage({
       viewport: { width: EXPORT_VIEWPORT_WIDTH, height: EXPORT_VIEWPORT_HEIGHT },
