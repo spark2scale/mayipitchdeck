@@ -672,7 +672,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     sourceHref: "",
     sourceLabel: "",
     challenge: "The clinician delivers care and the EMR/PMS remains the system of record.",
-    accent: "var(--mi-copper)",
+    accent: "var(--gold)",
     showMetricCard: false,
     solutions: [],
   },
@@ -697,17 +697,15 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
 ] as const;
 
 const LIVE_USAGE_METRICS = [
-  { value: "2", heroValue: "2", heroLabel: "practices live", tractionLabel: "Practices" },
-  { value: "9", heroValue: "9", heroLabel: "providers", tractionLabel: "Providers" },
-  { value: "3,082", heroValue: "3,082", heroLabel: "calls/month", tractionLabel: "Calls handled /\u00a0month" },
+  { value: "$31,067", heroValue: "$31,067", heroLabel: "saved\n/practice/year", tractionLabel: "Saved /\u00a0practice /\u00a0year" },
+  { value: "$13,629", heroValue: "$13,629", heroLabel: "generated\n/practice/year", tractionLabel: "Generated / practice / year" },
+  { value: "2,775", heroValue: "2,775", heroLabel: "calls\n/practice/month", tractionLabel: "Calls /\u00a0practice /\u00a0month" },
+  { value: "612", heroValue: "612", heroLabel: "reminders sent\n/practice/month", tractionLabel: "Reminders sent / practice / month" },
+  { value: "99", heroValue: "99", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
-const HERO_USAGE_METRICS = LIVE_USAGE_METRICS.filter(
-  ({ heroLabel }) => heroLabel !== "practices live" && heroLabel !== "providers"
-);
-
-const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.map(({ value, tractionLabel }) => ({
+const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.filter(({ value }) => value).map(({ value, tractionLabel }) => ({
   value,
   label: tractionLabel,
 }));
@@ -901,7 +899,7 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
             </div>
             <div className="hero-engine-box">
               <div className="hero-engine-box-header">
-                <img src="/may_i_vectorized.svg" alt="May I" className="hero-engine-logo" />
+                <img src="/MayILogoTransparentBack.gif" alt="May I" className="hero-engine-logo" />
                 <div>
                   <div className="hero-engine-box-label">May I Engine</div>
                   <div className="hero-engine-box-tagline">System of Engagement</div>
@@ -942,12 +940,16 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
               LIVE MAY I COMMUNICATIONS AGENTS ANSWER INCOMING CALLS AND BOOK CONSULTS
             </div>
             <div className="hero-metrics-grid" aria-label="Live customer usage stats">
-              {HERO_USAGE_METRICS.map((metric) => (
-                <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
-                  <div className="hero-metric-value">{metric.heroValue}</div>
-                  <div className="hero-metric-label">{metric.heroLabel}</div>
-                </motion.article>
-              ))}
+              {LIVE_USAGE_METRICS.map((metric, i) =>
+                metric.heroValue ? (
+                  <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
+                    <div className="hero-metric-value">{metric.heroValue}</div>
+                    <div className="hero-metric-label" style={{ whiteSpace: "pre-line" }}>{metric.heroLabel}</div>
+                  </motion.article>
+                ) : (
+                  <div key={`spacer-${i}`} aria-hidden="true" />
+                )
+              )}
             </div>
           </motion.div>
         </motion.div>
@@ -1098,7 +1100,7 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                     <div className="problem-solution-card" style={{ borderTopColor: accent }}>
                       <div className="problem-solutions-label" style={{ color: accent }}>
                         <img
-                          src="/may_i_vectorized.svg"
+                          src="/MayILogoTransparentBack.gif"
                           alt="May I"
                           className="problem-solutions-logo"
                         />
@@ -1246,23 +1248,20 @@ function SlideEverydayBenefits() {
     {
       icon: ShieldCheck,
       label: "Peace of Mind",
-      headline: "Your front desk stays on, so you can switch off.",
       copy: "Know every patient is supported, even after hours—without staffing gaps, turnover, or constant front-desk fire drills.",
-      outcome: "Confidence that the practice is covered.",
+      outcome: "Your front desk stays on, so providers can switch off.",
     },
     {
       icon: BadgeDollarSign,
       label: "Get Paid Faster",
-      headline: "Fewer gaps between care and payment.",
       copy: "Automated intake, follow-up, and payment workflows keep revenue from slipping through the cracks.",
-      outcome: "More predictable cash flow.",
+      outcome: "Fewer gaps between care and payment.",
     },
     {
       icon: HeartHandshake,
       label: "Higher Patient Satisfaction",
-      headline: "Every patient gets an immediate, helpful response.",
       copy: "Personalized, context-aware conversations make scheduling and getting answers effortless.",
-      outcome: "A practice patients want to return to.",
+      outcome: "Every patient gets an immediate, helpful response.",
     },
   ];
 
@@ -1281,11 +1280,10 @@ function SlideEverydayBenefits() {
         initial="hidden"
         animate="show"
       >
-        {benefits.map(({ icon: Icon, label, headline, copy, outcome }) => (
+        {benefits.map(({ icon: Icon, label, copy, outcome }) => (
           <motion.section key={label} className="everyday-benefit" variants={fadeUp}>
             <div className="everyday-benefit-icon"><Icon size={30} strokeWidth={1.6} /></div>
             <div className="everyday-benefit-label">{label}</div>
-            <h3>{headline}</h3>
             <p>{copy}</p>
             <div className="everyday-benefit-outcome">{outcome}</div>
           </motion.section>
@@ -1512,12 +1510,12 @@ function SlideEngine() {
           <div className="engine-core-items">
             {[
               {
-                icon: <Brain size={30} color="var(--mi-copper)" strokeWidth={1.6} />,
+                icon: <Brain size={30} color="var(--gold)" strokeWidth={1.6} />,
                 label: "Agentic Voice, Text, Vision, & Computer Use",
                 text: <>Agentic Voice, Text, Vision,<br />&amp; Computer Use</>,
               },
-              { icon: <AudioLines size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
-              { icon: <Database size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
+              { icon: <AudioLines size={30} color="var(--gold)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
+              { icon: <Database size={30} color="var(--gold)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
             ].map(({ icon, label, text }) => (
               <div key={label} className="engine-core-item">
                 {icon}
@@ -1644,7 +1642,7 @@ function SlideROI() {
       icon: <Users size={32} />,
       value: "−$45K",
       label: "Annual staff cost pressure reduced",
-      color: "var(--mi-copper)",
+      color: "var(--gold)",
     },
     {
       icon: <Zap size={32} />,
