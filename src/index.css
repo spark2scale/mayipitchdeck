@@ -61,7 +61,7 @@
   /* Page canvas: soft gold glow top-left, green top-right. */
   --canvas:
     radial-gradient(circle at top left, rgba(197, 149, 59, 0.16) 0%, transparent 30%),
-    radial-gradient(circle at top right, rgba(31, 65, 39, 0.1) 0%, transparent 28%),
+    radial-gradient(circle at top right, rgba(31, 65, 39, 0.04) 0%, transparent 28%),
     var(--bg-page);
 
   /* Chart series — charts only, never general UI. Each clears 3:1 against --bg-surface. */
@@ -135,7 +135,7 @@
   --shadow-raised: 0 22px 56px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.35);
   --canvas:
     radial-gradient(circle at top left, rgba(209, 171, 94, 0.14) 0%, transparent 32%),
-    radial-gradient(circle at top right, rgba(60, 92, 81, 0.4) 0%, transparent 30%),
+    radial-gradient(circle at top right, rgba(60, 92, 81, 0.15) 0%, transparent 30%),
     linear-gradient(180deg, #13271f 0%, var(--bg-page) 36%, #0a1813 100%);
 
   /* Chart series: lighter so marks clear 3:1 on the sage surface. */
@@ -215,7 +215,7 @@ strong { color: var(--text-primary); font-weight: 600; }
 .blob-right {
   width: 400px; height: 400px;
   top: 120px; right: -120px;
-  background: radial-gradient(ellipse, rgba(var(--green-rgb), 0.5), transparent 70%);
+  background: radial-gradient(ellipse, rgba(var(--green-rgb), 0.15), transparent 70%);
 }
 .blob-bottom {
   width: 600px; height: 300px;
@@ -3070,14 +3070,7 @@ strong { color: var(--text-primary); font-weight: 600; }
   margin-bottom: 16px;
 }
 
-.traction-featured-stack {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-.traction-secondary-grid {
+.traction-metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
@@ -3101,21 +3094,13 @@ strong { color: var(--text-primary); font-weight: 600; }
   min-height: 118px;
 }
 
-.traction-stat-card-featured {
+.traction-stat-card-featured,
+.traction-stat-card-secondary {
   min-height: 132px;
-}
-
-.traction-stat-card-featured .traction-stat-label {
-  max-width: none;
-  white-space: nowrap;
 }
 
 .traction-stat-card-featured .traction-stat-value {
   color: var(--gold);
-}
-
-.traction-stat-card-secondary {
-  min-height: 118px;
 }
 
 .traction-stat-card-primary .traction-stat-value {
@@ -3132,7 +3117,6 @@ strong { color: var(--text-primary); font-weight: 600; }
 }
 
 .traction-stat-card-secondary .traction-stat-value {
-  font-size: clamp(28px, 3vw, 40px);
   color: var(--text-primary);
 }
 
@@ -4568,7 +4552,7 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     align-items: stretch;
     background:
       radial-gradient(circle at 15% 10%, rgba(var(--gold-rgb), 0.22) 0%, transparent 35%),
-      radial-gradient(circle at 85% 15%, rgba(var(--green-rgb), 0.45) 0%, transparent 28%),
+      radial-gradient(circle at 85% 15%, rgba(var(--green-rgb), 0.15) 0%, transparent 28%),
       radial-gradient(circle at 50% 90%, rgba(var(--bg-surface-rgb), 0.35) 0%, transparent 40%),
       linear-gradient(180deg, var(--bg-inset) 0%, var(--bg-page) 40%, var(--bg-page) 100%);
     box-shadow: none;
@@ -5185,12 +5169,7 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     margin-bottom: 12px;
   }
 
-  .print-slide .traction-featured-stack {
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .print-slide .traction-secondary-grid {
+  .print-slide .traction-metrics-grid {
     gap: 12px;
   }
 
@@ -5203,12 +5182,9 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     min-height: 94px;
   }
 
-  .print-slide .traction-stat-card-featured {
-    min-height: 102px;
-  }
-
+  .print-slide .traction-stat-card-featured,
   .print-slide .traction-stat-card-secondary {
-    min-height: 94px;
+    min-height: 102px;
   }
 
   .print-slide .traction-stat-card-primary .traction-stat-value {
@@ -5218,10 +5194,6 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
   .print-slide .traction-stat-value {
     font-size: 38px;
     margin-bottom: 8px;
-  }
-
-  .print-slide .traction-stat-card-secondary .traction-stat-value {
-    font-size: 30px;
   }
 
   .print-slide .traction-stat-label {
@@ -6066,13 +6038,7 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
     margin-bottom: 12px;
   }
 
-  .traction-featured-stack {
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .traction-secondary-grid {
-    grid-template-columns: 1fr;
+  .traction-metrics-grid {
     gap: 12px;
   }
 
@@ -6089,10 +6055,6 @@ html[data-export-mode="pdf"] .demo-slide-export .dap-log-list {
   .traction-stat-value {
     font-size: clamp(28px, 7vw, 42px);
     margin-bottom: 8px;
-  }
-
-  .traction-stat-card-secondary .traction-stat-value {
-    font-size: clamp(24px, 6vw, 34px);
   }
 
   .traction-stat-label {

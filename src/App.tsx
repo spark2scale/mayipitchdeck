@@ -715,6 +715,12 @@ const TRACTION_SECONDARY_METRICS = [
   { value: "21.5%", label: "of captured leads happen after hours" },
 ] as const;
 
+const TRACTION_METRICS_GRID = [
+  ...TRACTION_SECONDARY_METRICS.map((metric) => ({ ...metric, tone: "featured" as const })),
+  ...TRACTION_PRIMARY_METRICS.slice(2, 4).map((metric) => ({ ...metric, tone: "secondary" as const })),
+  ...TRACTION_PRIMARY_METRICS.slice(4).map((metric) => ({ ...metric, tone: "secondary" as const })),
+];
+
 const TRACTION_CUSTOMERS = [
   {
     name: "Plastic Surgery Practice",
@@ -1383,7 +1389,7 @@ function SlideQualify() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/capture_screenshot.png"
+          src="/CRMforpitchdeck2.png"
           alt="May I CRM workspace showing patient communication and workflow details"
           className="qualify-image"
         />
@@ -1406,7 +1412,7 @@ function SlideConfirm() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/confirm_screenshot.png"
+          src="/Confirmforpitchdeck.png"
           alt="May I confirmation calendar showing appointment status and automated reminder controls"
           className="qualify-image"
         />
@@ -1429,7 +1435,7 @@ function SlideQualifyExperience() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/qualify_screenshot.png"
+          src="/Qualifyforpitchdeck.png"
           alt="May I Qualify workspace showing appointment capacity, patient context, and AI-recommended actions"
           className="qualify-image"
         />
@@ -1717,18 +1723,9 @@ function SlideTraction() {
         <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
           <div className="traction-panel-label">Live customer usage</div>
 
-          <div className="traction-featured-stack">
-            {TRACTION_PRIMARY_METRICS.slice(2).map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
-                <div className="traction-stat-value">{metric.value}</div>
-                <div className="traction-stat-label">{metric.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="traction-secondary-grid">
-            {TRACTION_SECONDARY_METRICS.map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-secondary">
+          <div className="traction-metrics-grid">
+            {TRACTION_METRICS_GRID.map((metric) => (
+              <div key={metric.label} className={`traction-stat-card traction-stat-card-${metric.tone}`}>
                 <div className="traction-stat-value">{metric.value}</div>
                 <div className="traction-stat-label">{metric.label}</div>
               </div>
