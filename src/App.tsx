@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 // SlideDemo/FmlaDemo kept for later restoration — see renderSlide() below.
 // import SlideDemo from "./components/demo/SlideDemo";
 // import FmlaDemo from "./components/demo/FmlaDemo";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { readTheme } from "./colorScheme";
 import { motion, AnimatePresence } from "framer-motion";
 import { SLIDES, type SlideId } from "../shared/slides.js";
 import {
@@ -34,11 +36,14 @@ const slideInRight = {
   show: { opacity: 1, x: 0, transition: { duration: 0.55 } },
 };
 
-// ─── CCC Brand Colors (Option A — Light to Dark) ──────────────────────────────
+// ─── CCC Brand Colors ──────────────────────────────────────────────────────
+// Capture/Connect/Convert need three distinguishable accents, kept inside the May I
+// palette: gold (capture), a cooler "in progress" blue (connect, matching --chart-in-progress),
+// and the brand green (convert, matching --chart-completed / success).
 export const CCC_COLORS = {
-  capture: "#fcd34d",
-  connect: "#f59e0b",
-  convert: "#b45309",
+  capture: "var(--gold)",
+  connect: "var(--chart-in-progress)",
+  convert: "var(--chart-completed)",
 } as const;
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
@@ -109,6 +114,7 @@ export default function App() {
     setIsDownloadingPdf(true);
     const exportUrl = new URL("/api/export/pdf", getApiOrigin());
     exportUrl.searchParams.set("baseUrl", window.location.origin);
+    exportUrl.searchParams.set("theme", readTheme());
 
     const anchor = document.createElement("a");
     anchor.href = exportUrl.toString();
@@ -343,6 +349,7 @@ export default function App() {
           </nav>
 
           <div className="header-actions">
+            <ThemeToggle />
             {!isMobile && (
               <button
                 type="button"
@@ -665,7 +672,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     sourceHref: "",
     sourceLabel: "",
     challenge: "The clinician delivers care and the EMR/PMS remains the system of record.",
-    accent: "var(--mi-copper)",
+    accent: "var(--gold)",
     showMetricCard: false,
     solutions: [],
   },
@@ -690,17 +697,15 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
 ] as const;
 
 const LIVE_USAGE_METRICS = [
-  { value: "2", heroValue: "2", heroLabel: "practices live", tractionLabel: "Practices" },
-  { value: "9", heroValue: "9", heroLabel: "providers", tractionLabel: "Providers" },
-  { value: "3,082", heroValue: "3,082", heroLabel: "calls/month", tractionLabel: "Calls handled /\u00a0month" },
+  { value: "$31,067", heroValue: "$31,067", heroLabel: "saved\n/practice/year", tractionLabel: "Saved /\u00a0practice /\u00a0year" },
+  { value: "$13,629", heroValue: "$13,629", heroLabel: "generated\n/practice/year", tractionLabel: "Generated / practice / year" },
+  { value: "2,775", heroValue: "2,775", heroLabel: "calls\n/practice/month", tractionLabel: "Calls /\u00a0practice /\u00a0month" },
+  { value: "612", heroValue: "612", heroLabel: "reminders sent\n/practice/month", tractionLabel: "Reminders sent / practice / month" },
+  { value: "99", heroValue: "99", heroLabel: "hours saved/month", tractionLabel: "Hours saved /\u00a0month" },
   { value: "381", heroValue: "381", heroLabel: "AI leads captured/month", tractionLabel: "AI leads captured /\u00a0month" },
 ] as const;
 
-const HERO_USAGE_METRICS = LIVE_USAGE_METRICS.filter(
-  ({ heroLabel }) => heroLabel !== "practices live" && heroLabel !== "providers"
-);
-
-const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.map(({ value, tractionLabel }) => ({
+const TRACTION_PRIMARY_METRICS = LIVE_USAGE_METRICS.filter(({ value }) => value).map(({ value, tractionLabel }) => ({
   value,
   label: tractionLabel,
 }));
@@ -709,6 +714,12 @@ const TRACTION_SECONDARY_METRICS = [
   { value: "18.6%", label: "of call volume occurs after hours" },
   { value: "21.5%", label: "of captured leads happen after hours" },
 ] as const;
+
+const TRACTION_METRICS_GRID = [
+  ...TRACTION_SECONDARY_METRICS.map((metric) => ({ ...metric, tone: "featured" as const })),
+  ...TRACTION_PRIMARY_METRICS.slice(2, 4).map((metric) => ({ ...metric, tone: "secondary" as const })),
+  ...TRACTION_PRIMARY_METRICS.slice(4).map((metric) => ({ ...metric, tone: "secondary" as const })),
+];
 
 const TRACTION_CUSTOMERS = [
   {
@@ -894,7 +905,7 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
             </div>
             <div className="hero-engine-box">
               <div className="hero-engine-box-header">
-                <img src="/may_i_vectorized.svg" alt="May I" className="hero-engine-logo" />
+                <img src="/MayILogoTransparentBack.gif" alt="May I" className="hero-engine-logo" />
                 <div>
                   <div className="hero-engine-box-label">May I Engine</div>
                   <div className="hero-engine-box-tagline">System of Engagement</div>
@@ -935,12 +946,16 @@ function SlideHero({ goTo }: { goTo: (i: number) => void }) {
               LIVE MAY I COMMUNICATIONS AGENTS ANSWER INCOMING CALLS AND BOOK CONSULTS
             </div>
             <div className="hero-metrics-grid" aria-label="Live customer usage stats">
-              {HERO_USAGE_METRICS.map((metric) => (
-                <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
-                  <div className="hero-metric-value">{metric.heroValue}</div>
-                  <div className="hero-metric-label">{metric.heroLabel}</div>
-                </motion.article>
-              ))}
+              {LIVE_USAGE_METRICS.map((metric, i) =>
+                metric.heroValue ? (
+                  <motion.article key={metric.heroLabel} variants={fadeUp} className="hero-metric-card">
+                    <div className="hero-metric-value">{metric.heroValue}</div>
+                    <div className="hero-metric-label" style={{ whiteSpace: "pre-line" }}>{metric.heroLabel}</div>
+                  </motion.article>
+                ) : (
+                  <div key={`spacer-${i}`} aria-hidden="true" />
+                )
+              )}
             </div>
           </motion.div>
         </motion.div>
@@ -1091,7 +1106,7 @@ function SlideProblem({ isBuilt }: { isBuilt: boolean }) {
                     <div className="problem-solution-card" style={{ borderTopColor: accent }}>
                       <div className="problem-solutions-label" style={{ color: accent }}>
                         <img
-                          src="/may_i_vectorized.svg"
+                          src="/MayILogoTransparentBack.gif"
                           alt="May I"
                           className="problem-solutions-logo"
                         />
@@ -1239,23 +1254,20 @@ function SlideEverydayBenefits() {
     {
       icon: ShieldCheck,
       label: "Peace of Mind",
-      headline: "Your front desk stays on, so you can switch off.",
       copy: "Know every patient is supported, even after hours—without staffing gaps, turnover, or constant front-desk fire drills.",
-      outcome: "Confidence that the practice is covered.",
+      outcome: "Your front desk stays on, so providers can switch off.",
     },
     {
       icon: BadgeDollarSign,
       label: "Get Paid Faster",
-      headline: "Fewer gaps between care and payment.",
       copy: "Automated intake, follow-up, and payment workflows keep revenue from slipping through the cracks.",
-      outcome: "More predictable cash flow.",
+      outcome: "Fewer gaps between care and payment.",
     },
     {
       icon: HeartHandshake,
       label: "Higher Patient Satisfaction",
-      headline: "Every patient gets an immediate, helpful response.",
       copy: "Personalized, context-aware conversations make scheduling and getting answers effortless.",
-      outcome: "A practice patients want to return to.",
+      outcome: "Every patient gets an immediate, helpful response.",
     },
   ];
 
@@ -1274,11 +1286,10 @@ function SlideEverydayBenefits() {
         initial="hidden"
         animate="show"
       >
-        {benefits.map(({ icon: Icon, label, headline, copy, outcome }) => (
+        {benefits.map(({ icon: Icon, label, copy, outcome }) => (
           <motion.section key={label} className="everyday-benefit" variants={fadeUp}>
             <div className="everyday-benefit-icon"><Icon size={30} strokeWidth={1.6} /></div>
             <div className="everyday-benefit-label">{label}</div>
-            <h3>{headline}</h3>
             <p>{copy}</p>
             <div className="everyday-benefit-outcome">{outcome}</div>
           </motion.section>
@@ -1378,7 +1389,7 @@ function SlideQualify() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/capture_screenshot.png"
+          src="/CRMforpitchdeck2.png"
           alt="May I CRM workspace showing patient communication and workflow details"
           className="qualify-image"
         />
@@ -1401,7 +1412,7 @@ function SlideConfirm() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/confirm_screenshot.png"
+          src="/Confirmforpitchdeck.png"
           alt="May I confirmation calendar showing appointment status and automated reminder controls"
           className="qualify-image"
         />
@@ -1424,7 +1435,7 @@ function SlideQualifyExperience() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/qualify_screenshot.png"
+          src="/Qualifyforpitchdeck.png"
           alt="May I Qualify workspace showing appointment capacity, patient context, and AI-recommended actions"
           className="qualify-image"
         />
@@ -1505,12 +1516,12 @@ function SlideEngine() {
           <div className="engine-core-items">
             {[
               {
-                icon: <Brain size={30} color="var(--mi-copper)" strokeWidth={1.6} />,
+                icon: <Brain size={30} color="var(--gold)" strokeWidth={1.6} />,
                 label: "Agentic Voice, Text, Vision, & Computer Use",
                 text: <>Agentic Voice, Text, Vision,<br />&amp; Computer Use</>,
               },
-              { icon: <AudioLines size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
-              { icon: <Database size={30} color="var(--mi-copper)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
+              { icon: <AudioLines size={30} color="var(--gold)" strokeWidth={1.6} />, label: "Communications as a Service", text: "Communications as a Service" },
+              { icon: <Database size={30} color="var(--gold)" strokeWidth={1.6} />, label: "CRM and Patient Intent Store", text: "CRM and Patient Intent Store" },
             ].map(({ icon, label, text }) => (
               <div key={label} className="engine-core-item">
                 {icon}
@@ -1637,7 +1648,7 @@ function SlideROI() {
       icon: <Users size={32} />,
       value: "−$45K",
       label: "Annual staff cost pressure reduced",
-      color: "var(--mi-copper)",
+      color: "var(--gold)",
     },
     {
       icon: <Zap size={32} />,
@@ -1712,18 +1723,9 @@ function SlideTraction() {
         <motion.section variants={fadeUp} className="traction-panel traction-panel-metrics">
           <div className="traction-panel-label">Live customer usage</div>
 
-          <div className="traction-featured-stack">
-            {TRACTION_PRIMARY_METRICS.slice(2).map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-featured">
-                <div className="traction-stat-value">{metric.value}</div>
-                <div className="traction-stat-label">{metric.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="traction-secondary-grid">
-            {TRACTION_SECONDARY_METRICS.map((metric) => (
-              <div key={metric.label} className="traction-stat-card traction-stat-card-secondary">
+          <div className="traction-metrics-grid">
+            {TRACTION_METRICS_GRID.map((metric) => (
+              <div key={metric.label} className={`traction-stat-card traction-stat-card-${metric.tone}`}>
                 <div className="traction-stat-value">{metric.value}</div>
                 <div className="traction-stat-label">{metric.label}</div>
               </div>
