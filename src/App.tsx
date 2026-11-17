@@ -657,7 +657,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     separatorAfter: true,
     solutions: [
       getRevenueCycleSolution(CONNECT_DETAIL, "Conversation Intelligence Agent", "May I Qualification Agents", "Extracts procedure, intent, and sentiment"),
-      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Context Agent", "May I Qualification Agents", "Enriches interactions with EMR/PMS context"),
+      getRevenueCycleSolution(CONNECT_DETAIL, "Patient Context Agent", "May I Qualification Agents", "Enriches interactions with EMR context"),
       getRevenueCycleSolution(CONNECT_DETAIL, "CRM Orchestrator Agents", "May I Qualification Agents", "Orchestrates the next best action"),
     ],
   },
@@ -689,7 +689,7 @@ const REVENUE_CYCLE_STAGES: ReadonlyArray<RevenueCycleStage> = [
     challenge: "Dormant patient relationships go unmanaged once the encounter ends.",
     accent: CCC_COLORS.convert,
     solutions: [
-      getRevenueCycleSolution(CONVERT_DETAIL, "Lead Generation", "May I Growth & Retention Agents", "Runs patient recall and reactivation outreach"),
+      getRevenueCycleSolution(CONVERT_DETAIL, "Lead Generation", "May I Growth & Retention Agents", "Runs patient recall/reactivation outreach"),
       getRevenueCycleSolution(CONVERT_DETAIL, "Patient Recall, Upsell / Cross Sell", "May I Growth & Retention Agents", "Runs targeted patient marketing"),
       getRevenueCycleSolution(CONVERT_DETAIL, "Revenue Recovery", "May I Growth & Retention Agents", "Follows up on outstanding balances"),
     ],
