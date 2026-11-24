@@ -1389,7 +1389,7 @@ function SlideQualify() {
         transition={{ duration: 0.5, delay: 0.15 }}
       >
         <img
-          src="/CRMforpitchdeck2.png"
+          src="/CRM_notifications.png"
           alt="May I CRM workspace showing patient communication and workflow details"
           className="qualify-image"
         />
